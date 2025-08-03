@@ -1,12 +1,12 @@
 import Navigation from "@/components/Navigation";
-import BackgroundCarousel from "@/components/BackgroundCarousel";
+import VideoBackground from "@/components/VideoBackground";
 import HeroSection from "@/components/HeroSection";
 
 const Index = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Background Carousel */}
-      <BackgroundCarousel />
+      {/* Video Background */}
+      <VideoBackground />
       
       {/* Navigation */}
       <Navigation />

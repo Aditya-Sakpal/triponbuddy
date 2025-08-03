@@ -4,12 +4,12 @@ const HeroSection = () => {
       <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
         {/* Main Title */}
         <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight animate-float">
-          TripBuddy
+          TripOnBuddy
         </h1>
         
         {/* Subtitle */}
         <p className="text-xl md:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto">
-          Welcome to TripBuddy! Your Trip Buddy for Perfect Travel.
+          Welcome to TripOnBuddy! Your Trip Buddy for Perfect Travel on Budget.
         </p>
         
         {/* Call to Action */}
