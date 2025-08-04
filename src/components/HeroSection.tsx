@@ -12,15 +12,6 @@ const HeroSection = () => {
           Welcome to TripOnBuddy! Your Trip Buddy for Perfect Travel on Budget.
         </p>
         
-        {/* Call to Action */}
-        <div className="pt-8 space-y-4">
-          <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 shadow-xl">
-            Start Your Journey
-          </button>
-          <p className="text-white/70 text-sm">
-            Discover amazing destinations around the world
-          </p>
-        </div>
       </div>
     </div>
   );
