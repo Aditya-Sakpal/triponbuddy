@@ -4,7 +4,7 @@ const VideoBackground = () => {
       {/* YouTube Video Background */}
       <iframe
         className="absolute inset-0 w-full h-full object-cover"
-        src="https://www.youtube.com/embed/ZjVAsJOl8SM?autoplay=1&mute=1&loop=1&playlist=ZjVAsJOl8SM&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1"
+        src="https://www.youtube.com/embed/ZjVAsJOl8SM?autoplay=1&mute=1&loop=1&playlist=ZjVAsJOl8SM&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&start=1200"
         title="Travel Background Video"
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
