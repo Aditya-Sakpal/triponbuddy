@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 const ExploreDestinationsSection = () => {
   return (
-    <section className="py-20 bg-slate-800">
+    <section className="py-20 bg-[#4a4b4a]">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
           Not sure where to go?
