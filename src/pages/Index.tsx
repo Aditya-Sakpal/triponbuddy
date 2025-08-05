@@ -2,14 +2,10 @@ import Navigation from "@/components/Navigation";
 import VideoBackground from "@/components/VideoBackground";
 import HeroSection from "@/components/HeroSection";
 import TripPlanningSection from "@/components/TripPlanningSection";
-import TripDemoSection from "@/components/TripDemoSection";
 import ExploreDestinationsSection from "@/components/ExploreDestinationsSection";
 import WhyPlanSection from "@/components/WhyPlanSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FeedbackSection from "@/components/FeedbackSection";
-import EnhancedFeaturesSection from "@/components/EnhancedFeaturesSection";
-import CommunitySection from "@/components/CommunitySection";
-import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -24,9 +20,6 @@ const Index = () => {
       {/* Trip Planning Section */}
       <TripPlanningSection />
       
-      {/* Trip Demo Section */}
-      <TripDemoSection />
-      
       {/* Explore Destinations Section */}
       <ExploreDestinationsSection />
       
@@ -38,15 +31,6 @@ const Index = () => {
       
       {/* Feedback Section */}
       <FeedbackSection />
-      
-      {/* Enhanced Features Section */}
-      <EnhancedFeaturesSection />
-      
-      {/* Community Section */}
-      <CommunitySection />
-      
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
