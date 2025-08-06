@@ -6,6 +6,7 @@ import ExploreDestinationsSection from "@/components/ExploreDestinationsSection"
 import WhyPlanSection from "@/components/WhyPlanSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FeedbackSection from "@/components/FeedbackSection";
+import WhyTriponBuddySection from "@/components/WhyTriponBuddySection";
 
 const Index = () => {
   return (
@@ -31,6 +32,9 @@ const Index = () => {
       
       {/* Feedback Section */}
       <FeedbackSection />
+      
+      {/* Why TriponBuddy Section */}
+      <WhyTriponBuddySection />
     </div>
   );
 };
