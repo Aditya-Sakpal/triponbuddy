@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import TripPlanningSection from "@/components/TripPlanningSection";
 import ExploreDestinationsSection from "@/components/ExploreDestinationsSection";
 import WhyPlanSection from "@/components/WhyPlanSection";
+import WhyTriponBuddySection from "@/components/WhyTriponBuddySection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FeedbackSection from "@/components/FeedbackSection";
 
@@ -25,6 +26,9 @@ const Index = () => {
       
       {/* Why Plan Section */}
       <WhyPlanSection />
+      
+      {/* Why TriponBuddy Section */}
+      <WhyTriponBuddySection />
       
       {/* Testimonials Section */}
       <TestimonialsSection />
