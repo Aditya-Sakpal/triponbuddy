@@ -1,4 +1,5 @@
 import { Plane, DollarSign, CheckCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const WhyTriponBuddySection = () => {
   return (
@@ -45,14 +46,27 @@ const WhyTriponBuddySection = () => {
           </div>
         </div>
 
-        {/* Popular Trip Searches Section */}
-        <div>
-          <h3 className="text-2xl font-bold mb-6 text-gray-900">Popular Trip Searches on TriponBuddy</h3>
-          <div className="text-gray-600 leading-relaxed">
-            <p>
-              <span className="font-semibold text-gray-900">Trending on TriponBuddy:</span> Kerala honeymoon packages | Goa beach resorts | Rajasthan heritage tours | Himachal adventure trips | Kashmir family packages | Andaman water sports | Ladakh bike trips | Northeast India tours | Golden Triangle packages | Mumbai weekend getaways | Bangalore to Coorg trips | Delhi to Shimla tours | Kolkata to Darjeeling packages | Chennai to Pondicherry trips | Hyderabad to Araku Valley
-            </p>
-          </div>
+        {/* Popular Trip Searches Popup */}
+        <div className="text-center">
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="text-blue-600 hover:text-blue-800 font-semibold underline">
+                View Popular Trip Searches on TriponBuddy
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-gray-900">
+                  Popular Trip Searches on TriponBuddy
+                </DialogTitle>
+              </DialogHeader>
+              <div className="text-gray-600 leading-relaxed">
+                <p>
+                  <span className="font-semibold text-gray-900">Trending on TriponBuddy:</span> Kerala honeymoon packages | Goa beach resorts | Rajasthan heritage tours | Himachal adventure trips | Kashmir family packages | Andaman water sports | Ladakh bike trips | Northeast India tours | Golden Triangle packages | Mumbai weekend getaways | Bangalore to Coorg trips | Delhi to Shimla tours | Kolkata to Darjeeling packages | Chennai to Pondicherry trips | Hyderabad to Araku Valley
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </section>
