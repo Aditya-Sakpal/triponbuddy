@@ -7,6 +7,7 @@ import WhyPlanSection from "@/components/WhyPlanSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FeedbackSection from "@/components/FeedbackSection";
 import WhyTriponBuddySection from "@/components/WhyTriponBuddySection";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -35,6 +36,9 @@ const Index = () => {
       
       {/* Why TriponBuddy Section */}
       <WhyTriponBuddySection />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
