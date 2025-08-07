@@ -1,4 +1,6 @@
 import { Plane, DollarSign, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const WhyTriponBuddySection = () => {
   return (
@@ -45,13 +47,29 @@ const WhyTriponBuddySection = () => {
           </div>
         </div>
 
-        {/* Popular Trip Searches Section */}
-        <div>
-          <h3 className="text-2xl font-bold mb-6 text-gray-900">Popular Trip Searches on TriponBuddy</h3>
-          <div className="text-gray-600 leading-relaxed">
-            <p>
+        {/* Popular Trip Searches Card */}
+        <Card className="mb-12 p-6">
+          <CardContent className="p-0">
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">Popular Trip Searches on TriponBuddy</h3>
+            <p className="text-gray-600 leading-relaxed">
               <span className="font-semibold text-gray-900">Trending on TriponBuddy:</span> Kerala honeymoon packages | Goa beach resorts | Rajasthan heritage tours | Himachal adventure trips | Kashmir family packages | Andaman water sports | Ladakh bike trips | Northeast India tours | Golden Triangle packages | Mumbai weekend getaways | Bangalore to Coorg trips | Delhi to Shimla tours | Kolkata to Darjeeling packages | Chennai to Pondicherry trips | Hyderabad to Araku Valley
             </p>
+          </CardContent>
+        </Card>
+
+        {/* Join the TriponBuddy Community Section */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold mb-4 text-gray-900">Join the TriponBuddy Community</h3>
+          <p className="text-gray-600 mb-6 max-w-3xl mx-auto">
+            Be part of India's fastest-growing travel community. Let TriponBuddy be your trip buddy for unforgettable adventures!
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2">
+              Explore Destinations
+            </Button>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-2">
+              Join TriponBuddy
+            </Button>
           </div>
         </div>
       </div>
