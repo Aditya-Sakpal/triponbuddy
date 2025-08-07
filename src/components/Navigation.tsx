@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import tripBuddyLogo from "@/assets/tripbuddy-logo-light.png";
 
 const Navigation = () => {
   return (
@@ -7,14 +8,12 @@ const Navigation = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">TripBuddy</h1>
-              <p className="text-xs text-white/80">Travel Smart</p>
-            </div>
+          <div className="flex items-center">
+            <img 
+              src={tripBuddyLogo} 
+              alt="TripBuddy" 
+              className="h-12 w-auto"
+            />
           </div>
 
           {/* Navigation Links */}

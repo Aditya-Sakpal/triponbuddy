@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Instagram } from "lucide-react";
+import tripBuddyLogoDark from "@/assets/tripbuddy-logo-dark.png";
 
 const Footer = () => {
   return (
@@ -7,11 +8,12 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Left Section - Logo and Description */}
           <div>
-            <div className="flex items-center mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded mr-2 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
-              <span className="text-white font-semibold">TriponBuddy</span>
+            <div className="mb-4">
+              <img 
+                src={tripBuddyLogoDark} 
+                alt="TriponBuddy" 
+                className="h-16 w-auto"
+              />
             </div>
             <p className="text-gray-300 text-sm leading-relaxed mb-6">
               TriponBuddy (Trip on Buddy) - India's #1 trip planner & travel aggregator. Your trusted trip buddy for comparing packages, booking tours & creating perfect itineraries.
