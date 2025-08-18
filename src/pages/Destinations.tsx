@@ -170,10 +170,10 @@ const Destinations = () => {
         }}
       >
         <div className="container mx-auto text-center relative z-10">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="font-bold text-white mb-6 leading-tight" style={{ fontSize: '2.8rem' }}>
             Explore Incredible Destinations Worldwide
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-white/90 max-w-4xl mx-auto leading-relaxed" style={{ fontSize: '1.2rem' }}>
             Discover the diverse beauty of both domestic and international destinations - from 
             majestic mountains and serene beaches to ancient temples and vibrant cities.
           </p>
@@ -181,9 +181,9 @@ const Destinations = () => {
       </section>
 
       {/* Filter Section */}
-      <section className="py-8 px-6">
+      <section className="relative -mt-16 px-6 z-20">
         <div className="container mx-auto">
-          <Card className="p-6 shadow-lg">
+          <Card className="p-6 shadow-lg bg-white rounded-lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-muted-foreground">Location</label>
@@ -217,7 +217,7 @@ const Destinations = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between md:justify-start gap-4">
+              <div className="flex items-center justify-center md:justify-start">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="worldwide"
@@ -228,14 +228,6 @@ const Destinations = () => {
                     Worldwide
                   </label>
                 </div>
-                <Button 
-                  onClick={handleRetryImages}
-                  variant="outline"
-                  size="sm"
-                  className="bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
-                >
-                  Retry Loading Images
-                </Button>
               </div>
             </div>
           </Card>
