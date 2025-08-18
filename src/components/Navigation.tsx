@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 import tripBuddyLogo from "@/assets/tripbuddy-logo-light.png";
 
 const Navigation = () => {
@@ -8,22 +9,22 @@ const Navigation = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img 
               src={tripBuddyLogo} 
               alt="TripBuddy" 
               className="h-12 w-auto"
             />
-          </div>
+          </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-white hover:text-primary transition-colors border-b-2 border-primary pb-1">
+            <Link to="/" className="text-white hover:text-primary transition-colors border-b-2 border-primary pb-1">
               Home
-            </a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors">
+            </Link>
+            <Link to="/explore-destinations" className="text-white/80 hover:text-white transition-colors">
               Destinations
-            </a>
+            </Link>
             <a href="#" className="text-white/80 hover:text-white transition-colors">
               Seasonal
             </a>
