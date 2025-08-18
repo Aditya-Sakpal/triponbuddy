@@ -164,7 +164,7 @@ const Destinations = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative py-20 px-6 bg-cover bg-center bg-no-repeat"
+        className="relative py-28 px-6 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `linear-gradient(rgba(102, 126, 234, 0.8), rgba(147, 107, 230, 0.8)), url(${destinationsHeroBg})`,
         }}
@@ -182,10 +182,10 @@ const Destinations = () => {
 
       {/* Filter Section */}
       <section className="relative -mt-16 px-6 z-20">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-4xl">
           <Card className="p-6 shadow-lg bg-white rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-              <div className="space-y-2">
+            <div className="flex flex-col md:flex-row gap-6 items-end justify-center">
+              <div className="space-y-2 flex-1 max-w-xs">
                 <label className="text-sm font-medium text-muted-foreground">Location</label>
                 <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                   <SelectTrigger>
@@ -201,7 +201,7 @@ const Destinations = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 flex-1 max-w-xs">
                 <label className="text-sm font-medium text-muted-foreground">Season</label>
                 <Select value={selectedSeason} onValueChange={setSelectedSeason}>
                   <SelectTrigger>
@@ -217,16 +217,14 @@ const Destinations = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-center md:justify-start">
-                <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Worldwide</label>
                   <Switch
                     id="worldwide"
                     checked={isWorldwide}
                     onCheckedChange={setIsWorldwide}
                   />
-                  <label htmlFor="worldwide" className="text-sm font-medium">
-                    Worldwide
-                  </label>
                 </div>
               </div>
             </div>
