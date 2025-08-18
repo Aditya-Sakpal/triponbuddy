@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import destinationsHeroBg from "@/assets/destinations-hero-bg.jpg";
 
 const Destinations = () => {
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -162,12 +163,17 @@ const Destinations = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 py-20 px-6">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+      <section 
+        className="relative py-20 px-6 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(102, 126, 234, 0.8), rgba(147, 107, 230, 0.8)), url(${destinationsHeroBg})`,
+        }}
+      >
+        <div className="container mx-auto text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             Explore Incredible Destinations Worldwide
           </h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-4xl mx-auto">
+          <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
             Discover the diverse beauty of both domestic and international destinations - from 
             majestic mountains and serene beaches to ancient temples and vibrant cities.
           </p>
