@@ -11,7 +11,12 @@ const ExploreDestinationsSection = () => {
           Explore our curated collection of top destinations and get inspired for your next
           adventure.
         </p>
-        <Button size="lg" variant="outline" className="px-8 py-4 text-lg bg-white text-blue-600 border-white hover:bg-white/90">
+        <Button 
+          size="lg" 
+          variant="outline" 
+          className="px-8 py-4 text-lg bg-white text-blue-600 border-white hover:bg-white/90"
+          onClick={() => window.location.href = '/explore-destinations'}
+        >
           Explore Destinations
         </Button>
       </div>
