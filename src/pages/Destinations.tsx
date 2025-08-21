@@ -731,6 +731,24 @@ const Destinations = () => {
     setTimeout(() => setIsLoadingImages(false), 2000);
   };
 
+  // Indian states for filtering
+  const indianStates = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+    "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+    "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+  ];
+
+  // Filter destinations based on worldwide switch
+  const filteredDestinations = destinationsByState.filter(stateData => {
+    if (isWorldwide) {
+      return true; // Show all destinations
+    } else {
+      return indianStates.includes(stateData.state); // Show only Indian destinations
+    }
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -811,7 +829,7 @@ const Destinations = () => {
           <h2 className="text-3xl font-bold text-center mb-12">Destinations by Location</h2>
           
           <div className="space-y-12">
-            {destinationsByState.map((stateData) => (
+            {filteredDestinations.map((stateData) => (
               <div key={stateData.state} className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-2xl font-bold text-foreground">{stateData.state}</h3>
