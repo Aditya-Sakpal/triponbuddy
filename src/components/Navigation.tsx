@@ -41,9 +41,16 @@ const Navigation = () => {
             >
               Destinations
             </Link>
-            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1">
+            <Link 
+              to="/seasonal" 
+              className={`hover:text-primary transition-colors pb-1 ${
+                location.pathname === "/seasonal" 
+                  ? "text-white border-b-2 border-primary" 
+                  : "text-white/80"
+              }`}
+            >
               Seasonal
-            </a>
+            </Link>
             <a href="#" className="text-white/80 hover:text-white transition-colors pb-1">
               My Trips
             </a>
