@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import destinationsHeroBg from "@/assets/destinations-hero-bg.jpg";
 
 // Import destination images
 import shimlaImg from "@/assets/destinations/shimla.jpg";
@@ -238,14 +239,17 @@ const Seasonal = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-br from-primary via-primary-variant to-accent overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+      <section 
+        className="relative h-96 bg-cover bg-center overflow-hidden"
+        style={{ backgroundImage: `url(${destinationsHeroBg})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
         <div className="relative container mx-auto px-6 h-full flex items-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-5xl font-bold mb-4">
+          <div className="max-w-3xl text-white">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
               Seasonal Recommendations
             </h1>
-            <p className="text-xl text-white/90">
+            <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
               Discover the perfect destinations for every season - from cool summer retreats to vibrant monsoon escapes
             </p>
           </div>
