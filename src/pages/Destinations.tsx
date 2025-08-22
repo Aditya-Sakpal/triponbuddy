@@ -808,6 +808,7 @@ const Destinations = () => {
         if (link.parentNode) {
           link.parentNode.removeChild(link);
         }
+        
       });
     };
   }, []);
