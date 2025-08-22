@@ -239,32 +239,53 @@ const Seasonal = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section 
-        className="relative h-96 bg-cover bg-center overflow-hidden"
-        style={{ backgroundImage: `url(${destinationsHeroBg})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
-        <div className="relative container mx-auto px-6 h-full flex items-center">
-          <div className="max-w-3xl text-white">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Seasonal Recommendations
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
-              Discover the perfect destinations for every season - from cool summer retreats to vibrant monsoon escapes
-            </p>
-          </div>
+      <section className="relative bg-gradient-to-r from-blue-600 to-purple-700 text-white py-24 px-6">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Explore Incredible Destinations Worldwide
+          </h1>
+          <p className="text-lg md:text-xl leading-relaxed max-w-4xl mx-auto">
+            Discover the diverse beauty of both domestic and international destinations - from majestic mountains and serene beaches to ancient temples and vibrant cities
+          </p>
         </div>
       </section>
 
       {/* Seasonal Tabs Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+              Seasonal Recommendations
+            </h2>
+            <div className="w-16 h-1 bg-blue-600 mx-auto mb-8"></div>
+          </div>
+          
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-12">
-              <TabsTrigger value="summer">Summer</TabsTrigger>
-              <TabsTrigger value="winter">Winter</TabsTrigger>
-              <TabsTrigger value="monsoon">Monsoon</TabsTrigger>
-              <TabsTrigger value="autumn">Autumn</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 mb-12 bg-white shadow-lg rounded-lg p-2 h-auto">
+              <TabsTrigger 
+                value="summer" 
+                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
+              >
+                Summer Destinations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="winter" 
+                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
+              >
+                Winter Destinations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="monsoon" 
+                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
+              >
+                Monsoon Escapes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="autumn" 
+                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
+              >
+                Autumn Favorites
+              </TabsTrigger>
             </TabsList>
 
             {Object.entries(seasonConfig).map(([season, config]) => (
