@@ -246,10 +246,10 @@ const Seasonal = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
         <div className="relative container mx-auto px-6 h-full flex items-center justify-center">
           <div className="max-w-4xl text-white text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <h1 className="font-bold mb-6" style={{ fontSize: '2.8rem' }}>
               Explore Incredible Destinations Worldwide
             </h1>
-            <p className="text-xl md:text-2xl leading-relaxed text-white/90">
+            <p className="leading-relaxed text-white/90" style={{ fontSize: '1.2rem' }}>
               Discover the diverse beauty of both domestic and international destinations - from majestic mountains and serene beaches to ancient temples and vibrant cities
             </p>
           </div>
