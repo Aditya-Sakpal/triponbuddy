@@ -239,14 +239,20 @@ const Seasonal = () => {
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-700 text-white py-24 px-6">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Explore Incredible Destinations Worldwide
-          </h1>
-          <p className="text-lg md:text-xl leading-relaxed max-w-4xl mx-auto">
-            Discover the diverse beauty of both domestic and international destinations - from majestic mountains and serene beaches to ancient temples and vibrant cities
-          </p>
+      <section 
+        className="relative h-96 bg-cover bg-center overflow-hidden"
+        style={{ backgroundImage: `url(${destinationsHeroBg})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
+        <div className="relative container mx-auto px-6 h-full flex items-center justify-center">
+          <div className="max-w-4xl text-white text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Explore Incredible Destinations Worldwide
+            </h1>
+            <p className="text-lg md:text-xl leading-relaxed text-white/90">
+              Discover the diverse beauty of both domestic and international destinations - from majestic mountains and serene beaches to ancient temples and vibrant cities
+            </p>
+          </div>
         </div>
       </section>
 
