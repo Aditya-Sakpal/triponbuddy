@@ -19,6 +19,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
+				'sans': ['Playfair Display', 'serif'],
 				'latin': ['Playfair Display', 'serif'],
 			},
 			colors: {
