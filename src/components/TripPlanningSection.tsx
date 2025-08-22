@@ -17,7 +17,7 @@ const TripPlanningSection = () => {
   return (
     <div className="bg-background py-16 px-6">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-12 text-foreground">
+        <h2 className="text-4xl font-bold font-latin text-center mb-12 text-foreground">
           Start Planning Your Trip with TripOnBuddy
         </h2>
         
@@ -111,10 +111,10 @@ const TripPlanningSection = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8">
+            <Button size="lg" className="px-8 font-latin">
               Plan My Trip
             </Button>
-            <Button variant="outline" size="lg" className="px-8">
+            <Button variant="outline" size="lg" className="px-8 font-latin">
               🎯 DEMO
             </Button>
           </div>

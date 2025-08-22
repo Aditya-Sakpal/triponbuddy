@@ -15,10 +15,10 @@ const FeedbackSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Text */}
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold font-latin text-primary mb-6">
               Share Your Feedback
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg font-latin text-muted-foreground leading-relaxed">
               We value your opinion! Let us know how we can improve
               your travel planning experience.
             </p>
@@ -86,7 +86,7 @@ const FeedbackSection = () => {
                   </div>
                 </div>
                 
-                <Button className="w-full py-3 text-lg">
+                <Button className="w-full py-3 text-lg font-latin">
                   Submit Feedback
                 </Button>
               </form>

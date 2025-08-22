@@ -23,7 +23,7 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
-              className={`hover:text-primary transition-colors pb-1 ${
+              className={`hover:text-primary transition-colors pb-1 font-latin ${
                 location.pathname === "/" 
                   ? "text-white border-b-2 border-primary" 
                   : "text-white/80"
@@ -33,7 +33,7 @@ const Navigation = () => {
             </Link>
             <Link 
               to="/explore-destinations" 
-              className={`hover:text-primary transition-colors pb-1 ${
+              className={`hover:text-primary transition-colors pb-1 font-latin ${
                 location.pathname === "/explore-destinations" 
                   ? "text-white border-b-2 border-primary" 
                   : "text-white/80"
@@ -43,7 +43,7 @@ const Navigation = () => {
             </Link>
             <Link 
               to="/seasonal" 
-              className={`hover:text-primary transition-colors pb-1 ${
+              className={`hover:text-primary transition-colors pb-1 font-latin ${
                 location.pathname === "/seasonal" 
                   ? "text-white border-b-2 border-primary" 
                   : "text-white/80"
@@ -51,10 +51,10 @@ const Navigation = () => {
             >
               Seasonal
             </Link>
-            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1">
+            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1 font-latin">
               My Trips
             </a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1">
+            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1 font-latin">
               Contact
             </a>
           </div>
@@ -65,12 +65,12 @@ const Navigation = () => {
               <Avatar className="w-8 h-8 bg-primary">
                 <AvatarFallback className="bg-primary text-white text-sm">A</AvatarFallback>
               </Avatar>
-              <span className="text-sm">Aditya Sakpal</span>
+              <span className="text-sm font-latin">Aditya Sakpal</span>
             </div>
             <Button 
               variant="outline" 
               size="sm"
-              className="bg-primary border-primary text-white hover:bg-primary/90 hover:text-white"
+              className="bg-primary border-primary text-white hover:bg-primary/90 hover:text-white font-latin"
             >
               Logout
             </Button>

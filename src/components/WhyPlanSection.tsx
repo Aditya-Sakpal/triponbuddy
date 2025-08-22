@@ -29,7 +29,7 @@ const WhyPlanSection = () => {
     <section className="py-20 bg-background">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold font-latin text-foreground mb-4">
             Why Plan with TriponBuddy
           </h2>
           <div className="w-16 h-1 bg-primary mx-auto"></div>
@@ -42,10 +42,10 @@ const WhyPlanSection = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
+                <h3 className="text-xl font-semibold font-latin text-foreground mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm font-latin leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>

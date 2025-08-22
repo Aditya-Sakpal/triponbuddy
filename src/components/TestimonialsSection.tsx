@@ -7,7 +7,7 @@ const TestimonialsSection = () => {
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold font-latin text-foreground mb-4">
             What Our Travelers Say
           </h2>
           <div className="w-16 h-1 bg-primary mx-auto"></div>
@@ -17,7 +17,7 @@ const TestimonialsSection = () => {
           <Card className="p-8">
             <CardContent className="p-0">
               <div className="text-center">
-                <p className="text-lg text-muted-foreground italic mb-8 leading-relaxed">
+                <p className="text-lg text-muted-foreground font-latin italic mb-8 leading-relaxed">
                   "TriponBuddy made our family vacation to Rajasthan so easy! The detailed
                   itinerary saved us hours of research and the local tips made our Golden
                   Triangle tour truly special."
@@ -28,8 +28,8 @@ const TestimonialsSection = () => {
                     <User className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div className="text-left">
-                    <h4 className="font-semibold text-foreground">Priya Sharma</h4>
-                    <p className="text-sm text-muted-foreground">Trip to Jaipur, Rajasthan</p>
+                    <h4 className="font-semibold font-latin text-foreground">Priya Sharma</h4>
+                    <p className="text-sm font-latin text-muted-foreground">Trip to Jaipur, Rajasthan</p>
                   </div>
                 </div>
               </div>
