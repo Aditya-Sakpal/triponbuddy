@@ -267,32 +267,50 @@ const Seasonal = () => {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-12 bg-white shadow-lg rounded-lg p-2 h-auto">
-              <TabsTrigger 
-                value="summer" 
-                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
-              >
-                Summer Destinations
-              </TabsTrigger>
-              <TabsTrigger 
-                value="winter" 
-                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
-              >
-                Winter Destinations
-              </TabsTrigger>
-              <TabsTrigger 
-                value="monsoon" 
-                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
-              >
-                Monsoon Escapes
-              </TabsTrigger>
-              <TabsTrigger 
-                value="autumn" 
-                className="text-sm md:text-base py-3 px-6 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-md transition-all whitespace-nowrap"
-              >
-                Autumn Favorites
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex justify-center mb-12">
+              <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
+                <button
+                  onClick={() => setActiveTab("summer")}
+                  className={`px-6 py-3 rounded-lg text-base font-medium transition-all ${
+                    activeTab === "summer" 
+                      ? "bg-white text-blue-600 shadow-sm border-b-2 border-blue-600" 
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Summer Destinations
+                </button>
+                <button
+                  onClick={() => setActiveTab("winter")}
+                  className={`px-6 py-3 rounded-lg text-base font-medium transition-all ${
+                    activeTab === "winter" 
+                      ? "bg-white text-blue-600 shadow-sm border-b-2 border-blue-600" 
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Winter Destinations
+                </button>
+                <button
+                  onClick={() => setActiveTab("monsoon")}
+                  className={`px-6 py-3 rounded-lg text-base font-medium transition-all ${
+                    activeTab === "monsoon" 
+                      ? "bg-white text-blue-600 shadow-sm border-b-2 border-blue-600" 
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Monsoon Escapes
+                </button>
+                <button
+                  onClick={() => setActiveTab("autumn")}
+                  className={`px-6 py-3 rounded-lg text-base font-medium transition-all ${
+                    activeTab === "autumn" 
+                      ? "bg-white text-blue-600 shadow-sm border-b-2 border-blue-600" 
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Autumn Favorites
+                </button>
+              </div>
+            </div>
 
             {Object.entries(seasonConfig).map(([season, config]) => (
               <TabsContent key={season} value={season} className="space-y-8">
