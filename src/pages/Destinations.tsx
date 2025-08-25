@@ -816,6 +816,7 @@ const Destinations = () => {
   // Handle individual image load
   const handleImageLoad = useCallback((imageSrc: string) => {
     setLoadedImages(prev => new Set(prev).add(imageSrc));
+    
   }, []);
 
   // Indian states for filtering
