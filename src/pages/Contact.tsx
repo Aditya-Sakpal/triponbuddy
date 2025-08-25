@@ -12,24 +12,24 @@ const Contact = () => {
         <div className="container mx-auto px-6">
           {/* Page Title */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
               Contact Us
-            </h1>
+            </h2>
           </div>
 
           {/* Blue Contact Us Heading */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-blue-600">
+            {/* <h2 className="text-3xl font-bold text-blue-600">
               Contact Us
-            </h2>
+            </h2> */}
           </div>
 
           {/* Contact Card */}
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+              {/* <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
                 Contact Us
-              </h3>
+              </h3> */}
 
               <div className="space-y-6">
                 {/* Founders */}
