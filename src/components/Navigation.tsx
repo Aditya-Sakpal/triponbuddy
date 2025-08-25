@@ -54,9 +54,16 @@ const Navigation = () => {
             <a href="#" className="text-white/80 hover:text-white transition-colors pb-1 font-latin">
               My Trips
             </a>
-            <a href="#" className="text-white/80 hover:text-white transition-colors pb-1 font-latin">
+            <Link 
+              to="/contact" 
+              className={`hover:text-primary transition-colors pb-1 font-latin ${
+                location.pathname === "/contact" 
+                  ? "text-white border-b-2 border-primary" 
+                  : "text-white/80"
+              }`}
+            >
               Contact
-            </a>
+            </Link>
           </div>
 
           {/* User Profile */}
