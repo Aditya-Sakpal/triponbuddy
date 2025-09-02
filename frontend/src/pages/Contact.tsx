@@ -1,4 +1,4 @@
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/global/Navigation";
 import Footer from "@/components/Footer";
 import { User, Mail, MapPin } from "lucide-react";
 

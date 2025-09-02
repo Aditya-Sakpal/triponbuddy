@@ -1,29 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Building, Utensils, DollarSign } from "lucide-react";
+import { features } from "@/content/homeContent";
 
 const WhyPlanSection = () => {
-  const features = [
-    {
-      icon: MapPin,
-      title: "Personalized Itineraries",
-      description: "Get personalized travel plans tailored to your preferences, budget, and schedule."
-    },
-    {
-      icon: Building,
-      title: "Accommodation Options",
-      description: "Find the perfect places to stay that match your style and budget."
-    },
-    {
-      icon: Utensils,
-      title: "Local Recommendations",
-      description: "Discover hidden gems and local favorites for authentic experiences."
-    },
-    {
-      icon: DollarSign,
-      title: "Budget Management",
-      description: "Keep track of your expenses and plan according to your budget."
-    }
-  ];
+  
 
   return (
     <section className="py-20 bg-background">

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/global/Navigation";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 import destinationsHeroBg from "@/assets/destinations-hero-bg.jpg";

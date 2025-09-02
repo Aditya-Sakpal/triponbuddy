@@ -10,7 +10,7 @@ const FeedbackSection = () => {
   const [hoveredRating, setHoveredRating] = useState(0);
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-blue-100">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Text */}
@@ -33,7 +33,7 @@ const FeedbackSection = () => {
                     Your Name
                   </label>
                   <Input
-                    placeholder="Aditya Sakpal"
+                    placeholder="Enter your name"
                     className="w-full"
                   />
                 </div>
@@ -44,7 +44,7 @@ const FeedbackSection = () => {
                   </label>
                   <Input
                     type="email"
-                    placeholder="aditya.sakpal2008@gmail.com"
+                    placeholder="Enter your email"
                     className="w-full"
                   />
                 </div>

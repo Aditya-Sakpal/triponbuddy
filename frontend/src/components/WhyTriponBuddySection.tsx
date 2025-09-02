@@ -1,10 +1,10 @@
-import { Plane, DollarSign, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { whyFeatures } from "@/content/homeContent";
 
 const WhyTriponBuddySection = () => {
   return (
-    <section className="py-16 px-4 bg-white">
+    <section className="py-16 px-4 bg-blue-100/50">
       <div className="max-w-6xl mx-auto">
         {/* Main Title */}
         <h2 className="text-4xl font-bold font-latin text-center mb-12 text-blue-600">
@@ -13,38 +13,17 @@ const WhyTriponBuddySection = () => {
         
         {/* Three Feature Cards */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {/* Trip Planning */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <Plane className="w-8 h-8 text-blue-600" />
+          {whyFeatures.map((feature, index) => (
+            <div key={index} className="text-center">
+              <div className="flex justify-center mb-4">
+                <feature.icon className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold font-latin mb-3 text-gray-900">{feature.title}</h3>
+              <p className="text-gray-600 font-latin leading-relaxed text-left">
+                {feature.description}
+              </p>
             </div>
-            <h3 className="text-xl font-semibold font-latin mb-3 text-gray-900">Trip Planning</h3>
-            <p className="text-gray-600 font-latin leading-relaxed">
-              TriponBuddy creates perfect itineraries. Our trip buddy algorithm analyzes thousands of travel patterns to suggest the best routes, timings, and experiences for your trip.
-            </p>
-          </div>
-
-          {/* Compare & Save */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <DollarSign className="w-8 h-8 text-blue-600" />
-            </div>
-            <h3 className="text-xl font-semibold font-latin mb-3 text-gray-900">Compare & Save on Travel Packages</h3>
-            <p className="text-gray-600 font-latin leading-relaxed">
-              TriponBuddy aggregates deals from 100+ verified vendors. Compare honeymoon packages, group tours, and luxury trips. Save up to 30% when you book with TriponBuddy!
-            </p>
-          </div>
-
-          {/* Verified & Trusted */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <CheckCircle className="w-8 h-8 text-blue-600" />
-            </div>
-            <h3 className="text-xl font-semibold font-latin mb-3 text-gray-900">Verified & Trusted</h3>
-            <p className="text-gray-600 font-latin leading-relaxed">
-              Every travel package on TriponBuddy is verified. Read genuine TriponBuddy reviews from 50,000+ happy travelers. Your trip buddy ensures safe and memorable journeys.
-            </p>
-          </div>
+          ))}
         </div>
 
         {/* Popular Trip Searches Card */}

@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import Navigation from "@/components/Navigation";
+import Navigation from "@/components/global/Navigation";
 import Footer from "@/components/Footer";
 import destinationsHeroBg from "@/assets/destinations-hero-bg.jpg";
 
