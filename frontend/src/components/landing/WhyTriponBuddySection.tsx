@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { whyFeatures } from "@/content/homeContent";
 
-const WhyTriponBuddySection = () => {
+export const WhyTriponBuddySection = () => {
   return (
     <section className="py-16 px-4 bg-blue-100/50">
       <div className="max-w-6xl mx-auto">
@@ -55,5 +55,3 @@ const WhyTriponBuddySection = () => {
     </section>
   );
 };
-
-export default WhyTriponBuddySection;

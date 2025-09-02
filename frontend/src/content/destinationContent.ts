@@ -117,6 +117,173 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
     "Autumn"
   ];
 
+  const seasonalDestinations = [
+    // Summer Destinations
+    {
+      id: "shimla",
+      name: "Shimla",
+      state: "Himachal Pradesh",
+      description: "Escape the heat in this cool hill station with colonial charm",
+      image: shimla,
+      season: "summer",
+    },
+    {
+      id: "manali",
+      name: "Manali",
+      state: "Himachal Pradesh", 
+      description: "Adventure and natural beauty in the Himalayan foothills",
+      image: manali,
+      season: "summer",
+    },
+    {
+      id: "darjeeling",
+      name: "Darjeeling",
+      state: "West Bengal",
+      description: "Enjoy tea gardens and misty mountains with pleasant weather",
+      image: darjeeling,
+      season: "summer",
+    },
+    {
+      id: "ooty",
+      name: "Ooty",
+      state: "Tamil Nadu",
+      description: "South India's premier hill station with botanical gardens",
+      image: ooty,
+      season: "summer",
+    },
+    {
+      id: "nainital",
+      name: "Nainital",
+      state: "Uttarakhand",
+      description: "Lake city surrounded by mountains with boating activities",
+      image: nainital,
+      season: "summer",
+    },
+    // Winter Destinations
+    {
+      id: "goa",
+      name: "Goa",
+      state: "Goa",
+      description: "Perfect beach weather and vibrant nightlife",
+      image: northGoa,
+      season: "winter",
+    },
+    {
+      id: "jaipur",
+      name: "Jaipur",
+      state: "Rajasthan",
+      description: "Explore the Pink City's forts and palaces in pleasant weather",
+      image: jaipur,
+      season: "winter",
+    },
+    {
+      id: "rann-of-kutch",
+      name: "Rann of Kutch",
+      state: "Gujarat", 
+      description: "Experience the white salt desert and cultural festival",
+      image: rannOfKutch,
+      season: "winter",
+    },
+    {
+      id: "kerala-backwaters",
+      name: "Kerala Backwaters",
+      state: "Kerala",
+      description: "Houseboat cruises in perfect weather",
+      image: alleppey,
+      season: "winter",
+    },
+    {
+      id: "varanasi-winter",
+      name: "Varanasi",
+      state: "Uttar Pradesh",
+      description: "Spiritual experience along the Ganges in comfortable weather",
+      image: varanasi,
+      season: "winter",
+    },
+    // Monsoon Destinations
+    {
+      id: "lonavala",
+      name: "Lonavala", 
+      state: "Maharashtra",
+      description: "Lush green hills and waterfalls come alive",
+      image: lonavala,
+      season: "monsoon",
+    },
+    {
+      id: "munnar-monsoon",
+      name: "Munnar",
+      state: "Kerala",
+      description: "Tea plantations turn more vibrant and misty",
+      image: munnar,
+      season: "monsoon",
+    },
+    {
+      id: "cherrapunji",
+      name: "Cherrapunji",
+      state: "Meghalaya",
+      description: "One of the wettest places with living root bridges",
+      image: cherrapunji,
+      season: "monsoon",
+    },
+    {
+      id: "udaipur-monsoon",
+      name: "Udaipur",
+      state: "Rajasthan",
+      description: "The Lake City looks even more romantic in the rains",
+      image: udaipur,
+      season: "monsoon",
+    },
+    // Autumn Destinations
+    {
+      id: "kolkata",
+      name: "Kolkata",
+      state: "West Bengal",
+      description: "Experience Durga Puja, the city's biggest festival",
+      image: kolkata,
+      season: "autumn",
+    },
+    {
+      id: "varanasi-autumn",
+      name: "Varanasi",
+      state: "Uttar Pradesh", 
+      description: "Dev Deepawali illuminates the ghats in autumn",
+      image: varanasi,
+      season: "autumn",
+    },
+    {
+      id: "amritsar",
+      name: "Amritsar",
+      state: "Punjab",
+      description: "Golden Temple and pleasant weather after summer",
+      image: amritsar,
+      season: "autumn",
+    },
+    {
+      id: "ziro-valley",
+      name: "Ziro Valley",
+      state: "Arunachal Pradesh",
+      description: "Music festival and beautiful rice fields",
+      image: ziroValley,
+      season: "autumn",
+    },
+    {
+      id: "dharamshala-autumn",
+      name: "Dharamshala",
+      state: "Himachal Pradesh",
+      description: "Pleasant weather and colorful mountain views",
+      image: dharamshala,
+      season: "autumn",
+    },
+    {
+      id: "shillong-autumn",
+      name: "Shillong",
+      state: "Meghalaya",
+      description: "The 'Scotland of the East' with autumn colors",
+      image: shillong,
+      season: "autumn",
+    },
+  ];
+
   const destinationsByState = [
     {
       state: "Andhra Pradesh",
@@ -709,6 +876,43 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
     }
   ];
 
+  const destinationList = destinationsByState.map(state => ({
+    ...state,
+    destinations: state.destinations.map(dest => ({
+      id: dest.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, ''),
+      name: dest.name,
+      state: state.state,
+      description: dest.description,
+      image: dest.image,
+      season: "all"
+    }))
+  }));
+
+  // Update with seasonal data
+  seasonalDestinations.forEach(seasonal => {
+    const stateObj = destinationList.find(s => s.state === seasonal.state);
+    if (stateObj) {
+      const dest = stateObj.destinations.find(d => d.image === seasonal.image);
+      if (dest) {
+        dest.season = seasonal.season;
+        dest.name = seasonal.name;
+        dest.description = seasonal.description;
+        dest.id = seasonal.id;
+      } else {
+        // add new
+        stateObj.destinations.push({
+          id: seasonal.id,
+          name: seasonal.name,
+          state: seasonal.state,
+          description: seasonal.description,
+          image: seasonal.image,
+          season: seasonal.season
+        });
+        stateObj.count++;
+      }
+    }
+  });
+
   // Indian states for filtering
   const indianStates = [
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -718,4 +922,4 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
     "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
   ];
 
-export { locations, seasons, destinationsByState, indianStates };
+export { locations, seasons, destinationList, indianStates };

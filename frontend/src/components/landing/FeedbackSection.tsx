@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { useState } from "react";
 
-const FeedbackSection = () => {
+export const FeedbackSection = () => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
 
@@ -98,4 +98,3 @@ const FeedbackSection = () => {
   );
 };
 
-export default FeedbackSection;

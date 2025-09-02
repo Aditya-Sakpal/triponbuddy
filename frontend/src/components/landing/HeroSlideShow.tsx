@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const HeroSlideShow = () => {
+export const HeroSlideShow = () => {
   const imageModules = import.meta.glob('/src/assets/destinations/*.jpg', { eager: true });
   const images: string[] = Object.values(imageModules).map((mod) => (mod as { default: string }).default);
 
@@ -57,4 +57,3 @@ const HeroSlideShow = () => {
   );
 };
 
-export default HeroSlideShow;

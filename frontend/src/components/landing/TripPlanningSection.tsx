@@ -4,10 +4,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
-const TripPlanningSection = () => {
+export const TripPlanningSection = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
+  const [destination, setDestination] = useState("");
+  const [searchParams] = useSearchParams();
 
   const preferences = [
     { icon: Mountain, label: "Adventure" },
@@ -17,6 +20,15 @@ const TripPlanningSection = () => {
     { icon: ShoppingBag, label: "Shopping" },
     { icon: Utensils, label: "Food" },
   ];
+
+  // Auto-fill destination from URL params
+  useEffect(() => {
+    const destinationParam = searchParams.get('destination');
+    if (destinationParam) {
+      setDestination(destinationParam);
+    }
+  }, [searchParams]);
+
 
   const handleToggle = (label: string) => {
     if (selectedPreferences.includes(label)) {
@@ -63,7 +75,9 @@ const TripPlanningSection = () => {
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary w-4 h-4" />
-                  <Input 
+                  <Input
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
                     placeholder="Where do you want to go?"
                     className="pl-10"
                   />
@@ -146,4 +160,3 @@ const TripPlanningSection = () => {
   );
 };
 
-export default TripPlanningSection;

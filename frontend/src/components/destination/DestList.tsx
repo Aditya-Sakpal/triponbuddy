@@ -1,25 +1,23 @@
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { destinationsByState, indianStates } from "@/content/destinationContent";
+import { DestinationCard } from "@/components/shared/DestinationCard";
+import { destinationList, indianStates } from "@/content/destinationContent";
 
 export const DestList = () => {
     const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
     const [preloadingComplete, setPreloadingComplete] = useState(false);
     const [isWorldwide, setIsWorldwide] = useState(false);
-    const filteredDestinations = destinationsByState.filter(stateData => {
+  const filteredDestinations = destinationList.filter(stateData => {
     if (isWorldwide) {
-         return true; // Show all destinations
+      return true; // Show all destinations
     } else {
-         return indianStates.includes(stateData.state); // Show only Indian destinations
+      return indianStates.includes(stateData.state); // Show only Indian destinations
     }
-  });
-
-  // Preload all images on component mount with priority loading
+  });  // Preload all images on component mount with priority loading
   useEffect(() => {
     const preloadImages = async () => {
       // Get all images from filtered destinations
-      const allImages = destinationsByState.flatMap(stateData => 
+      const allImages = destinationList.flatMap(stateData => 
         stateData.destinations.map(destination => destination.image)
       );
 
@@ -125,41 +123,23 @@ export const DestList = () => {
                         {stateData.destinations.map((destination, index) => {
                             const isImageLoaded = loadedImages.has(destination.image);
                             
+                            // Create a compatible destination object for the unified card
+                            const compatibleDestination = {
+                                id: `${stateData.state}-${index}`,
+                                name: destination.name,
+                                state: stateData.state,
+                                description: destination.description,
+                                image: destination.image
+                            };
+                            
                             return (
-                            <Card key={index} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                                <div className="aspect-video relative overflow-hidden">
-                                {/* Background placeholder */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                    {!isImageLoaded && (
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                    )}
-                                </div>
-                                
-                                {/* Actual image */}
-                                <img
-                                    src={destination.image}
-                                    alt={destination.name}
-                                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
-                                    isImageLoaded ? 'opacity-100' : 'opacity-0'
-                                    }`}
-                                    onLoad={() => handleImageLoad(destination.image)}
-                                    loading="eager"
-                                    decoding="async"
-                                    style={{ 
-                                    willChange: 'transform, opacity',
-                                    backfaceVisibility: 'hidden'
-                                    }}
-                                />
-                                </div>
-                                <CardContent className="p-4">
-                                <h4 className="font-semibold text-2xl mb-2 group-hover:text-blue-600 transition-colors">
-                                    {destination.name}
-                                </h4>
-                                <p className="text-muted-foreground text-md leading-relaxed">
-                                    {destination.description}
-                                </p>
-                                </CardContent>
-                            </Card>
+                            <DestinationCard
+                                key={index}
+                                destination={compatibleDestination}
+                                showState={false}
+                                isImageLoaded={isImageLoaded}
+                                onImageLoad={() => handleImageLoad(destination.image)}
+                            />
                             );
                         })}
                         </div>

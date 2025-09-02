@@ -3,21 +3,21 @@ import { Link } from "react-router-dom";
 
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
-const Footer = () => {
+export const Footer = () => {
   const quickLinks = [
     { to: "/", label: "Home" },
-    { to: "/explore-destinations", label: "Destinations" },
+    { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
     { to: "/trips", label: "My Trips" },
     { to: "/contact", label: "Contact" },
   ];
 
   const popularDestinations = [
-    { to: "/explore-destinations", label: "Mayapur" },
-    { to: "/explore-destinations", label: "Varanasi Ghats" },
-    { to: "/explore-destinations", label: "Golden Temple, Amritsar" },
-    { to: "/explore-destinations", label: "Kerala Backwaters" },
-    { to: "/explore-destinations", label: "Goa Beaches" },
+    { to: "/explore", label: "Mayapur" },
+    { to: "/explore", label: "Varanasi Ghats" },
+    { to: "/explore", label: "Golden Temple, Amritsar" },
+    { to: "/explore", label: "Kerala Backwaters" },
+    { to: "/explore", label: "Goa Beaches" },
   ];
 
   return (
@@ -98,4 +98,3 @@ const Footer = () => {
   );
 };
 
-export default Footer;

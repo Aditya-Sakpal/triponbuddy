@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent } from "@/components/ui/card";
-import { destinationsByState, indianStates, locations, seasons } from "@/content/destinationContent";
-
-
+import { Card } from "@/components/ui/card";
+import { locations, seasons } from "@/content/destinationContent";
 
 export const FilterSection = () => {
     const [selectedLocation, setSelectedLocation] = useState("all");
     const [selectedSeason, setSelectedSeason] = useState("all");
-      const [isWorldwide, setIsWorldwide] = useState(false);
+    const [isWorldwide, setIsWorldwide] = useState(false);
     
   return (
     <section className="relative -mt-16 px-6 z-20">

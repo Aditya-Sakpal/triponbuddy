@@ -1,6 +1,6 @@
 import destinationsHeroBg from "@/assets/destinations-hero-bg.jpg";
 
-export const DestHero = () => {
+export const HeroSection = () => {
     return (
         <section 
             className="relative py-28 px-6 bg-cover bg-center bg-no-repeat"

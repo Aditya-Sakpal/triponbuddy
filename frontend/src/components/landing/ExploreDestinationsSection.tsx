@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-const ExploreDestinationsSection = () => {
+export const ExploreDestinationsSection = () => {
   return (
     <section className="py-20 bg-[#4a4b4a]">
       <div className="container mx-auto px-6 text-center">
@@ -15,7 +15,7 @@ const ExploreDestinationsSection = () => {
           size="lg" 
           variant="outline" 
           className="px-8 py-4 text-lg bg-white text-blue-600 border-white hover:bg-white/90 font-latin"
-          onClick={() => window.location.href = '/explore-destinations'}
+          onClick={() => window.location.href = '/explore'}
         >
           Explore Destinations
         </Button>
@@ -23,5 +23,3 @@ const ExploreDestinationsSection = () => {
     </section>
   );
 };
-
-export default ExploreDestinationsSection;

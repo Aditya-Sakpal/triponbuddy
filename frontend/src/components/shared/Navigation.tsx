@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
-const Navigation = () => {
+export const Navigation = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -33,7 +33,7 @@ const Navigation = () => {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/explore-destinations", label: "Destinations" },
+    { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
     { to: "/contact", label: "Contact" },
     { to: "/trips", label: "My Trips" },
@@ -134,4 +134,3 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;

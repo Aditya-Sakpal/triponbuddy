@@ -1,8 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { features } from "@/content/homeContent";
 
-const WhyPlanSection = () => {
-  
+export const WhyPlanSection = () => {
 
   return (
     <section className="py-20 bg-background">
@@ -35,5 +34,3 @@ const WhyPlanSection = () => {
     </section>
   );
 };
-
-export default WhyPlanSection;

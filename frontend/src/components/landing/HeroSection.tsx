@@ -1,4 +1,4 @@
-const HeroSection = () => {
+export const HeroSection = () => {
   return (
     <div className="relative min-h-screen flex items-center justify-center text-center px-6">
       <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
@@ -17,4 +17,3 @@ const HeroSection = () => {
   );
 };
 
-export default HeroSection;
