@@ -1,5 +1,5 @@
 import Navigation from "@/components/global/Navigation";
-import Footer from "@/components/Footer";
+import Footer from "@/components/global/Footer";
 import { User, Mail, MapPin } from "lucide-react";
 
 const Contact = () => {

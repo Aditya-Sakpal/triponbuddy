@@ -1,13 +1,13 @@
 import Navigation from "@/components/global/Navigation";
-import HeroSlideShow from "@/components/HeroSlideShow";
-import HeroSection from "@/components/HeroSection";
-import TripPlanningSection from "@/components/TripPlanningSection";
-import ExploreDestinationsSection from "@/components/ExploreDestinationsSection";
-import WhyPlanSection from "@/components/WhyPlanSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import FeedbackSection from "@/components/FeedbackSection";
-import WhyTriponBuddySection from "@/components/WhyTriponBuddySection";
-import Footer from "@/components/Footer";
+import HeroSlideShow from "@/components/landing/HeroSlideShow";
+import HeroSection from "@/components/landing/HeroSection";
+import TripPlanningSection from "@/components/landing/TripPlanningSection";
+import ExploreDestinationsSection from "@/components/landing/ExploreDestinationsSection";
+import WhyPlanSection from "@/components/landing/WhyPlanSection";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import FeedbackSection from "@/components/landing/FeedbackSection";
+import WhyTriponBuddySection from "@/components/landing/WhyTriponBuddySection";
+import Footer from "@/components/global/Footer";
 
 const Index = () => {
   return (
