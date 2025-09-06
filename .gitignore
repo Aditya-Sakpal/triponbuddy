@@ -24,3 +24,17 @@ dist-ssr
 *.sw?
 
 pnpm-lock.yaml
+
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+
+.venv
+
+.env
+
+/localDocs
