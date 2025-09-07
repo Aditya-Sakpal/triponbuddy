@@ -19,7 +19,6 @@ class UserProfile(BaseModel):
     user_id: str = Field(..., description="User ID from Clerk")
     email: EmailStr = Field(..., description="User email")
     display_name: Optional[str] = Field(None, description="Display name")
-    avatar_url: Optional[str] = Field(None, description="Avatar URL")
     preferences: UserPreferences = Field(default_factory=UserPreferences, description="User preferences")
     trip_count: int = Field(default=0, description="Total trips created")
     total_trips_created: int = Field(default=0, description="Total trips created")
@@ -32,7 +31,6 @@ class UserProfile(BaseModel):
 class UserProfileUpdate(BaseModel):
     """User profile update model"""
     display_name: Optional[str] = None
-    avatar_url: Optional[str] = None
     preferences: Optional[UserPreferences] = None
     favorite_destinations: Optional[List[str]] = None
 

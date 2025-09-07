@@ -36,7 +36,6 @@ async def get_user_profile(
                 user_id=user_id,
                 email="",  # Will be updated when available
                 display_name=None,
-                avatar_url=None
             )
             profile_id = await mongodb.insert_one("users", default_profile.dict())
             profile = await mongodb.find_one("users", {"_id": profile_id})
@@ -65,10 +64,8 @@ async def update_user_profile(
         update_doc = {}
         if updates.display_name is not None:
             update_doc["display_name"] = updates.display_name
-        if updates.avatar_url is not None:
-            update_doc["avatar_url"] = updates.avatar_url
         if updates.preferences is not None:
-            update_doc["preferences"] = updates.preferences.dict()
+            update_doc["preferences"] = updates.preferences.model_dump()
         if updates.favorite_destinations is not None:
             update_doc["favorite_destinations"] = updates.favorite_destinations
 
