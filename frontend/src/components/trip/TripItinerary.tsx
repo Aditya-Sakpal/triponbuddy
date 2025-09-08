@@ -9,6 +9,7 @@ import { AccommodationTab } from "./AccommodationTab";
 import { TransportationTab } from "./TransportationTab";
 import { TravelTipsTab } from "./TravelTipsTab";
 import { NeighboringPlaces } from "./NeighboringPlaces";
+import { EditTripModal } from "./EditTripModal";
 import type { TripDB, Itinerary } from "@/lib/types";
 
 interface TripItineraryProps {
@@ -26,6 +27,7 @@ export const TripItinerary = ({
 }: TripItineraryProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
 
@@ -53,6 +55,15 @@ export const TripItinerary = ({
       navigator.clipboard.writeText(window.location.href);
       // You could show a toast notification here
     }
+  };
+
+  const handleEditTrip = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleTripUpdated = (newTripId: string) => {
+    // Navigate to the new trip
+    navigate(`/trip/${newTripId}`);
   };
 
   const formatDateRange = (startDate: string, durationDays: number) => {
@@ -89,7 +100,7 @@ export const TripItinerary = ({
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => {/* Handle edit */}}
+                onClick={handleEditTrip}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 <Edit className="w-4 h-4 mr-2" />
@@ -186,6 +197,14 @@ export const TripItinerary = ({
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Trip Modal */}
+      <EditTripModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        trip={trip}
+        onTripUpdated={handleTripUpdated}
+      />
     </div>
   );
 };

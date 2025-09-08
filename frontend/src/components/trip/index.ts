@@ -1,5 +1,6 @@
 export { TripGenerationModal } from './TripGenerationModal';
-export { TripItineraryPage } from './TripItinerary';
+export { TripItinerary } from './TripItinerary';
+export { EditTripModal } from './EditTripModal';
 export { ItineraryTab } from './ItineraryTab';
 export { AccommodationTab } from './AccommodationTab';
 export { TransportationTab } from './TransportationTab';
