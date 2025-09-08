@@ -28,12 +28,17 @@ export const useGenerateTrip = () => {
   const { addNotification } = useUiStore();
 
   return useMutation({
-    mutationFn: (request: TripGenerationRequest) => TripsApiService.generateTrip(request),
+    mutationFn: (request: TripGenerationRequest) => {
+      console.log('🚀 Mutation function called with:', request);
+      return TripsApiService.generateTrip(request);
+    },
     onMutate: () => {
+      console.log('🔄 Mutation started');
       setLoading(true);
       setError(null);
     },
     onSuccess: (data) => {
+      console.log('✅ Mutation success, data received:', data);
       // The backend creates a trip record, so we should invalidate trips queries
       queryClient.invalidateQueries({ queryKey: queryKeys.trips });
       addNotification({
@@ -41,7 +46,8 @@ export const useGenerateTrip = () => {
         message: 'Trip generated successfully!',
       });
     },
-    onError: (error: ApiError) => {
+    onError: (error: Error) => {
+      console.log('❌ Mutation error:', error);
       const message = error?.message || 'Failed to generate trip';
       setError(message);
       addNotification({

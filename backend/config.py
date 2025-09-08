@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # CORS Configuration
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "https://www.triponbuddy.com"],
+        default=["http://localhost:8080", "https://www.triponbuddy.com"],
         env="CORS_ORIGINS"
     )
 

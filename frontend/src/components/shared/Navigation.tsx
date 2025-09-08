@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { SignedIn, SignedOut, SignUpButton,SignInButton, SignOutButton, UserButton } from "@clerk/clerk-react";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
 export const Navigation = () => {
@@ -76,11 +77,20 @@ export const Navigation = () => {
 
           </div>
 
-          {/* Right side: Hamburger for mobile */}
+          {/* Right side: Auth buttons for desktop */}
           <div className="flex justify-end">
-            <div className="hidden sm:flex space-x-2">
-              <Button variant="outline" size="sm">Sign In</Button>
-              <Button size="sm">Sign Up</Button>
+            <div className="hidden sm:flex items-center space-x-2">
+              <SignedOut>
+                <SignUpButton mode="modal">
+                  <Button size="sm">Sign Up</Button>
+                </SignUpButton>
+                <SignInButton mode="modal">
+                  <Button variant="outline" size="sm">Sign In</Button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton/>
+              </SignedIn>
             </div>
             <Button
               variant="ghost"
@@ -107,8 +117,19 @@ export const Navigation = () => {
               <div className="mt-4 pb-4 border-t border-gray-200">
                 <div className="flex flex-col space-y-4 pt-4">
                   <div className="flex space-x-2 pb-4">
-                    <Button variant="outline" size="sm" onClick={closeMenu}>Sign In</Button>
-                    <Button size="sm" onClick={closeMenu}>Sign Up</Button>
+                    <SignedOut>
+                      <SignUpButton mode="modal">
+                        <Button size="sm">Sign Up</Button>
+                      </SignUpButton>
+                      <SignInButton mode="modal">
+                        <Button variant="outline" size="sm" onClick={closeMenu}>Sign In</Button>
+                      </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                      <SignOutButton>
+                        <Button variant="outline" size="sm" onClick={closeMenu}>Sign Out</Button>
+                      </SignOutButton>
+                    </SignedIn>
                   </div>
                   {navLinks.map((link) => (
                     <Link 

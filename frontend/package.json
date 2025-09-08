@@ -42,6 +42,8 @@
     "@tanstack/react-query": "^5.56.2",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
+    "@clerk/clerk-react": "^5.46.1",
+    "@clerk/themes": "^2.4.17",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
