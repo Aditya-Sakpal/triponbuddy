@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -176,16 +177,13 @@ export const TripPlanningSection = () => {
                 <Label htmlFor="start-location" className="text-sm font-medium">
                   Start Location <span className="text-muted-foreground">ⓘ</span>
                 </Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input 
-                    id="start-location"
-                    value={startLocation}
-                    onChange={(e) => setStartLocation(e.target.value)}
-                    placeholder="Enter your starting point"
-                    className="pl-10"
-                  />
-                </div>
+                <LocationAutocomplete
+                  id="start-location"
+                  value={startLocation}
+                  onChange={setStartLocation}
+                  placeholder="Enter your starting point"
+                  icon={<MapPin className="w-4 h-4" />}
+                />
               </div>
               
               <div className="space-y-3">
@@ -198,15 +196,13 @@ export const TripPlanningSection = () => {
                     <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
                   </div>
                 </div>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary w-4 h-4" />
-                  <Input
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    placeholder="Where do you want to go?"
-                    className="pl-10"
-                  />
-                </div>
+                <LocationAutocomplete
+                  value={destination}
+                  onChange={setDestination}
+                  placeholder="Where do you want to go?"
+                  icon={<MapPin className="w-4 h-4 text-primary" />}
+                  required
+                />
               </div>
             </div>
 
