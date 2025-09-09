@@ -21,8 +21,8 @@ export const HeroSlideShow = () => {
         setDisplaySrc(images[nextIndex]);
         setCurrentIndex(nextIndex);
         setIsFading(false);
-      }, 1000); // Fade duration: 1 second
-    }, 5000); // Change image every 5 seconds
+      }, 1000); 
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [images, currentIndex]);

@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { ProfileTabComponent } from "./ProfileTabComponent";
-import { MyTripsTabComponent } from "./MyTripsTabComponent";
+import { ProfileTab } from "./ProfileTab";
+import { MyTripsTab } from "./MyTripsTab";
 
 export const ProfileCard = () => {
   return (
@@ -24,11 +24,11 @@ export const ProfileCard = () => {
           </TabsList>
 
           <TabsContent value="profile" className="p-6">
-            <ProfileTabComponent />
+            <ProfileTab />
           </TabsContent>
 
           <TabsContent value="trips" className="p-6">
-            <MyTripsTabComponent />
+            <MyTripsTab />
           </TabsContent>
         </Tabs>
       </Card>

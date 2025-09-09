@@ -37,7 +37,7 @@ export const Navigation = () => {
     { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
     { to: "/contact", label: "Contact" },
-    { to: "/trips", label: "My Trips" },
+    { to: "/profile", label: "My Profile" },
   ];
 
   return (

@@ -1,4 +1,4 @@
 export { HeroSection } from "./HeroSection";
 export { ProfileCard } from "./ProfileCard";
-export { ProfileTabComponent as ProfileTab } from "./ProfileTabComponent";
-export { MyTripsTabComponent as MyTripsTab } from "./MyTripsTabComponent";
+export { ProfileTab  } from "./ProfileTab";
+export { MyTripsTab } from "./MyTripsTab";

@@ -26,7 +26,6 @@ class AIService:
         prompt = self._build_prompt(request)
 
         try:
-            # Use the correct Google Gemini API method based on the latest documentation
             response = self.client.models.generate_content(
                 model='gemini-2.5-flash',
                 contents=prompt

@@ -7,7 +7,7 @@ import { UserProfile } from "@clerk/clerk-react";
 import { useState } from "react";
 import { Edit, Mail, Calendar, MapPin, User } from "lucide-react";
 
-export const ProfileTabComponent = () => {
+export const ProfileTab = () => {
   const { user } = useUser();
   const [showUserProfile, setShowUserProfile] = useState(false);
   
