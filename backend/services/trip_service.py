@@ -11,12 +11,7 @@ from database import mongodb
 from models.trip import TripGenerationRequest, TripUpdateRequest
 from services.ai_service import ai_service
 from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
-
-def validate_trip_title(title: str) -> bool:
-    """Validate trip title"""
-    if not title or len(title.strip()) == 0:
-        return False
-    return len(title) <= 200
+from utils.validators import validate_trip_title
 
 logger = logging.getLogger(__name__)
 

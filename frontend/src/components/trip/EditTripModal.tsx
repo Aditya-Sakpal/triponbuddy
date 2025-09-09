@@ -207,14 +207,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
               <DialogTitle className="text-2xl font-bold">
                 Edit Your Trip
               </DialogTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           </DialogHeader>
 
