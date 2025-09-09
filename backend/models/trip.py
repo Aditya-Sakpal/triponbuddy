@@ -125,7 +125,7 @@ class TripGenerationResponse(BaseModel):
 
 class TripDB(BaseModel):
     """Trip database model"""
-    id: Optional[str] = Field(default=None, alias="_id", description="MongoDB ObjectId")
+    id: Optional[str] = Field(default=None, description="MongoDB ObjectId")
     trip_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique trip ID")
     user_id: str = Field(description="User ID from Clerk")
     title: str = Field(description="Trip title")
@@ -163,6 +163,8 @@ class TripListResponse(BaseModel):
     total: int = Field(description="Total number of trips")
     page: int = Field(default=1, description="Current page")
     limit: int = Field(default=20, description="Items per page")
+    has_next: bool = Field(default=False, description="Has next page")
+    has_prev: bool = Field(default=False, description="Has previous page")
 
     class Config:
         json_encoders = {

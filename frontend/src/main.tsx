@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { ClerkProvider } from '@clerk/clerk-react'
 import App from './App.tsx'
-import { neobrutalism } from '@clerk/themes'
 import './index.css'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
@@ -15,7 +14,6 @@ createRoot(document.getElementById("root")!).render(
       clerkJSVersion="5.56.0-snapshot.v20250312225817"
       afterSignOutUrl="/"
       appearance={{
-            baseTheme: [neobrutalism],
             layout: {
               unsafe_disableDevelopmentModeWarnings: true,
             },

@@ -114,7 +114,7 @@ export interface TripGenerationResponse {
 }
 
 export interface TripDB {
-  _id?: string;
+  id?: string;
   trip_id: string;
   user_id: string;
   title: string;
@@ -144,6 +144,8 @@ export interface TripListResponse {
   total: number;
   page: number;
   limit: number;
+  has_next: boolean;
+  has_prev: boolean;
 }
 
 export interface TripResponse {
@@ -152,41 +154,11 @@ export interface TripResponse {
 }
 
 // User types
-export interface UserPreferences {
-  currency: string;
-  language: string;
-  notifications: boolean;
-}
-
-export interface UserProfile {
-  user_id: string;
-  email: string;
-  display_name?: string;
-  preferences: UserPreferences;
-  trip_count: number;
-  total_trips_created: number;
-  total_trips_saved: number;
-  favorite_destinations: string[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface UserProfileUpdate {
-  display_name?: string;
-  preferences?: UserPreferences;
-  favorite_destinations?: string[];
-}
-
 export interface UserStats {
   total_trips: number;
   saved_trips: number;
   favorite_destinations: string[];
   recent_destinations: string[];
-}
-
-export interface UserProfileResponse {
-  success: boolean;
-  profile: UserProfile;
 }
 
 export interface UserStatsResponse {

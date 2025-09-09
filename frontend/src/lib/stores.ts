@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TripDB, UserProfile, UserStats } from '../lib/types';
+import type { TripDB, UserStats } from '../lib/types';
 
 // Auth Store
 interface AuthState {
@@ -90,14 +90,11 @@ export const useTripsStore = create<TripsState>()(
 
 // User Store
 interface UserState {
-  profile: UserProfile | null;
   stats: UserStats | null;
   isLoading: boolean;
   error: string | null;
 
   // Actions
-  setProfile: (profile: UserProfile) => void;
-  updateProfile: (updates: Partial<UserProfile>) => void;
   setStats: (stats: UserStats) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -111,13 +108,6 @@ export const useUserStore = create<UserState>()(
     isLoading: false,
     error: null,
 
-    setProfile: (profile) => set({ profile }),
-
-    updateProfile: (updates) =>
-      set((state) => ({
-        profile: state.profile ? { ...state.profile, ...updates } : null,
-      })),
-
     setStats: (stats) => set({ stats }),
 
     setLoading: (loading) => set({ isLoading: loading }),
@@ -125,7 +115,6 @@ export const useUserStore = create<UserState>()(
     setError: (error) => set({ error, isLoading: false }),
 
     clearUser: () => set({
-      profile: null,
       stats: null,
       error: null
     }),

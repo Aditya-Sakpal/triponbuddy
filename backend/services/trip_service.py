@@ -8,9 +8,10 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from database import mongodb
-from models.trip import TripGenerationRequest, TripUpdateRequest
+from models.trip import TripGenerationRequest, TripUpdateRequest, TripDB
 from services.ai_service import ai_service
 from utils.validators import validate_trip_title
+from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
 
 logger = logging.getLogger(__name__)
 
@@ -70,26 +71,38 @@ class TripService:
         """Get user's trips with pagination"""
 
         try:
+            logger.info(f"Getting trips for user: {user_id}")
+            
             # Build filter
             filter_query = {"user_id": user_id}
             if is_saved is not None:
                 filter_query["is_saved"] = is_saved
+            
+            logger.info(f"Filter query: {filter_query}")
 
             # Calculate skip
             skip = (page - 1) * limit
 
             # Get trips
-            trips = await mongodb.find_many(
+            trip_docs = await mongodb.find_many(
                 "trips",
                 filter_query,
                 limit=limit,
+                skip=skip,
                 sort=[("created_at", -1)]
             )
+            
+            logger.info(f"Found {len(trip_docs)} trip documents")
+
+            # Convert to TripDB instances using utility function
+            trips = convert_mongo_docs_to_trips(trip_docs)
+            
+            logger.info(f"Converted to {len(trips)} TripDB instances")
 
             # Get total count
             total = await mongodb.count_documents("trips", filter_query)
-
-            return {
+            
+            result = {
                 "success": True,
                 "trips": trips,
                 "total": total,
@@ -98,6 +111,9 @@ class TripService:
                 "has_next": (page * limit) < total,
                 "has_prev": page > 1
             }
+            
+            logger.info(f"Returning result with {len(trips)} trips, total: {total}")
+            return result
 
         except Exception as e:
             logger.error(f"Error getting user trips: {str(e)}")
@@ -107,16 +123,26 @@ class TripService:
         """Get a specific trip"""
 
         try:
-            trip = await mongodb.find_one(
+            trip_doc = await mongodb.find_one(
                 "trips",
                 {"trip_id": trip_id, "user_id": user_id}
             )
 
-            if trip:
-                return {
-                    "success": True,
-                    "trip": trip
-                }
+            if trip_doc:
+                try:
+                    # Convert to TripDB instance using utility function
+                    trip = convert_mongo_doc_to_trip(trip_doc)
+                    
+                    return {
+                        "success": True,
+                        "trip": trip
+                    }
+                except Exception as e:
+                    logger.error(f"Error converting trip document to TripDB: {str(e)}")
+                    return {
+                        "success": False,
+                        "error": "Error processing trip data"
+                    }
             else:
                 return {
                     "success": False,

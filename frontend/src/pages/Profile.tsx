@@ -1,5 +1,5 @@
 import { Footer, Navigation } from "@/components/shared";
-import { HeroSection } from "@/components/profile";
+import { HeroSection, ProfileCard } from "@/components/profile";
 
 const Profile = () => {
     return (
@@ -8,7 +8,11 @@ const Profile = () => {
           
           <HeroSection />
           
-          <Footer />
+          <ProfileCard />
+          
+          <div className="pb-16">
+            <Footer />
+          </div>
       </div>
   );
 };

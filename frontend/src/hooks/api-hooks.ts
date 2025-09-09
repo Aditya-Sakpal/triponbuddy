@@ -5,7 +5,6 @@ import type {
   TripGenerationRequest,
   TripListParams,
   TripUpdateRequest,
-  UserProfileUpdate,
   FeedbackCreate,
   ImageBulkParams,
   ImageSingleParams,
@@ -16,7 +15,6 @@ import type {
 export const queryKeys = {
   trips: ['trips'] as const,
   trip: (tripId: string) => ['trips', tripId] as const,
-  userProfile: ['user', 'profile'] as const,
   userStats: ['user', 'stats'] as const,
   images: (query: string) => ['images', query] as const,
 };
@@ -210,49 +208,6 @@ export const useUnsaveTrip = () => {
 };
 
 // User Hooks
-export const useUserProfile = (userId: string) => {
-  const { setProfile, setLoading, setError } = useUserStore();
-
-  return useQuery({
-    queryKey: queryKeys.userProfile,
-    queryFn: () => UsersApiService.getUserProfile(userId),
-    enabled: !!userId,
-    staleTime: 15 * 60 * 1000, // 15 minutes
-  });
-};
-
-export const useUpdateUserProfile = () => {
-  const queryClient = useQueryClient();
-  const { updateProfile } = useUserStore();
-  const { addNotification } = useUiStore();
-
-  return useMutation({
-    mutationFn: ({ updates, userId }: { updates: UserProfileUpdate; userId: string }) =>
-      UsersApiService.updateUserProfile(updates, userId),
-    onSuccess: (data) => {
-      if (data.success) {
-        updateProfile(data.profile);
-
-        // Invalidate related queries
-        queryClient.invalidateQueries({ queryKey: queryKeys.userProfile });
-        queryClient.invalidateQueries({ queryKey: queryKeys.userStats });
-
-        addNotification({
-          type: 'success',
-          message: 'Profile updated successfully',
-        });
-      }
-    },
-    onError: (error: ApiError) => {
-      const message = error?.message || 'Failed to update profile';
-      addNotification({
-        type: 'error',
-        message,
-      });
-    },
-  });
-};
-
 export const useUserStats = (userId: string) => {
   const { setStats, setLoading, setError } = useUserStore();
 

@@ -45,7 +45,7 @@ class MongoDB:
     async def disconnect(self) -> None:
         """Close MongoDB connection."""
         if self.client:
-            self.client.close()
+            await self.client.close()
             logger.info("Disconnected from MongoDB")
 
     async def _create_indexes(self) -> None:
@@ -55,10 +55,6 @@ class MongoDB:
             await self.database.trips.create_index("trip_id", unique=True)
             await self.database.trips.create_index([("user_id", 1), ("created_at", -1)])
             await self.database.trips.create_index([("user_id", 1), ("is_saved", 1)])
-
-            # Users collection indexes
-            await self.database.users.create_index("user_id", unique=True)
-            await self.database.users.create_index("email", unique=True)
 
             # Feedback collection indexes
             await self.database.feedback.create_index([("user_id", 1), ("created_at", -1)])
@@ -89,6 +85,7 @@ class MongoDB:
         collection_name: str,
         filter: Dict[str, Any],
         limit: Optional[int] = None,
+        skip: Optional[int] = None,
         sort: Optional[List[tuple]] = None
     ) -> List[Dict[str, Any]]:
         """Find many documents in a collection."""
@@ -97,6 +94,8 @@ class MongoDB:
 
         if sort:
             cursor = cursor.sort(sort)
+        if skip:
+            cursor = cursor.skip(skip)
         if limit:
             cursor = cursor.limit(limit)
 

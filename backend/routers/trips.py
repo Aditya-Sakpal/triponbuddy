@@ -48,21 +48,26 @@ async def get_user_trips(
     user_id: str = Query(..., description="User ID from Clerk"),
     is_saved: Optional[bool] = Query(None, description="Filter by saved status"),
     page: int = Query(1, ge=1, description="Page number"),
-    limit: int = Query(20, ge=1, le=50, description="Items per page")
+    limit: int = Query(20, ge=1, le=200, description="Items per page")
 ):
     """Get user's trips with pagination"""
 
     try:
+        logger.info(f"Getting trips for user: {user_id}, page: {page}, limit: {limit}")
         result = await trip_service.get_user_trips(
             user_id=user_id,
             is_saved=is_saved,
             page=page,
             limit=limit
         )
-        return TripListResponse(**result)
+        logger.info(f"Service returned: {type(result)} with keys: {result.keys() if isinstance(result, dict) else 'Not a dict'}")
+        
+        response = TripListResponse(**result)
+        logger.info(f"Response model created successfully: {type(response)}")
+        return response
 
     except Exception as e:
-        logger.error(f"Error getting user trips: {str(e)}")
+        logger.error(f"Error getting user trips: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="Failed to retrieve trips"
