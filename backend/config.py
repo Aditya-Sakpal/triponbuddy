@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     google_gemini_api_key: str = Field(..., env="GOOGLE_GEMINI_API_KEY")
 
     # CORS Configuration
-    cors_origins: List[str] = Field(
-        default=["http://localhost:8080", "https://www.triponbuddy.com"],
+    cors_origins: str = Field(
+        default="http://localhost:8080",
         env="CORS_ORIGINS"
     )
 
