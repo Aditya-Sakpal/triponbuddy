@@ -11,13 +11,13 @@ export const ProfileCard = () => {
           <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 h-12">
             <TabsTrigger 
               value="profile" 
-              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm"
             >
               Profile
             </TabsTrigger>
             <TabsTrigger 
               value="trips" 
-              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
+              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm"
             >
               My Trips
             </TabsTrigger>

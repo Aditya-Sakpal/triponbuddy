@@ -85,7 +85,7 @@ export const TripItinerary = ({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <div className="bg-gradient-to-r from-bula to-purple-600 text-white">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-start justify-between mb-6">
             <Button

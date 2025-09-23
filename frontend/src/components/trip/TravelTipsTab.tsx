@@ -22,7 +22,7 @@ export const TravelTipsTab = ({ tips, bestTimeToVisit }: TravelTipsTabProps) => 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-600" />
+              <Calendar className="w-5 h-5 text-bula" />
               Best Time to Visit
             </CardTitle>
           </CardHeader>

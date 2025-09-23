@@ -16,14 +16,14 @@ export const ActionButtons = ({
   return (
     <div className="flex flex-col sm:flex-row gap-4 justify-center">
       <Button
-        size="lg"
+        size="xl"
         className="px-8 font-latin"
         onClick={onPlanTrip}
         disabled={isGenerating || isDisabled}
       >
         {isGenerating ? 'Planning...' : 'Plan My Trip'}
       </Button>
-      <Button variant="outline" size="lg" className="px-8 font-latin" onClick={onDemo}>
+      <Button variant="outline" size="xl" className="px-8 font-latin border-bula" onClick={onDemo}>
         🎯 DEMO
       </Button>
     </div>

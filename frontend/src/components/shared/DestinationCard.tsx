@@ -40,7 +40,7 @@ export const DestinationCard = ({
         {/* Background placeholder for loading state */}
         {!isImageLoaded && (
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center z-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bula"></div>
           </div>
         )}
         

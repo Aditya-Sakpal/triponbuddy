@@ -115,10 +115,10 @@ export const TripPlanningSection = () => {
     <>
       <TripGenerationModal 
         isOpen={generateTripMutation.isPending} 
-        onClose={() => {}} // Can't close while generating
+        onClose={() => {}} 
       />
       
-      <div className="relative px-6">
+      <div className="relative px-6 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
         <Card className="rounded-2xl shadow-xl border-0 bg-white">
           <CardHeader className="text-center pb-6">

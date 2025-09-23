@@ -41,8 +41,8 @@ export const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-10 bg-white shadow-md overflow-hidden overflow-x-hidden">
-      <div className="container mx-auto px-6 py-2">
+    <nav className="fixed top-0 left-0 right-0 z-[70] bg-white shadow-md overflow-hidden">
+      <div className="container mx-auto px-6 md:px-24">
         <div className="grid grid-cols-3 items-center">
           {/* Left side: Logo and buttons */}
           <div className="flex items-center space-x-4">
@@ -50,7 +50,7 @@ export const Navigation = () => {
               <img 
                 src={tripBuddyLogo} 
                 alt="TripBuddy" 
-                className="h-16 w-auto hover:scale-105 transition-transform duration-300"
+                className="h-24 w-auto hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
@@ -62,9 +62,9 @@ export const Navigation = () => {
                 <Link 
                   key={link.to}
                   to={link.to} 
-                  className={`relative transition-all duration-300 hover:text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap ${
+                  className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap ${
                     location.pathname === link.to 
-                      ? 'text-primary after:scale-x-100' 
+                      ? 'text-bula after:scale-x-100' 
                       : 'text-gray-600 after:scale-x-0'
                   }`}
                 >
@@ -81,12 +81,12 @@ export const Navigation = () => {
           <div className="flex justify-end">
             <div className="hidden sm:flex items-center space-x-2">
               <SignedOut>
-                <SignUpButton mode="modal">
-                  <Button size="sm">Sign Up</Button>
-                </SignUpButton>
                 <SignInButton mode="modal">
-                  <Button variant="outline" size="sm">Sign In</Button>
+                  <Button variant="outline" size="lg"  className="border-bula">Login</Button>
                 </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button size="lg" className="text-white" >Sign Up</Button>
+                </SignUpButton>
               </SignedOut>
               <SignedIn>
                 <UserButton/>
@@ -98,7 +98,7 @@ export const Navigation = () => {
               className="sm:hidden"
               onClick={toggleMenu}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? <X className="h-32 w-32" /> : <Menu className="h-32 w-32" />}
             </Button>
           </div>
         </div>
@@ -135,9 +135,9 @@ export const Navigation = () => {
                     <Link 
                       key={link.to}
                       to={link.to} 
-                      className={`relative transition-all duration-300 hover:text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 ${
+                      className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 ${
                         location.pathname === link.to 
-                          ? 'text-primary after:scale-x-100' 
+                          ? 'text-bula after:scale-x-100' 
                           : 'text-gray-600 after:scale-x-0'
                       }`}
                       onClick={closeMenu}

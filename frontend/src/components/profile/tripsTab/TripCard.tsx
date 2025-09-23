@@ -21,7 +21,7 @@ export const TripCard = ({ trip }: TripCardProps) => (
           </div>
         </div>
         {trip.is_saved && (
-          <BookmarkCheck className="h-5 w-5 text-blue-600" />
+          <BookmarkCheck className="h-5 w-5 text-bula" />
         )}
       </div>
 

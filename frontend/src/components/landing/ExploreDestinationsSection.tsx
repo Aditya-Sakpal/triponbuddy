@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export const ExploreDestinationsSection = () => {
   return (
-    <section className="py-20 bg-[#4a4b4a]">
+    <section className="py-20 bg-[#4a4b4a] overflow-x-hidden">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-4xl md:text-5xl font-bold font-latin text-white mb-6">
           Not sure where to go?
@@ -14,7 +14,7 @@ export const ExploreDestinationsSection = () => {
         <Button 
           size="lg" 
           variant="outline" 
-          className="px-8 py-4 text-lg bg-white text-blue-600 border-white hover:bg-white/90 font-latin"
+          className="px-8 py-4 text-lg bg-white text-bula border-white hover:bg-white/90 font-latin"
           onClick={() => window.location.href = '/explore'}
         >
           Explore Destinations

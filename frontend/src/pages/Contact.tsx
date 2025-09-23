@@ -18,7 +18,7 @@ const Contact = () => {
 
           {/* Blue Contact Us Heading */}
           <div className="text-center mb-8">
-            {/* <h2 className="text-3xl font-bold text-blue-600">
+            {/* <h2 className="text-3xl font-bold text-bula">
               Contact Us
             </h2> */}
           </div>
@@ -33,7 +33,7 @@ const Contact = () => {
               <div className="space-y-6">
                 {/* Founders */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-bula rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -44,14 +44,14 @@ const Contact = () => {
 
                 {/* Email */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-bula rounded-full flex items-center justify-center flex-shrink-0">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-gray-800 mb-1">Email</h4>
                     <a 
                       href="mailto:triponbuddy@gmail.com" 
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-bula hover:text-blue-800 transition-colors"
                     >
                       triponbuddy@gmail.com
                     </a>
@@ -60,7 +60,7 @@ const Contact = () => {
 
                 {/* Headquarters */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-bula rounded-full flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>

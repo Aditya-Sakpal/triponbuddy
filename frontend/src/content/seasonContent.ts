@@ -7,7 +7,7 @@ export const seasonConfig = {
     winter: {
       title: "Winter Destinations", 
       description: "Enjoy perfect weather at beaches, deserts, and cultural sites",
-      color: "text-blue-600"
+      color: "text-bula"
     },
     monsoon: {
       title: "Monsoon Escapes",
