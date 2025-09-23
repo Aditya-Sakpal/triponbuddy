@@ -11,7 +11,7 @@ import { testimonials } from "@/content/homeContent";
 
 export const TestimonialsSection = () => {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-muted/30 overflow-x-hidden">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold font-latin text-foreground mb-4">

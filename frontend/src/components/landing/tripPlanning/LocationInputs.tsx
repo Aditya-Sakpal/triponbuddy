@@ -19,9 +19,17 @@ export const LocationInputs = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div className="space-y-3">
-        <Label htmlFor="start-location" className="text-sm font-medium">
-          Start Location <span className="text-muted-foreground">ⓘ</span>
-        </Label>
+        <div className="flex items-center justify-between">
+            <Label htmlFor="start-location" className="text-sm font-medium">
+              Start Location <span className="text-muted-foreground">ⓘ</span>
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Switch id="worldwide" />
+              <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
+            </div>
+
+        </div>
+
         <LocationAutocomplete
           id="start-location"
           value={startLocation}
@@ -32,15 +40,9 @@ export const LocationInputs = ({
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">
             Destination <span className="text-destructive">*</span>
           </Label>
-          <div className="flex items-center space-x-2">
-            <Switch id="worldwide" />
-            <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
-          </div>
-        </div>
         <LocationAutocomplete
           value={destination}
           onChange={setDestination}

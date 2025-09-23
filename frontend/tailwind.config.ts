@@ -23,6 +23,7 @@ export default {
 				'serif': ['Playfair Display', 'serif'],
 			},
 			colors: {
+				bula:'#4b6cf7',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

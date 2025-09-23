@@ -47,7 +47,7 @@ const ActivityCard = ({ activity, imageUrl }: { activity: Activity, imageUrl?: s
                     <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
                       Booking Required
                     </p>
-                    <p className="text-xs text-blue-600 dark:text-blue-300">
+                    <p className="text-xs text-bula dark:text-blue-300">
                       Price Range: {activity.booking_info.price_range}
                     </p>
                   </div>

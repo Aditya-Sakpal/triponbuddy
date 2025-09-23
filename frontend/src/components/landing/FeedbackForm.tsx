@@ -24,7 +24,7 @@ export const FeedbackForm = ({ formLogic }: FeedbackFormProps) => {
   } = formLogic;
 
   return (
-    <Card className="p-8">
+    <Card className="p-8 overflow-x-hidden">
       <CardContent className="p-0">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

@@ -5,7 +5,7 @@ export const FeedbackSection = () => {
   const formLogic = useFeedbackForm();
 
   return (
-    <section className="py-20 bg-blue-100">
+    <section className="py-20 bg-blue-100 overflow-x-hidden">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Text */}

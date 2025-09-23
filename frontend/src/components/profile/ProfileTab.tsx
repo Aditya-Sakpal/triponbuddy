@@ -68,7 +68,7 @@ export const ProfileTab = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <User className="h-5 w-5 text-blue-600" />
+              <User className="h-5 w-5 text-bula" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Full Name</p>
                 <p className="text-base font-semibold">{user.fullName || "Not provided"}</p>
@@ -76,7 +76,7 @@ export const ProfileTab = () => {
             </div>
             
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Mail className="h-5 w-5 text-blue-600" />
+              <Mail className="h-5 w-5 text-bula" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Email</p>
                 <p className="text-base font-semibold">{user.primaryEmailAddress?.emailAddress || "Not provided"}</p>
@@ -84,7 +84,7 @@ export const ProfileTab = () => {
             </div>
             
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Calendar className="h-5 w-5 text-blue-600" />
+              <Calendar className="h-5 w-5 text-bula" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Member Since</p>
                 <p className="text-base font-semibold">
@@ -94,7 +94,7 @@ export const ProfileTab = () => {
             </div>
             
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <MapPin className="h-5 w-5 text-blue-600" />
+              <MapPin className="h-5 w-5 text-bula" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Username</p>
                 <p className="text-base font-semibold">{user.username || "Not set"}</p>
@@ -112,12 +112,12 @@ export const ProfileTab = () => {
         <CardContent>
           {statsLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bula"></div>
             </div>
           ) : userStatsData?.stats ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <p className="text-3xl font-bold text-blue-600">{userStatsData.stats.total_trips}</p>
+                <p className="text-3xl font-bold text-bula">{userStatsData.stats.total_trips}</p>
                 <p className="text-sm font-medium text-gray-600">Total Trips</p>
               </div>
               

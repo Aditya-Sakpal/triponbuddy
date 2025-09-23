@@ -164,7 +164,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                                     Booking Required
                                   </span>
                                   {activity.booking_info.price_range && (
-                                    <span className="text-blue-600 dark:text-blue-300 ml-2">
+                                    <span className="text-bula dark:text-blue-300 ml-2">
                                       {activity.booking_info.price_range}
                                     </span>
                                   )}

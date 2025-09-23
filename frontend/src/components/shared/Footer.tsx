@@ -21,7 +21,7 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="bg-slate-800 text-white py-12 px-4">
+    <footer className="bg-slate-800 text-white py-12 px-4 overflow-hidden">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Left Section - Logo and Description */}
@@ -39,16 +39,16 @@ export const Footer = () => {
               TriponBuddy (Trip on Buddy) - India's #1 trip planner & travel aggregator. Your trusted trip buddy for comparing packages, booking tours & creating perfect itineraries.
             </p>
             <div className="flex space-x-3">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-bula transition-colors cursor-pointer">
                 <Facebook className="w-4 h-4" />
               </div>
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-bula transition-colors cursor-pointer">
                 <Twitter className="w-4 h-4" />
               </div>
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-bula transition-colors cursor-pointer">
                 <Instagram className="w-4 h-4" />
               </div>
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center hover:bg-bula transition-colors cursor-pointer">
                 <span className="text-xs font-bold">P</span>
               </div>
             </div>
