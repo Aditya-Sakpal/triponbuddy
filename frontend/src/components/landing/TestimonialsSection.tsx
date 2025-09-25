@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { testimonials } from "@/content/homeContent";
+import { testimonials } from "@/constants";
 
 export const TestimonialsSection = () => {
   return (

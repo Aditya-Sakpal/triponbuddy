@@ -9,14 +9,12 @@ from models.user import (
     UserStatsResponse
 )
 from database import mongodb
-from utils.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
 @router.get("/stats", response_model=UserStatsResponse)
-@limiter.limit("30/minute")
 async def get_user_stats(
     request: Request,
     user_id: str = Query(..., description="User ID from Clerk")

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation } from "lucide-react";
-import { TripDB, Itinerary, DailyPlan, Activity, Accommodation, Transportation, NeighboringPlace } from "@/lib/types";
+import { TripDB, Itinerary, DailyPlan, Activity, Accommodation, TravelRoute, NeighboringPlace, TransportationHub, LocalTransportation } from "@/constants";
 import { useMemo } from "react";
 
 interface ItineraryModalProps {
@@ -257,7 +257,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
           )}
 
           {/* Transportation */}
-          {itinerary.transportation && itinerary.transportation.length > 0 && (
+          {itinerary.transportation?.routes && itinerary.transportation.routes.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -267,7 +267,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {itinerary.transportation.map((trans: Transportation, index: number) => (
+                  {itinerary.transportation.routes.map((trans: TravelRoute, index: number) => (
                     <div key={index} className="border rounded-lg p-3">
                       <div className="flex items-start justify-between">
                         <div>
@@ -296,6 +296,156 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                             <ExternalLink className="w-3 h-3 ml-1" />
                           </a>
                         </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Transportation Hubs - Start Location */}
+          {itinerary.transportation_hubs_start && itinerary.transportation_hubs_start.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Transportation Hubs (Starting Point)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {itinerary.transportation_hubs_start.map((hub: TransportationHub, index: number) => (
+                    <div key={index} className="border rounded-lg p-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h5 className="font-medium">{hub.name}</h5>
+                          <p className="text-sm text-muted-foreground">{hub.type} • {hub.location}</p>
+                          {hub.distance_from_city && (
+                            <p className="text-sm text-muted-foreground">
+                              {hub.distance_from_city} from city center
+                            </p>
+                          )}
+                        </div>
+                        {hub.estimated_cost_to_reach && (
+                          <div className="text-right">
+                            <p className="font-medium text-green-600">
+                              {formatCurrency(hub.estimated_cost_to_reach)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">to reach</p>
+                          </div>
+                        )}
+                      </div>
+                      {hub.transportation_options && hub.transportation_options.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm font-medium mb-1">Available Options:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {hub.transportation_options.map((option, optionIndex) => (
+                              <Badge key={optionIndex} variant="outline" className="text-xs">
+                                {option}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Transportation Hubs - Destination */}
+          {itinerary.transportation_hubs_destination && itinerary.transportation_hubs_destination.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Transportation Hubs (Destination)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {itinerary.transportation_hubs_destination.map((hub: TransportationHub, index: number) => (
+                    <div key={index} className="border rounded-lg p-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h5 className="font-medium">{hub.name}</h5>
+                          <p className="text-sm text-muted-foreground">{hub.type} • {hub.location}</p>
+                          {hub.distance_from_city && (
+                            <p className="text-sm text-muted-foreground">
+                              {hub.distance_from_city} from city center
+                            </p>
+                          )}
+                        </div>
+                        {hub.estimated_cost_to_reach && (
+                          <div className="text-right">
+                            <p className="font-medium text-green-600">
+                              {formatCurrency(hub.estimated_cost_to_reach)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">to reach</p>
+                          </div>
+                        )}
+                      </div>
+                      {hub.transportation_options && hub.transportation_options.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm font-medium mb-1">Available Options:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {hub.transportation_options.map((option, optionIndex) => (
+                              <Badge key={optionIndex} variant="outline" className="text-xs">
+                                {option}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Local Transportation */}
+          {itinerary.local_transportation && itinerary.local_transportation.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5" />
+                  Local Transportation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {itinerary.local_transportation.map((local: LocalTransportation, index: number) => (
+                    <div key={index} className="border rounded-lg p-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h5 className="font-medium">{local.type}</h5>
+                          <p className="text-sm text-muted-foreground">{local.description}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {local.availability}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              Covers: {local.coverage_area}
+                            </span>
+                          </div>
+                        </div>
+                        {local.estimated_cost && (
+                          <div className="text-right">
+                            <p className="font-medium text-green-600">
+                              {formatCurrency(local.estimated_cost)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      {local.booking_info && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded text-sm">
+                          <p className="text-blue-800 dark:text-blue-200">
+                            {local.booking_info}
+                          </p>
+                        </div>
                       )}
                     </div>
                   ))}

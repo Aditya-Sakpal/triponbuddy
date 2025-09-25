@@ -10,7 +10,6 @@ from models.feedback import (
     FeedbackResponse
 )
 from database import mongodb
-from utils.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 

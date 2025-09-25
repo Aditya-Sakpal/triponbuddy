@@ -45,14 +45,40 @@ class Accommodation(BaseModel):
     amenities: List[str] = Field(description="List of amenities")
 
 
-class Transportation(BaseModel):
-    """Transportation model"""
-    type: str = Field(description="Type of transportation")
+class TravelRoute(BaseModel):
+    """Travel route model with multiple transport options"""
+    type: str = Field(description="Type of transport: flight, train, or local")
     from_location: str = Field(alias="from", description="Departure location")
     to: str = Field(description="Arrival location")
     estimated_cost: str = Field(description="Cost in INR")
     duration: str = Field(description="Duration")
     booking_url: str = Field(description="Booking URL")
+    details: Optional[str] = Field(default=None, description="Additional details about the route")
+
+
+class Transportation(BaseModel):
+    """Transportation model with multiple routes"""
+    routes: List[TravelRoute] = Field(description="Available travel routes (flight, train, local)")
+
+
+class TransportationHub(BaseModel):
+    """Transportation hub model"""
+    name: str = Field(description="Hub name (airport, railway station, etc.)")
+    type: str = Field(description="Type of hub: airport, railway_station, bus_station")
+    location: str = Field(description="Location of the hub")
+    distance_from_city: str = Field(description="Distance from city center")
+    estimated_cost_to_reach: str = Field(description="Cost to reach hub from city")
+    transportation_options: List[str] = Field(description="Available transport options to/from hub")
+
+
+class LocalTransportation(BaseModel):
+    """Local transportation options at destination"""
+    type: str = Field(description="Type of local transport: taxi, rickshaw, metro, bus, etc.")
+    description: str = Field(description="Description of the transport option")
+    estimated_cost: str = Field(description="Cost in INR")
+    availability: str = Field(description="When it's available")
+    coverage_area: str = Field(description="Areas it covers")
+    booking_info: Optional[str] = Field(default=None, description="How to book or use")
 
 
 class NeighboringPlace(BaseModel):
@@ -77,7 +103,10 @@ class Itinerary(BaseModel):
     travel_tips: List[str] = Field(description="Travel tips")
     daily_plans: List[DailyPlan] = Field(description="Daily plans")
     accommodation: List[Accommodation] = Field(description="Accommodation options")
-    transportation: List[Transportation] = Field(description="Transportation options")
+    transportation: Transportation = Field(description="Transportation options with routes")
+    transportation_hubs_start: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at starting location")
+    transportation_hubs_destination: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at destination")
+    local_transportation: List[LocalTransportation] = Field(default_factory=list, description="Local transportation options at destination")
     neighboring_places: List[NeighboringPlace] = Field(default_factory=list, description="Nearby places")
 
     class Config:

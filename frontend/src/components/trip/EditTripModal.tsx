@@ -28,7 +28,7 @@ import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingB
 import { useState, useEffect, useMemo } from "react";
 import { useGenerateTrip } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
-import type { TripDB, TripPreferences, Itinerary } from "@/lib/types";
+import type { TripDB, TripPreferences, Itinerary } from "@/constants";
 
 interface EditTripModalProps {
   isOpen: boolean;

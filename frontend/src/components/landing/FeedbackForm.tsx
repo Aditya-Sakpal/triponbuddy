@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
-import type { FeedbackType } from "@/lib/types";
+import type { FeedbackType } from "@/constants";
 import type { UseFeedbackFormReturn } from "@/hooks/useFeedbackForm";
-import { FEEDBACK_TYPES, RATING_STARS } from "@/utils/feedbackUtils";
+import { FEEDBACK_TYPES, RATING_STARS } from "@/constants";
 
 interface FeedbackFormProps {
   formLogic: UseFeedbackFormReturn;

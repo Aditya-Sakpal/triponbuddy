@@ -1,11 +1,8 @@
-import { Navigation, Footer } from "@/components/shared";
 import { User, Mail, MapPin } from "lucide-react";
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
+    <>
       {/* Main Content */}
       <div className="pt-32 pb-16">
         <div className="container mx-auto px-6">
@@ -73,9 +70,7 @@ const Contact = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 

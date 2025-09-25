@@ -30,6 +30,7 @@ export const DateDurationInputs = ({
             onChange={(e) => setStartDate(e.target.value)}
             className="pl-10"
             required
+            min={new Date().toISOString().split('T')[0]} // Prevent past dates
           />
         </div>
       </div>
@@ -44,8 +45,18 @@ export const DateDurationInputs = ({
             type="number"
             min="1"
             max="30"
-            value={durationDays}
-            onChange={(e) => setDurationDays(parseInt(e.target.value) || 1)}
+            value={durationDays || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "") {
+                setDurationDays(0); // Allow empty field
+              } else {
+                const numValue = parseInt(value);
+                if (!isNaN(numValue) && numValue >= 1 && numValue <= 30) {
+                  setDurationDays(numValue);
+                }
+              }
+            }}
             placeholder="How long is your trip?"
             className="pl-10"
             required

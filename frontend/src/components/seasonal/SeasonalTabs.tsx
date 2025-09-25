@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { DestinationCard } from "@/components/shared/DestinationCard";
-import { destinationList } from "@/content/destinationContent";
-import { seasonConfig } from "@/content/seasonContent";
+import { destinationList } from "@/constants";
+import { seasonConfig } from "@/constants";
 import { SeasonSelector } from "./SeasonSelector";
 
 export const SeasonalTabs = () => {

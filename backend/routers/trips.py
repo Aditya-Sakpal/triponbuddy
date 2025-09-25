@@ -14,7 +14,6 @@ from models.trip import (
     TripResponse
 )
 from services.trip_service import trip_service
-from utils.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,6 @@ router = APIRouter(prefix="/api/trips", tags=["trips"])
 
 
 @router.post("/generate", response_model=TripGenerationResponse)
-@limiter.limit("10/minute")
 async def generate_trip(
     request: Request,
     trip_request: TripGenerationRequest
@@ -42,7 +40,6 @@ async def generate_trip(
 
 
 @router.get("", response_model=TripListResponse)
-@limiter.limit("30/minute")
 async def get_user_trips(
     request: Request,
     user_id: str = Query(..., description="User ID from Clerk"),
@@ -75,7 +72,6 @@ async def get_user_trips(
 
 
 @router.get("/{trip_id}", response_model=TripResponse)
-@limiter.limit("30/minute")
 async def get_trip(
     request: Request,
     trip_id: str,
@@ -102,7 +98,6 @@ async def get_trip(
 
 
 @router.put("/{trip_id}", response_model=dict)
-@limiter.limit("20/minute")
 async def update_trip(
     request: Request,
     trip_id: str,
@@ -133,7 +128,6 @@ async def update_trip(
 
 
 @router.delete("/{trip_id}", response_model=dict)
-@limiter.limit("10/minute")
 async def delete_trip(
     request: Request,
     trip_id: str,
@@ -163,7 +157,6 @@ async def delete_trip(
 
 
 @router.put("/{trip_id}/save", response_model=dict)
-@limiter.limit("20/minute")
 async def save_trip(
     request: Request,
     trip_id: str,
@@ -193,7 +186,6 @@ async def save_trip(
 
 
 @router.put("/{trip_id}/unsave", response_model=dict)
-@limiter.limit("20/minute")
 async def unsave_trip(
     request: Request,
     trip_id: str,

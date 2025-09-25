@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Bookmark } from "lucide-react";
-import { TripDB } from "@/lib/types";
+import { TripDB } from "@/constants";
 import { TripsList } from "./TripsList";
 
 interface TripTabsProps {

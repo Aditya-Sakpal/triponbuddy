@@ -2,12 +2,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProfileTab } from "./ProfileTab";
 import { MyTripsTab } from "./MyTripsTab";
+import { useSearchParams } from "react-router-dom";
 
 export const ProfileCard = () => {
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') === 'trips' ? 'trips' : 'profile';
+
   return (
     <div className="container mx-auto px-6 -mt-16 relative z-10 mb-16">
       <Card className="max-w-6xl mx-auto bg-white shadow-lg">
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue={activeTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 h-12">
             <TabsTrigger 
               value="profile" 

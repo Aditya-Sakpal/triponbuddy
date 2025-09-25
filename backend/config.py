@@ -23,10 +23,6 @@ class Settings(BaseSettings):
         env="CORS_ORIGINS"
     )
 
-    # Rate Limiting
-    rate_limit_requests: int = Field(default=100, env="RATE_LIMIT_REQUESTS")
-    rate_limit_window: int = Field(default=60, env="RATE_LIMIT_WINDOW")  # seconds
-
     # Cache Configuration
     cache_ttl: int = Field(default=3600, env="CACHE_TTL")  # 1 hour
     cache_maxsize: int = Field(default=1000, env="CACHE_MAXSIZE")

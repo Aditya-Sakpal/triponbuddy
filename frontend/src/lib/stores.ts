@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TripDB, UserStats } from '../lib/types';
+import type { TripDB, UserStats } from '../constants';
 
 // Auth Store
 interface AuthState {

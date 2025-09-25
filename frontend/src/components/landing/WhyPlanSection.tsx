@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { features } from "@/content/homeContent";
+import { features } from "@/constants";
 
 export const WhyPlanSection = () => {
 
