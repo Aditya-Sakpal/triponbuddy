@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TripDB } from "@/lib/types";
+import { TripDB } from "@/constants";
 
 type SortOption = "date-newest" | "date-oldest" | "name-asc" | "name-desc";
 

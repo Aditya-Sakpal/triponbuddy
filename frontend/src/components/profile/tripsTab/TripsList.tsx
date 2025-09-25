@@ -1,4 +1,4 @@
-import { TripDB } from "@/lib/types";
+import { TripDB } from "@/constants";
 import { TripCard } from "./TripCard";
 import { MapPin } from "lucide-react";
 

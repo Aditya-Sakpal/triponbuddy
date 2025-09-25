@@ -1,16 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, Share, Heart, HeartOff, Calendar, MapPin, Users, IndianRupee } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Calendar, MapPin, Users, IndianRupee } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ItineraryTab } from "./ItineraryTab";
-import { AccommodationTab } from "./AccommodationTab";
-import { TransportationTab } from "./TransportationTab";
-import { TravelTipsTab } from "./TravelTipsTab";
-import { NeighboringPlaces } from "./NeighboringPlaces";
-import { EditTripModal } from "./EditTripModal";
-import type { TripDB, Itinerary } from "@/lib/types";
+import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel} from "@/components/trip";
+import { apiClient } from "@/lib/api-client";
+import type { TripDB, Itinerary, ImageData } from "@/constants";
 
 interface TripItineraryProps {
   trip: TripDB;
@@ -28,8 +23,39 @@ export const TripItinerary = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [destinationImages, setDestinationImages] = useState<ImageData[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
+
+  useEffect(() => {
+    const fetchDestinationImages = async () => {
+      if (!trip.destination) return;
+      
+      setImagesLoading(true);
+      try {
+        const response = await apiClient.post<{
+          success: boolean;
+          images: ImageData[];
+        }>('/api/images/single', {}, {
+          location: trip.destination,
+          max_images: 5,
+          min_width: 800,
+          min_height: 600
+        });
+        
+        if (response.success && response.images) {
+          setDestinationImages(response.images);
+        }
+      } catch (error) {
+        console.error('Failed to fetch destination images:', error);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchDestinationImages();
+  }, [trip.destination]);
 
   const handleSaveToggle = () => {
     if (trip.is_saved) {
@@ -83,52 +109,24 @@ export const TripItinerary = ({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background mt-16">
       {/* Header */}
       <div className="bg-gradient-to-r from-bula to-purple-600 text-white">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-start justify-between mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="text-white hover:bg-white/20 mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleEditTrip}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Trip
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleShare}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <Share className="w-4 h-4 mr-2" />
-                Share Trip
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleSaveToggle}
-                disabled={isLoading}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                {trip.is_saved ? (
-                  <HeartOff className="w-4 h-4 mr-2" />
-                ) : (
-                  <Heart className="w-4 h-4 mr-2" />
-                )}
-                {trip.is_saved ? 'Unsave Trip' : 'Save Trip'}
-              </Button>
-            </div>
+          
+          <div className="max-w-7xl mx-auto px-4 py-4 hidden md:block">
+            <TripActionButtons
+              onEditTrip={handleEditTrip}
+              onShare={handleShare}
+              onSaveToggle={handleSaveToggle}
+              isLoading={isLoading}
+              isSaved={trip.is_saved}
+          />
+
           </div>
+
+
+          {/* trip overview section */}
 
           <div className="space-y-4">
             <h1 className="text-4xl font-bold">{itinerary?.title || trip.title}</h1>
@@ -163,13 +161,31 @@ export const TripItinerary = ({
               </div>
             )}
           </div>
+
+          {/* Image Carousel */}
+          <ImageCarousel 
+            images={destinationImages} 
+            isLoading={imagesLoading} 
+          />
         </div>
       </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-4 md:hidden">
+        <TripActionButtons
+            onEditTrip={handleEditTrip}
+            onShare={handleShare}
+            onSaveToggle={handleSaveToggle}
+            isLoading={isLoading}
+            isSaved={trip.is_saved}
+          />
+
+      </div>
+      
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4">
+          <TabsList className="flex w-full overflow-x-auto px-8 lg:w-auto lg:grid lg:grid-cols-4 lg:px-0">
             <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
             <TabsTrigger value="accommodation">Accommodation</TabsTrigger>
             <TabsTrigger value="transportation">Transportation</TabsTrigger>
@@ -186,7 +202,12 @@ export const TripItinerary = ({
           </TabsContent>
 
           <TabsContent value="transportation">
-            <TransportationTab transportation={itinerary?.transportation || []} />
+            <TransportationTab
+              transportation={itinerary?.transportation || { routes: [] }}
+              transportation_hubs_start={itinerary?.transportation_hubs_start || []}
+              transportation_hubs_destination={itinerary?.transportation_hubs_destination || []}
+              local_transportation={itinerary?.local_transportation || []}
+            />
           </TabsContent>
 
           <TabsContent value="travel-tips">

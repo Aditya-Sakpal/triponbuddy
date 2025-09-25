@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useSubmitFeedback } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
 import { useUser } from "@clerk/clerk-react";
-import type { FeedbackCreate, FeedbackType } from "@/lib/types";
+import type { FeedbackCreate, FeedbackType } from "@/constants";
+import { FEEDBACK_VALIDATION_MESSAGES } from "@/constants";
 import {
   validateFeedbackForm,
-  createFeedbackData,
-  FEEDBACK_VALIDATION_MESSAGES
+  createFeedbackData
 } from "@/utils/feedbackUtils";
 
 export interface FeedbackFormData {

@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Clock, BookmarkCheck } from "lucide-react";
-import { TripDB } from "@/lib/types";
-import { TripCardActions } from "@/components/trip/TripCardActions";
+import { TripDB } from "@/constants";
+import { TripCardActions } from "@/components/trip";
 import { formatDate } from "@/utils/tripUtils";
 
 interface TripCardProps {

@@ -35,6 +35,9 @@ class AIService:
             # Validate and structure the response
             validated_itinerary = self._validate_itinerary(itinerary_data)
 
+            # Set generic themes for daily plans
+            self._set_generic_themes(validated_itinerary)
+
             return {
                 "success": True,
                 "itinerary": validated_itinerary,
@@ -122,14 +125,81 @@ class AIService:
                     "amenities": ["Amenity 1", "Amenity 2"]
                 }}
             ],
-            "transportation": [
+            "transportation": {{
+                "routes": [
+                    {{
+                        "type": "flight",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Flight booking URL]",
+                        "details": "[Flight details, airlines, etc.]"
+                    }},
+                    {{
+                        "type": "train",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Train booking URL]",
+                        "details": "[Train details, routes, etc.]"
+                    }},
+                    {{
+                        "type": "local",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Local transport booking URL]",
+                        "details": "[Bus/car details, routes, etc.]"
+                    }}
+                ]
+            }},
+            "transportation_hubs_start": [
                 {{
-                    "type": "[Type]",
-                    "from": "[From]",
-                    "to": "[To]",
-                    "estimated_cost": "₹XXXX",
-                    "duration": "X hours",
-                    "booking_url": "[URL]"
+                    "name": "[Hub Name, e.g., Indira Gandhi International Airport]",
+                    "type": "airport",
+                    "location": "[Location]",
+                    "distance_from_city": "[Distance]",
+                    "estimated_cost_to_reach": "₹XXX",
+                    "transportation_options": ["Taxi", "Metro", "Bus"]
+                }}
+            ],
+            "transportation_hubs_destination": [
+                {{
+                    "name": "[Hub Name, e.g., Destination Airport/Railway Station]",
+                    "type": "airport",
+                    "location": "[Location]",
+                    "distance_from_city": "[Distance]",
+                    "estimated_cost_to_reach": "₹XXX",
+                    "transportation_options": ["Taxi", "Metro", "Bus"]
+                }}
+            ],
+            "local_transportation": [
+                {{
+                    "type": "taxi",
+                    "description": "[Description of taxi services]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "24/7",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book]"
+                }},
+                {{
+                    "type": "rickshaw",
+                    "description": "[Description of rickshaw services]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "[Availability hours]",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book]"
+                }},
+                {{
+                    "type": "metro",
+                    "description": "[Description of metro system]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "[Operating hours]",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book tickets]"
                 }}
             ],
             "neighboring_places": [
@@ -153,6 +223,10 @@ class AIService:
         5. Include travel tips and best time to visit
         6. Suggest neighboring places within 50-150km
         7. Ensure activities align with user preferences{budget_text}
+        8. Provide exactly 3 transportation routes: one flight, one train, and one local transport option
+        9. Include transportation hubs for both starting location and destination
+        10. Provide comprehensive local transportation options for the destination
+        11. Include realistic costs and practical details for all transportation options
         """
 
         return prompt
@@ -192,6 +266,19 @@ class AIService:
             if field not in data:
                 data[field] = self._get_default_value(field)
 
+        # Validate transportation structure
+        if "transportation" not in data or not isinstance(data["transportation"], dict):
+            data["transportation"] = {"routes": []}
+        elif "routes" not in data["transportation"]:
+            data["transportation"]["routes"] = []
+
+        # Ensure we have the 3 required route types
+        route_types = ["flight", "train", "local"]
+        existing_routes = [route.get("type", "").lower() for route in data["transportation"]["routes"]]
+        for route_type in route_types:
+            if route_type not in existing_routes:
+                data["transportation"]["routes"].append(self._get_default_route(route_type))
+
         # Validate daily plans and convert any date objects to strings
         if "daily_plans" in data and isinstance(data["daily_plans"], list):
             for plan in data["daily_plans"]:
@@ -200,6 +287,12 @@ class AIService:
                 # Convert date fields to strings if they exist
                 if "date" in plan and hasattr(plan["date"], 'isoformat'):
                     plan["date"] = plan["date"].isoformat()
+
+        # Initialize optional fields if missing
+        optional_fields = ["transportation_hubs_start", "transportation_hubs_destination", "local_transportation"]
+        for field in optional_fields:
+            if field not in data:
+                data[field] = []
 
         # Convert start_date to string if it's a date object
         if "start_date" in data and hasattr(data["start_date"], 'isoformat'):
@@ -219,10 +312,67 @@ class AIService:
             "travel_tips": ["Check weather conditions", "Pack essentials"],
             "daily_plans": [],
             "accommodation": [],
-            "transportation": [],
+            "transportation": {"routes": []},
+            "transportation_hubs_start": [],
+            "transportation_hubs_destination": [],
+            "local_transportation": [],
             "neighboring_places": []
         }
         return defaults.get(field, [])
+
+    def _get_default_route(self, route_type: str) -> Dict[str, Any]:
+        """Get default route for missing transportation types"""
+        defaults = {
+            "flight": {
+                "type": "flight",
+                "from": "Starting Location",
+                "to": "Destination",
+                "estimated_cost": "₹5000-15000",
+                "duration": "2-5 hours",
+                "booking_url": "https://www.makemytrip.com/flights",
+                "details": "Flight options available"
+            },
+            "train": {
+                "type": "train",
+                "from": "Starting Location",
+                "to": "Destination",
+                "estimated_cost": "₹500-3000",
+                "duration": "5-24 hours",
+                "booking_url": "https://www.irctc.co.in",
+                "details": "Train options available"
+            },
+            "local": {
+                "type": "local",
+                "from": "Starting Location",
+                "to": "Destination",
+                "estimated_cost": "₹200-1000",
+                "duration": "4-12 hours",
+                "booking_url": "https://www.redbus.in",
+                "details": "Bus/car options available"
+            }
+        }
+        return defaults.get(route_type, defaults["local"])
+
+    def _set_generic_themes(self, itinerary: Dict[str, Any]) -> None:
+        """Set generic themes for daily plans based on day number"""
+        if "daily_plans" not in itinerary or not isinstance(itinerary["daily_plans"], list):
+            return
+
+        duration_days = itinerary.get("duration_days", len(itinerary["daily_plans"]))
+
+        for plan in itinerary["daily_plans"]:
+            day = plan.get("day", 1)
+
+            if day == 1:
+                plan["theme"] = "Arrival Day"
+            elif day == duration_days:
+                plan["theme"] = "Departure Day"
+            else:
+                # Alternate between Exploration and Discovery for middle days
+                if (day - 1) % 2 == 0:
+                    plan["theme"] = "Exploration Day"
+                else:
+                    plan["theme"] = "Discovery Day"
 
     def _extract_image_queries(self, itinerary: Dict[str, Any]) -> List[str]:
         """Extract image search queries from itinerary"""

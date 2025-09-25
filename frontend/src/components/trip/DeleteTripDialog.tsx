@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useDeleteTrip } from "@/hooks/api-hooks";
 import { useUser } from "@clerk/clerk-react";
-import { TripDB } from "@/lib/types";
+import { TripDB } from "@/constants";
 
 interface DeleteTripDialogProps {
   trip: TripDB;

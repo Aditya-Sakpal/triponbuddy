@@ -1,4 +1,3 @@
-import { Navigation, Footer } from "@/components/shared";
 import { HeroSection, 
         TripPlanningSection, 
         ExploreDestinationsSection, 
@@ -37,7 +36,6 @@ const Index = () => {
     <div className="relative overflow-hidden">
       <div className="relative min-h-screen">
         <HeroSlideShow />
-        <Navigation />
         <HeroSection />
       </div>
       
@@ -57,14 +55,11 @@ const Index = () => {
         <FeedbackSection />
         
         <WhyTriponBuddySection />
-        
-        {/* Footer */}
-        <Footer />
       </div>
 
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition-opacity duration-700 z-50 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed bottom-4 right-4 bg-blue-500 hover:bg-bula text-white rounded-full p-3 shadow-lg transition-opacity duration-700 z-50 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         aria-label="Scroll to top"
       >
         <ChevronUp size={24} />

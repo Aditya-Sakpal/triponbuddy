@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SignedIn, SignedOut, SignUpButton,SignInButton, SignOutButton, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignUpButton,SignInButton, SignOutButton, UserButton, useUser } from "@clerk/clerk-react";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
 export const Navigation = () => {
   const location = useLocation();
+  const { user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -37,7 +38,7 @@ export const Navigation = () => {
     { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
     { to: "/contact", label: "Contact" },
-    { to: "/profile", label: "My Profile" },
+    { to: "/profile?tab=trips", label: "My Trips" },
   ];
 
   return (
@@ -89,7 +90,18 @@ export const Navigation = () => {
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
-                <UserButton/>
+                <Link to="/profile">
+                  <Button variant="ghost" size="lg" className="flex items-center space-x-2">
+                    {user?.imageUrl && <img src={user.imageUrl} alt={user?.firstName || 'User'} className="w-6 h-6 rounded-full" />}
+                    <span>{user?.firstName || 'Profile'}</span>
+                  </Button>
+                </Link>
+                <SignOutButton>
+                  <Button size="lg" className="flex items-center space-x-2">
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </Button>
+                </SignOutButton>
               </SignedIn>
             </div>
             <Button
@@ -126,8 +138,17 @@ export const Navigation = () => {
                       </SignInButton>
                     </SignedOut>
                     <SignedIn>
+                      <Link to="/profile" onClick={closeMenu}>
+                        <Button size="sm" variant="ghost" className="flex items-center space-x-2">
+                          {user?.imageUrl && <img src={user.imageUrl} alt={user?.firstName || 'User'} className="w-4 h-4 rounded-full" />}
+                          <span className="text-sm">{user?.firstName || 'Profile'}</span>
+                        </Button>
+                      </Link>
                       <SignOutButton>
-                        <Button variant="outline" size="sm" onClick={closeMenu}>Sign Out</Button>
+                        <Button size="sm" onClick={closeMenu} className="flex items-center space-x-2">
+                          <LogOut className="w-4 h-4" />
+                          <span>Logout</span>
+                        </Button>
                       </SignOutButton>
                     </SignedIn>
                   </div>

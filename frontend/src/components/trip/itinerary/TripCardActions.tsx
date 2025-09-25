@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Eye, Bookmark, BookmarkX, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
-import { TripDB } from "@/lib/types";
+import { TripDB } from "@/constants";
 import { ItineraryModal } from "./ItineraryModal";
-import { DeleteTripDialog } from "./DeleteTripDialog";
+import { DeleteTripDialog } from "../DeleteTripDialog";
 
 interface TripCardActionsProps {
   trip: TripDB;

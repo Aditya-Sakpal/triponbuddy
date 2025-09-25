@@ -10,6 +10,7 @@ export const Footer = () => {
     { to: "/seasonal", label: "Seasonal" },
     { to: "/trips", label: "My Trips" },
     { to: "/contact", label: "Contact" },
+    { to: "/privacy", label: "Privacy Policy" },
   ];
 
   const popularDestinations = [

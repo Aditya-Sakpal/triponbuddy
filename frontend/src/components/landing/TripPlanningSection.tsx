@@ -5,7 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useGenerateTrip } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import type { TripPreferences } from "@/lib/types";
+import type { TripPreferences } from "@/constants";
 import { sampleTrip } from "@/content/sampleTrip";
 import { LocationInputs, DateDurationInputs, TravelPreferences, ActionButtons } from "./tripPlanning";
 
@@ -85,7 +85,7 @@ export const TripPlanningSection = () => {
       currentUserId = 'demo-user-' + Date.now();
     }
 
-    if (!destination || !startDate || !durationDays) {
+    if (!destination || !startDate || !durationDays || durationDays < 1) {
       alert('Please fill in all required fields');
       return;
     }

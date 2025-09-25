@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { TripsApiService, UsersApiService, ImagesApiService, FeedbackApiService } from '../lib/api-services';
 import { useTripsStore, useUserStore, useUiStore } from '../lib/stores';
+import { queryKeys } from '../constants';
 import type {
   TripGenerationRequest,
   TripListParams,
@@ -9,15 +10,7 @@ import type {
   ImageBulkParams,
   ImageSingleParams,
   ApiError,
-} from '../lib/types';
-
-// Query Keys
-export const queryKeys = {
-  trips: ['trips'] as const,
-  trip: (tripId: string) => ['trips', tripId] as const,
-  userStats: ['user', 'stats'] as const,
-  images: (query: string) => ['images', query] as const,
-};
+} from '../constants';
 
 // Trips Hooks
 export const useGenerateTrip = () => {

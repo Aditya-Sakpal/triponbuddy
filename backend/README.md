@@ -9,7 +9,6 @@ AI-powered travel planning platform backend built with FastAPI.
 - **Trip Management**: Complete CRUD operations for user trips
 - **User Profiles**: Profile and statistics management
 - **Feedback System**: Collect and manage user feedback
-- **Rate Limiting**: Built-in rate limiting and request validation
 - **Caching**: In-memory caching for improved performance
 
 ## Architecture
@@ -73,7 +72,6 @@ python -m app.main
 - `MONGODB_URL` - MongoDB connection string
 - `GOOGLE_GEMINI_API_KEY` - Google Gemini AI API key
 - `CORS_ORIGINS` - Comma-separated allowed origins
-- `RATE_LIMIT_REQUESTS` - Max requests per minute
 - `CACHE_TTL` - Cache expiration time in seconds
 
 ## Development
@@ -82,6 +80,5 @@ The application uses:
 - **FastAPI** for the web framework
 - **MongoDB** with async PyMongo for database
 - **Google Gemini AI** for itinerary generation
-- **SlowAPI** for rate limiting
 - **CacheTools** for caching
 - **Pydantic** for data validation

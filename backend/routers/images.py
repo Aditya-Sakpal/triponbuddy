@@ -7,7 +7,6 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from services.image_service import image_service
-from utils.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,6 @@ router = APIRouter(prefix="/api/images", tags=["images"])
 
 
 @router.post("/bulk", response_model=Dict[str, List[str]])
-@limiter.limit("5/minute")
 async def bulk_images(request: Request, locations: List[str]):
     """Fetch images for multiple locations"""
 
@@ -40,7 +38,6 @@ async def bulk_images(request: Request, locations: List[str]):
 
 
 @router.post("/single", response_model=Dict[str, Any])
-@limiter.limit("10/minute")
 async def single_image(
     request: Request,
     location: str = Query(..., description="Location to search for"),

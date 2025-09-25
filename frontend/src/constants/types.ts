@@ -53,13 +53,36 @@ export interface Accommodation {
   amenities: string[];
 }
 
-export interface Transportation {
+export interface TravelRoute {
   type: string;
   from: string;
   to: string;
   estimated_cost: string;
   duration: string;
   booking_url: string;
+  details?: string;
+}
+
+export interface Transportation {
+  routes: TravelRoute[];
+}
+
+export interface TransportationHub {
+  name: string;
+  type: string;
+  location: string;
+  distance_from_city: string;
+  estimated_cost_to_reach: string;
+  transportation_options: string[];
+}
+
+export interface LocalTransportation {
+  type: string;
+  description: string;
+  estimated_cost: string;
+  availability: string;
+  coverage_area: string;
+  booking_info?: string;
 }
 
 export interface NeighboringPlace {
@@ -82,7 +105,10 @@ export interface Itinerary {
   travel_tips: string[];
   daily_plans: DailyPlan[];
   accommodation: Accommodation[];
-  transportation: Transportation[];
+  transportation: Transportation;
+  transportation_hubs_start: TransportationHub[];
+  transportation_hubs_destination: TransportationHub[];
+  local_transportation: LocalTransportation[];
   neighboring_places: NeighboringPlace[];
 }
 

@@ -13,7 +13,7 @@ import type {
   SingleImageResponse,
   ImageBulkParams,
   ImageSingleParams,
-} from './types';
+} from '../constants';
 
 // Trips API Service
 export class TripsApiService {
