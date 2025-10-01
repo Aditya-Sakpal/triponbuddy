@@ -152,6 +152,7 @@ export interface TripDB {
   budget?: number;
   is_international: boolean;
   is_saved: boolean;
+  destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
   created_at: string;

@@ -166,6 +166,7 @@ class TripDB(BaseModel):
     budget: Optional[float] = Field(default=None, description="Budget in INR")
     is_international: bool = Field(default=False, description="International flag")
     is_saved: bool = Field(default=False, description="Saved status")
+    destination_image: Optional[str] = Field(default=None, description="Destination image URL")
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")

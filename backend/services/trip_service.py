@@ -10,6 +10,7 @@ from uuid import uuid4
 from database import mongodb
 from models.trip import TripGenerationRequest, TripUpdateRequest
 from services.ai_service import ai_service
+from services.image_service import image_service
 from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
 from utils.validators import validate_trip_title
 
@@ -26,6 +27,22 @@ class TripService:
             # Generate itinerary using AI
             ai_response = await ai_service.generate_itinerary(request)
 
+            # Fetch destination image
+            destination_image = None
+            try:
+                image_response = await image_service.fetch_single_location_images(
+                    location=f"{request.destination} tourism landmark",
+                    max_images=1,
+                    min_width=400,
+                    min_height=400
+                )
+                if image_response.get("success") and image_response.get("images"):
+                    destination_image = image_response["images"][0]["url"]
+                    logger.info(f"Fetched destination image for {request.destination}: {destination_image}")
+            except Exception as img_error:
+                logger.warning(f"Failed to fetch destination image: {str(img_error)}")
+                # Continue without image
+
             # Create trip record
             trip_data = {
                 "trip_id": str(uuid4()),
@@ -38,6 +55,7 @@ class TripService:
                 "budget": request.budget,
                 "is_international": request.is_international,
                 "is_saved": False,
+                "destination_image": destination_image,
                 "itinerary_data": ai_response["itinerary"],
                 "tags": [],
                 "created_at": datetime.now(timezone.utc),
