@@ -9,7 +9,7 @@ interface ItineraryTabProps {
 }
 
 export const ItineraryTab = ({ itinerary }: ItineraryTabProps) => {
-  const [expandedDays, setExpandedDays] = useState<number[]>([1]); // First day expanded by default
+  const [expandedDay, setExpandedDay] = useState<number | null>(1); // First day expanded by default
   const [activityImages, setActivityImages] = useState<{ [query: string]: string | undefined }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,16 +51,12 @@ export const ItineraryTab = ({ itinerary }: ItineraryTabProps) => {
   }, [itinerary]);
 
   const toggleDay = (dayNumber: number) => {
-    setExpandedDays(prev =>
-      prev.includes(dayNumber)
-        ? prev.filter(day => day !== dayNumber)
-        : [...prev, dayNumber]
-    );
+    setExpandedDay(prev => prev === dayNumber ? null : dayNumber);
   };
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle>Your Complete Itinerary</CardTitle>
           <CardDescription>
@@ -81,7 +77,7 @@ export const ItineraryTab = ({ itinerary }: ItineraryTabProps) => {
           <DayPlan
             key={dayPlan.day}
             dayPlan={dayPlan}
-            isExpanded={expandedDays.includes(dayPlan.day)}
+            isExpanded={expandedDay === dayPlan.day}
             onToggle={() => toggleDay(dayPlan.day)}
             activityImages={activityImages}
           />
