@@ -34,9 +34,9 @@ export const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[70] bg-white shadow-md overflow-hidden h-20">
+    <nav className="fixed -top-4 left-0 right-0 z-[70] bg-white shadow-md overflow-hidden h-20">
       <div className="container mx-auto px-6 md:px-24">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center ">
           {/* Left side: Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center" onClick={closeMenu}>
@@ -49,13 +49,13 @@ export const Navigation = () => {
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="flex justify-center flex-1">
+          <div className="flex justify-center pl-12 flex-1">
             <div className="hidden sm:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link 
                   key={link.to}
                   to={link.to} 
-                  className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap ${
+                  className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap font-semibold ${
                     location.pathname === link.to 
                       ? 'text-bula after:scale-x-100' 
                       : 'text-gray-600 after:scale-x-0'

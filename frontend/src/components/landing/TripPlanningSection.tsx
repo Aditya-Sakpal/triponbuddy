@@ -2,10 +2,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { useGenerateTrip } from "@/hooks/api-hooks";
+import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import type { TripPreferences } from "@/constants";
+import type { TripPreferences, ImageData } from "@/constants";
 import { sampleTrip } from "@/content/sampleTrip";
 import { LocationInputs, DateDurationInputs, TravelPreferences, ActionButtons } from "./tripPlanning";
 
@@ -15,6 +15,9 @@ export const TripPlanningSection = () => {
   const [startLocation, setStartLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [modalImages, setModalImages] = useState<ImageData[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -23,6 +26,7 @@ export const TripPlanningSection = () => {
   const { setUser: setAuthUser } = useAuthStore();
   
   const generateTripMutation = useGenerateTrip();
+  const singleImageMutation = useSingleImage();
   
   // Sync Clerk authentication with auth store
   useEffect(() => {
@@ -34,6 +38,8 @@ export const TripPlanningSection = () => {
   useEffect(() => {
     
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
+      setIsGenerating(false);
+      setModalImages([]);
       navigate(`/trip/${generateTripMutation.data.trip_id}`);
     }
   }, [
@@ -48,6 +54,8 @@ export const TripPlanningSection = () => {
   useEffect(() => {
     if (generateTripMutation.isError) {
       console.error('Trip generation failed:', generateTripMutation.error);
+      setIsGenerating(false);
+      setModalImages([]);
       alert(`Failed to generate trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
     }
   }, [generateTripMutation.isError, generateTripMutation.error]);
@@ -90,6 +98,85 @@ export const TripPlanningSection = () => {
       return;
     }
 
+    // Set generating state to show modal immediately
+    setIsGenerating(true);
+
+    // Step 1: Fetch images for the modal first
+    singleImageMutation.mutate(
+      {
+        location: destination,
+        max_images: 5,
+        min_width: 800,
+        min_height: 600,
+      },
+      {
+        onSuccess: (data) => {
+          if (data.images && data.images.length > 0) {
+            setModalImages(data.images);
+          } else {
+            // Set placeholder images if no images found
+            setModalImages([
+              {
+                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              },
+              {
+                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              },
+              {
+                url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              }
+            ]);
+          }
+          
+          // Step 2: Now start trip generation
+          startTripGeneration(currentUserId);
+        },
+        onError: () => {
+          // Set placeholder images on error
+          setModalImages([
+            {
+              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            },
+            {
+              url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            },
+            {
+              url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            }
+          ]);
+          
+          // Step 2: Start trip generation even if images failed
+          startTripGeneration(currentUserId);
+        }
+      }
+    );
+  };
+
+  const startTripGeneration = (currentUserId: string) => {
     // Build preferences object
     const userPreferences: TripPreferences = {
       adventure: selectedPreferences.includes('Adventure'),
@@ -100,22 +187,44 @@ export const TripPlanningSection = () => {
       food: selectedPreferences.includes('Food'),
     };
 
+    // Create a new AbortController for this request
+    const controller = new AbortController();
+    setAbortController(controller);
+
     generateTripMutation.mutate({
-      user_id: currentUserId,
-      destination,
-      start_location: startLocation || undefined,
-      start_date: startDate,
-      duration_days: durationDays,
-      preferences: userPreferences,
-      is_international: false,
+      request: {
+        user_id: currentUserId,
+        destination,
+        start_location: startLocation || undefined,
+        start_date: startDate,
+        duration_days: durationDays,
+        preferences: userPreferences,
+        is_international: false,
+      },
+      signal: controller.signal,
     });
+  };
+
+  const handleCancelGeneration = () => {
+    // Abort the ongoing request
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    // Reset the mutation state to cancel the request
+    generateTripMutation.reset();
+    setIsGenerating(false);
+    setModalImages([]);
   };
 
   return (
     <>
       <TripGenerationModal 
-        isOpen={generateTripMutation.isPending} 
-        onClose={() => {}} 
+        isOpen={isGenerating || generateTripMutation.isPending} 
+        onClose={() => {}}
+        destination={destination}
+        onCancel={handleCancelGeneration}
+        preloadedImages={modalImages}
       />
       
       <div className="relative px-6 overflow-x-hidden">

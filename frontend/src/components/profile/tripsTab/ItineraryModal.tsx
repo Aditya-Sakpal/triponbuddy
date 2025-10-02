@@ -38,7 +38,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mt-12">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{trip.title}</DialogTitle>
           <DialogDescription className="text-lg">

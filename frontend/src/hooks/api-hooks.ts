@@ -19,9 +19,9 @@ export const useGenerateTrip = () => {
   const { addNotification } = useUiStore();
 
   return useMutation({
-    mutationFn: (request: TripGenerationRequest) => {
+    mutationFn: ({ request, signal }: { request: TripGenerationRequest; signal?: AbortSignal }) => {
       console.log('🚀 Mutation function called with:', request);
-      return TripsApiService.generateTrip(request);
+      return TripsApiService.generateTrip(request, signal);
     },
     onMutate: () => {
       console.log('🔄 Mutation started');
@@ -39,6 +39,11 @@ export const useGenerateTrip = () => {
     },
     onError: (error: Error) => {
       console.log('❌ Mutation error:', error);
+      // Don't show error notification for aborted requests
+      if (error.name === 'CanceledError' || error.message.includes('cancel')) {
+        console.log('Request was cancelled');
+        return;
+      }
       const message = error?.message || 'Failed to generate trip';
       setError(message);
       addNotification({

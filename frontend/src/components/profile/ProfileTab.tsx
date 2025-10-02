@@ -30,8 +30,8 @@ export const ProfileTab = () => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-xl font-semibold">Personal Information</CardTitle>
           {showUserProfile ? (
-            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg max-w-4xl max-h-[95vh] overflow-hidden relative">
+            <div className="fixed inset-0 z-[99] bg-black/50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg max-w-4xl max-h-[85vh] overflow-hidden relative mt-16">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -126,10 +126,6 @@ export const ProfileTab = () => {
                 <p className="text-sm font-medium text-gray-600">Saved Trips</p>
               </div>
                           
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <p className="text-3xl font-bold text-orange-600">{userStatsData.stats.recent_destinations.length}</p>
-                <p className="text-sm font-medium text-gray-600">Recent Places</p>
-              </div>
             </div>
           ) : (
             <div className="text-center py-8">

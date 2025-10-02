@@ -116,7 +116,7 @@ export const TripItinerary = ({
   };
 
   return (
-    <div className="min-h-screen bg-background mt-12">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gray-100 text-black pt-12">
         <div className="max-w-6xl mx-auto px-4 py-8">

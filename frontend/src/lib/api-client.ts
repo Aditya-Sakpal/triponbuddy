@@ -85,23 +85,23 @@ class ApiClient {
   }
 
   // Generic request methods
-  async get<T>(url: string, params?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.get(url, { params });
+  async get<T>(url: string, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+    const response = await this.client.get(url, { params, signal });
     return response.data;
   }
 
-  async post<T>(url: string, data?: unknown, params?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.post(url, data, { params });
+  async post<T>(url: string, data?: unknown, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+    const response = await this.client.post(url, data, { params, signal });
     return response.data;
   }
 
-  async put<T>(url: string, data?: unknown, params?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.put(url, data, { params });
+  async put<T>(url: string, data?: unknown, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+    const response = await this.client.put(url, data, { params, signal });
     return response.data;
   }
 
-  async delete<T>(url: string, params?: Record<string, unknown>): Promise<T> {
-    const response = await this.client.delete(url, { params });
+  async delete<T>(url: string, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+    const response = await this.client.delete(url, { params, signal });
     return response.data;
   }
 }

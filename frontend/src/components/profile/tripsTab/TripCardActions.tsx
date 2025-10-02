@@ -5,7 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
 import { TripDB } from "@/constants";
 import { ItineraryModal } from "./ItineraryModal";
-import { DeleteTripDialog } from "../DeleteTripDialog";
+import { DeleteTripDialog } from "../../trip/DeleteTripDialog";
 
 interface TripCardActionsProps {
   trip: TripDB;

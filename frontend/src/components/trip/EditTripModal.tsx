@@ -1,7 +1,99 @@
 /**
  * EditTripModal Component
  * 
- * A modal component that allows users to edit their existing trip details and regenerate the itinerary.
+ * A modal component that allows users to edit their existing trip details and regenerate  const handleUpdateTrip = () => {
+    console.log('Update trip clicked', { 
+      trip: trip.trip_id,
+      destination, 
+      startDate, 
+      durationDays 
+    });
+
+    if (!destination || !startDate || !durationDays || durationDays < 1) {
+      console.log('Missing required fields');
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Set generating state to show modal immediately
+    setIsGenerating(true);
+
+    // Step 1: Fetch images for the modal first
+    singleImageMutation.mutate(
+      {
+        location: destination,
+        max_images: 5,
+        min_width: 800,
+        min_height: 600,
+      },
+      {
+        onSuccess: (data) => {
+          if (data.images && data.images.length > 0) {
+            setModalImages(data.images);
+          } else {
+            // Set placeholder images if no images found
+            setModalImages([
+              {
+                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              },
+              {
+                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              },
+              {
+                url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
+                width: 800,
+                height: 600,
+                source: "unsplash",
+                title: destination
+              }
+            ]);
+          }
+          
+          // Step 2: Now start trip generation
+          startTripRegeneration();
+        },
+        onError: () => {
+          // Set placeholder images on error
+          setModalImages([
+            {
+              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            },
+            {
+              url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            },
+            {
+              url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
+              width: 800,
+              height: 600,
+              source: "unsplash",
+              title: destination
+            }
+          ]);
+          
+          // Step 2: Start trip generation even if images failed
+          startTripRegeneration();
+        }
+      }
+    );
+  };
+
+  const startTripRegeneration = () => {y.
  * Features:
  * - Pre-fills form with current trip data (destination, dates, preferences, etc.)
  * - Allows modification of all trip parameters
@@ -26,9 +118,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { useGenerateTrip } from "@/hooks/api-hooks";
+import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
-import type { TripDB, TripPreferences, Itinerary } from "@/constants";
+import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -44,8 +136,12 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [modalImages, setModalImages] = useState<ImageData[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
   
   const generateTripMutation = useGenerateTrip();
+  const singleImageMutation = useSingleImage();
   
   const preferenceOptions = useMemo(() => [
     { icon: Mountain, label: "Adventure" },
@@ -94,6 +190,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
   useEffect(() => {
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
       console.log('Trip updated successfully, new trip ID:', generateTripMutation.data.trip_id);
+      setIsGenerating(false);
+      setModalImages([]);
       onTripUpdated(generateTripMutation.data.trip_id);
       onClose();
       // Reset mutation state
@@ -105,6 +203,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
   useEffect(() => {
     if (generateTripMutation.isError) {
       console.error('Trip update failed:', generateTripMutation.error);
+      setIsGenerating(false);
+      setModalImages([]);
       alert(`Failed to update trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
     }
   }, [generateTripMutation.isError, generateTripMutation.error]);
@@ -151,15 +251,34 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
       is_international: isInternational,
     });
 
+    // Create a new AbortController for this request
+    const controller = new AbortController();
+    setAbortController(controller);
+
     generateTripMutation.mutate({
-      user_id: trip.user_id,
-      destination,
-      start_location: startLocation || undefined,
-      start_date: startDate,
-      duration_days: durationDays,
-      preferences: userPreferences,
-      is_international: isInternational,
+      request: {
+        user_id: trip.user_id,
+        destination,
+        start_location: startLocation || undefined,
+        start_date: startDate,
+        duration_days: durationDays,
+        preferences: userPreferences,
+        is_international: isInternational,
+      },
+      signal: controller.signal,
     });
+  };
+
+  const handleCancelGeneration = () => {
+    // Abort the ongoing request
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    // Reset the mutation state
+    generateTripMutation.reset();
+    setIsGenerating(false);
+    setModalImages([]);
   };
 
   const handleClose = () => {
@@ -196,12 +315,15 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
   return (
     <>
       <TripGenerationModal 
-        isOpen={generateTripMutation.isPending} 
+        isOpen={isGenerating || generateTripMutation.isPending} 
         onClose={() => {}} // Can't close while generating
+        destination={destination}
+        onCancel={handleCancelGeneration}
+        preloadedImages={modalImages}
       />
       
       <Dialog open={isOpen && !generateTripMutation.isPending} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto mt-12">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="text-2xl font-bold">
