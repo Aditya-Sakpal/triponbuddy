@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { MapPin, Clock, IndianRupee, ArrowRight } from "lucide-react";
+import { MapPin, Clock, IndianRupee, ArrowRight, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +9,11 @@ import { apiClient } from "@/lib/api-client";
 
 interface NeighboringPlacesProps {
   places: NeighboringPlace[];
+  onGenerateTrip?: (placeName: string) => void;
 }
 
 
-const NeighboringPlaceCard = ({ place, imageUrl }: { place: NeighboringPlace, imageUrl?: string }) => {
+const NeighboringPlaceCard = ({ place, imageUrl, onGenerateTrip }: { place: NeighboringPlace, imageUrl?: string, onGenerateTrip?: (placeName: string) => void }) => {
   return (
     <Card className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border-border/50 hover:border-primary/20 overflow-hidden h-full flex flex-col">
       <div className="relative overflow-hidden rounded-t-lg flex-shrink-0">
@@ -55,20 +56,30 @@ const NeighboringPlaceCard = ({ place, imageUrl }: { place: NeighboringPlace, im
           </div>
         </div>
 
-        <Button
-          variant="ghost"
-          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors mt-4"
-        >
-          Explore This Place
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex gap-2 mt-4">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`, '_blank')}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            View on Map
+          </Button>
+          <Button
+            className="flex-1 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+            onClick={() => onGenerateTrip?.(place.name)}
+          >
+            Generate Trip
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
 
-export const NeighboringPlaces = ({ places }: NeighboringPlacesProps) => {
+export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesProps) => {
   const [images, setImages] = useState<{ [location: string]: string[] }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +130,7 @@ export const NeighboringPlaces = ({ places }: NeighboringPlacesProps) => {
           // Use first image for place name if available
           const imageUrl = images[place.name]?.[0];
           return (
-            <NeighboringPlaceCard key={index} place={place} imageUrl={imageUrl} />
+            <NeighboringPlaceCard key={index} place={place} imageUrl={imageUrl} onGenerateTrip={onGenerateTrip} />
           );
         })}
       </div>

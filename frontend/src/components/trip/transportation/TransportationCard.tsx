@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { TravelRoute } from "@/constants";
+import { formatTitleCase } from "@/utils/tripUtils";
 
 const getTransportIcon = (type: string) => {
   const typeLower = type.toLowerCase();
@@ -24,7 +25,7 @@ export const TransportationCard = ({ transport }: { transport: TravelRoute }) =>
               <Icon className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base leading-tight capitalize">{transport.type}</CardTitle>
+              <CardTitle className="text-base leading-tight">{formatTitleCase(transport.type)}</CardTitle>
             </div>
           </div>
           <Badge variant="outline" className="group-hover:bg-white/10 transition-colors duration-300 text-xs px-2 py-0.5 text-white">

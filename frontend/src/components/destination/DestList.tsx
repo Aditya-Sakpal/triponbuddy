@@ -129,7 +129,8 @@ export const DestList = () => {
                                 name: destination.name,
                                 state: stateData.state,
                                 description: destination.description,
-                                image: destination.image
+                                image: destination.image,
+                                bestTimeToVisit: destination.bestTimeToVisit
                             };
                             
                             return (

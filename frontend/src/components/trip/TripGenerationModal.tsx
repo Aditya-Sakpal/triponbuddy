@@ -57,7 +57,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
       singleImageMutation.mutate(
         {
           location: destination,
-          max_images: 5,
+          max_images: 10, // Increased from 5 to 10 for more variety
           min_width: 800,
           min_height: 600,
         },
@@ -141,26 +141,26 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Image carousel effect with horizontal wave motion
+  // Image carousel effect with horizontal sliding motion
   useEffect(() => {
     if (!isOpen || images.length === 0) return;
 
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // Change image every 3 seconds
+    }, 3000); // Change image every 3 seconds for faster pace
 
     return () => clearInterval(imageInterval);
   }, [isOpen, images.length]);
 
-  // Continuous wave animation
+  // Continuous sliding animation - faster speed
   useEffect(() => {
     if (!isOpen) return;
 
-    const waveInterval = setInterval(() => {
-      setWaveOffset((prev) => (prev + 0.1) % (Math.PI * 2));
-    }, 50); // Smooth animation
+    const slideInterval = setInterval(() => {
+      setWaveOffset((prev) => (prev + 0.06) % (Math.PI * 2)); // Increased from 0.02 to 0.06 for faster sliding
+    }, 40); // Decreased from 50ms to 40ms for smoother faster animation
 
-    return () => clearInterval(waveInterval);
+    return () => clearInterval(slideInterval);
   }, [isOpen]);
 
   // Travel tips rotation
@@ -237,30 +237,47 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
               </p>
             </div>
 
-            {/* Image Carousel with individual cards */}
+            {/* Image Carousel with sliding animation */}
             {images.length > 0 && (
-              <div className="relative w-full h-36 flex items-center justify-center gap-3 overflow-visible">
-                {Array.from({ length: 3 }, (_, i) => {
+              <div className="relative w-full h-36 flex items-center justify-center overflow-hidden">
+                {Array.from({ length: 6 }, (_, i) => {
+                  // Calculate which image this card should show
                   const imageIndex = (currentImageIndex + i) % images.length;
                   const image = images[imageIndex];
-                  const horizontalOffset = Math.sin(waveOffset + i * 0.8) * 20;
-                  const verticalOffset = Math.sin(waveOffset + i * 0.8 + Math.PI/2) * 5;
-                  const scale = 0.85 + Math.sin(waveOffset + i * 0.8) * 0.08;
+                  
+                  // Calculate horizontal position for sliding effect
+                  // Cards start from right (positive X) and move left (negative X)
+                  const basePosition = i * 120 - 200; // Space cards 120px apart, start 200px to the right
+                  const slideOffset = waveOffset * 50; // Convert wave offset to pixels
+                  const horizontalPosition = basePosition - slideOffset;
+                  
+                  // Add slight vertical wave motion
+                  const verticalOffset = Math.sin(waveOffset + i * 0.5) * 8;
+                  
+                  // Calculate distance from center for opacity and z-index effects
+                  const distanceFromCenter = Math.abs(horizontalPosition);
+                  
+                  // All cards have consistent size - no automatic scaling
+                  const scale = 1.0;
+                  
+                  // Opacity based on distance from center
+                  const opacity = Math.max(0.3, 1 - distanceFromCenter / 400);
                   
                   return (
                     <div
-                      key={`${imageIndex}-${i}`}
-                      className="w-28 h-32 relative rounded-2xl shadow-xl transform transition-all duration-300 ease-out bg-white dark:bg-gray-800 p-2"
+                      key={`card-${i}`} // Stable key based on position
+                      className="absolute w-28 h-32 rounded-2xl shadow-xl bg-white dark:bg-gray-800 p-2 transition-all duration-1000 ease-out hover:scale-110 cursor-pointer"
                       style={{
-                        transform: `translate(${horizontalOffset}px, ${verticalOffset}px) scale(${scale})`,
-                        opacity: 0.7 + Math.sin(waveOffset + i * 0.8) * 0.3,
+                        transform: `translate(${horizontalPosition}px, ${verticalOffset}px) scale(${scale})`,
+                        opacity: opacity,
+                        zIndex: Math.floor(100 - distanceFromCenter), // Closer cards appear on top
                       }}
                     >
                       <div className="w-full h-full overflow-hidden rounded-xl">
                         <img
                           src={image.url}
                           alt={image.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-opacity duration-500"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}

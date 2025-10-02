@@ -1,114 +1,3 @@
-/**
- * EditTripModal Component
- * 
- * A modal component that allows users to edit their existing trip details and regenerate  const handleUpdateTrip = () => {
-    console.log('Update trip clicked', { 
-      trip: trip.trip_id,
-      destination, 
-      startDate, 
-      durationDays 
-    });
-
-    if (!destination || !startDate || !durationDays || durationDays < 1) {
-      console.log('Missing required fields');
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    // Set generating state to show modal immediately
-    setIsGenerating(true);
-
-    // Step 1: Fetch images for the modal first
-    singleImageMutation.mutate(
-      {
-        location: destination,
-        max_images: 5,
-        min_width: 800,
-        min_height: 600,
-      },
-      {
-        onSuccess: (data) => {
-          if (data.images && data.images.length > 0) {
-            setModalImages(data.images);
-          } else {
-            // Set placeholder images if no images found
-            setModalImages([
-              {
-                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash",
-                title: destination
-              },
-              {
-                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash",
-                title: destination
-              },
-              {
-                url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash",
-                title: destination
-              }
-            ]);
-          }
-          
-          // Step 2: Now start trip generation
-          startTripRegeneration();
-        },
-        onError: () => {
-          // Set placeholder images on error
-          setModalImages([
-            {
-              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-              width: 800,
-              height: 600,
-              source: "unsplash",
-              title: destination
-            },
-            {
-              url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
-              width: 800,
-              height: 600,
-              source: "unsplash",
-              title: destination
-            },
-            {
-              url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
-              width: 800,
-              height: 600,
-              source: "unsplash",
-              title: destination
-            }
-          ]);
-          
-          // Step 2: Start trip generation even if images failed
-          startTripRegeneration();
-        }
-      }
-    );
-  };
-
-  const startTripRegeneration = () => {y.
- * Features:
- * - Pre-fills form with current trip data (destination, dates, preferences, etc.)
- * - Allows modification of all trip parameters
- * - Shows change detection - only enables "Update Trip" when changes are made
- * - Integrates with trip generation API to create a new itinerary
- * - Shows loading modal during regeneration process
- * - Automatically navigates to the new trip once regeneration is complete
- * 
- * Props:
- * - isOpen: Controls modal visibility
- * - onClose: Callback to close the modal
- * - trip: Current trip data to edit
- * - onTripUpdated: Callback when trip is successfully updated with new trip ID
- */
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -127,9 +16,10 @@ interface EditTripModalProps {
   onClose: () => void;
   trip: TripDB;
   onTripUpdated: (newTripId: string) => void;
+  initialDestination?: string;
 }
 
-export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTripModalProps) => {
+export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDestination }: EditTripModalProps) => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
   const [destination, setDestination] = useState("");
   const [startLocation, setStartLocation] = useState("");
@@ -155,7 +45,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
   // Initialize form with trip data when modal opens
   useEffect(() => {
     if (isOpen && trip) {
-      setDestination(trip.destination || "");
+      setDestination(initialDestination || trip.destination || "");
       setStartLocation(trip.start_location || "");
       setStartDate(trip.start_date || "");
       setDurationDays(trip.duration_days || 3);
@@ -184,7 +74,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated }: EditTrip
       
       setSelectedPreferences(preferences);
     }
-  }, [isOpen, trip, preferenceOptions]);
+  }, [isOpen, trip, initialDestination, preferenceOptions]);
 
   // Handle trip generation success
   useEffect(() => {

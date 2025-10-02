@@ -2,7 +2,6 @@ import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserStats } from "@/hooks/api-hooks";
-import { Badge } from "@/components/ui/badge";
 import { UserProfile } from "@clerk/clerk-react";
 import { useState } from "react";
 import { Edit, Mail, Calendar, MapPin, User } from "lucide-react";

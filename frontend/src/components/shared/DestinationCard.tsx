@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowRight, Info } from "lucide-react";
 
 interface Destination {
   id?: string;
@@ -10,6 +11,7 @@ interface Destination {
   description: string;
   image: string;
   season?: string;
+  bestTimeToVisit?: string;
 }
 
 interface DestinationCardProps {
@@ -65,6 +67,22 @@ export const DestinationCard = ({
             <p className="text-white/80 text-sm">{destination.state}</p>
           )}
         </div>
+        {destination.bestTimeToVisit && (
+          <div className="absolute bottom-4 right-4 z-10">
+            <TooltipProvider delayDuration={200} skipDelayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="bg-black/50 hover:bg-black/70 rounded-full p-2 text-white transition-colors">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="z-[99] pr-24">
+                  <p>Best time to visit: <br/>{destination.bestTimeToVisit}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
       </div>
       <CardContent className="p-6 flex-1 flex flex-col">
         <CardDescription className="text-muted-foreground mb-4 flex-1 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>

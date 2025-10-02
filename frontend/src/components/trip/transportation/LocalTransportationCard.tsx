@@ -2,6 +2,7 @@ import { Car, Clock, IndianRupee, MapPin, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { LocalTransportation } from "@/constants";
+import { formatTitleCase } from "@/utils/tripUtils";
 
 const getLocalTransportIcon = (type: string) => {
   const typeLower = type.toLowerCase();
@@ -24,7 +25,7 @@ export const LocalTransportationCard = ({ localTransport }: { localTransport: Lo
               <Icon className="w-5 h-5 text-white" />
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base leading-tight capitalize">{localTransport.type}</CardTitle>
+              <CardTitle className="text-base leading-tight">{formatTitleCase(localTransport.type)}</CardTitle>
               <CardDescription className="flex items-center gap-1 mt-0.5 text-xs text-black">
                 <Clock className="w-3 h-3" />
                 <span>{localTransport.availability}</span>

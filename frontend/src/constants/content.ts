@@ -91,4 +91,4 @@ export const seasonConfig = {
 
 // Note: destinationContent.ts is very large and contains dynamic imports and data.
 // For now, re-exporting the necessary exports from there.
-export { locations, seasons, destinationList, indianStates } from '../content/destinationContent';
+export { locations, seasons, destinationList, seasonalDestinations, indianStates } from '../content/destinationContent';

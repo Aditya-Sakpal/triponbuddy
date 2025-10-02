@@ -5,3 +5,13 @@ export const formatDate = (dateString: string) => {
     day: "numeric"
   });
 };
+
+export const formatTitleCase = (text: string): string => {
+  if (!text) return '';
+
+  // Replace underscores with spaces and capitalize each word
+  return text
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};

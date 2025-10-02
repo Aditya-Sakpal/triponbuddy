@@ -49,7 +49,7 @@ export const Navigation = () => {
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="flex justify-center pl-12 flex-1">
+          <div className="flex justify-center pl-36 flex-1">
             <div className="hidden sm:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link 

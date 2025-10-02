@@ -1,19 +1,25 @@
 import { useState } from "react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DestinationCard } from "@/components/shared/DestinationCard";
-import { destinationList } from "@/constants";
+import { seasonalDestinations } from "@/constants";
 import { seasonConfig } from "@/constants";
-import { SeasonSelector } from "./SeasonSelector";
 
 export const SeasonalTabs = () => {
   const [activeTab, setActiveTab] = useState("summer");
 
   const getDestinationsBySeason = (season: string) => {
-    return destinationList.flatMap(state => state.destinations).filter(dest => dest.season === season);
+    return seasonalDestinations.filter(dest => dest.season === season);
   };
 
+  const tabs = [
+    { value: "summer", label: "Summer Destinations" },
+    { value: "winter", label: "Winter Destinations" },
+    { value: "monsoon", label: "Monsoon Escapes" },
+    { value: "autumn", label: "Autumn Favorites" },
+  ];
+
     return (
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-bula/10">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
@@ -23,10 +29,20 @@ export const SeasonalTabs = () => {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <SeasonSelector />
+            <TabsList className="inline-flex h-auto items-center justify-center gap-8 rounded-none bg-transparent p-0 border-b border-gray-200 w-full">
+              {tabs.map(tab => (
+                <TabsTrigger 
+                  key={tab.value}
+                  value={tab.value}
+                  className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-xl"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
             {Object.entries(seasonConfig).map(([season, config]) => (
-              <TabsContent key={season} value={season} className="space-y-8">
+              <TabsContent key={season} value={season} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="text-center space-y-4">
                   <h2 className={`text-3xl font-bold ${config.color}`}>
                     {config.title}
@@ -37,12 +53,17 @@ export const SeasonalTabs = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {getDestinationsBySeason(season).map((destination) => (
-                    <DestinationCard
+                  {getDestinationsBySeason(season).map((destination, index) => (
+                    <div
                       key={destination.id}
-                      destination={destination}
-                      showState={true}
-                    />
+                      className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <DestinationCard
+                        destination={destination}
+                        showState={true}
+                      />
+                    </div>
                   ))}
                 </div>
               </TabsContent>

@@ -23,6 +23,7 @@ export const TripItinerary = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editModalInitialDestination, setEditModalInitialDestination] = useState<string | undefined>(undefined);
   const [destinationImages, setDestinationImages] = useState<ImageData[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   
@@ -91,6 +92,12 @@ export const TripItinerary = ({
   };
 
   const handleEditTrip = () => {
+    setEditModalInitialDestination(undefined);
+    setIsEditModalOpen(true);
+  };
+
+  const handleGenerateTripForPlace = (placeName: string) => {
+    setEditModalInitialDestination(placeName);
     setIsEditModalOpen(true);
   };
 
@@ -116,9 +123,9 @@ export const TripItinerary = ({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-200/80">
       {/* Header */}
-      <div className="bg-gray-100 text-black pt-12">
+      <div className=" text-black pt-12">
         <div className="max-w-6xl mx-auto px-4 py-8">
 
           {/* trip overview section */}
@@ -184,7 +191,7 @@ export const TripItinerary = ({
               <TabsTrigger 
                 key={tab.value}
                 value={tab.value}
-                className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:shadow-none hover:text-blue-600"
+                className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg"
               >
                 {tab.label}
               </TabsTrigger>
@@ -193,7 +200,7 @@ export const TripItinerary = ({
 
           <TabsContent value="itinerary" className="space-y-6">
             <ItineraryTab itinerary={itinerary} />
-            <NeighboringPlaces places={itinerary?.neighboring_places || []} />
+            <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
           </TabsContent>
 
           <TabsContent value="accommodation">
@@ -221,9 +228,13 @@ export const TripItinerary = ({
       {/* Edit Trip Modal */}
       <EditTripModal 
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditModalInitialDestination(undefined);
+        }}
         trip={trip}
         onTripUpdated={handleTripUpdated}
+        initialDestination={editModalInitialDestination}
       />
     </div>
   );
