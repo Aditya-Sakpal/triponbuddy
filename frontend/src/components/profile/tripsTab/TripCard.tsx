@@ -17,7 +17,7 @@ export const TripCard = ({ trip }: TripCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Destination Image */}
           {trip.destination_image && (
             <div className="flex-shrink-0">
@@ -97,7 +97,10 @@ export const TripCard = ({ trip }: TripCardProps) => {
           {itinerary?.estimated_total_cost && (
             <div className="mb-3">
               <Badge variant="secondary" className="text-xs">
-                Total Cost: {itinerary.estimated_total_cost.replace(/ - ₹/g, ' - ')}
+                Total Cost: {(() => {
+                  const match = itinerary.estimated_total_cost.match(/₹[^()]+/);
+                  return match ? match[0].trim().replace(/ - ₹/g, ' - ') : itinerary.estimated_total_cost.replace(/ - ₹/g, ' - ');
+                })()}
               </Badge>
             </div>
           )}

@@ -114,7 +114,7 @@ export const DestList = () => {
                     <div key={stateData.state} className="space-y-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow p-6 max-w-6xl mx-auto">
                         <div className="flex items-center justify-between">
                         <h3 className="text-3xl font-bold text-foreground">{stateData.state}</h3>
-                        <Badge variant="secondary" className="bg-bula text-white text-lg">
+                        <Badge variant="secondary" className="bg-bula text-white text-xs text-center md:text-lg px-2">
                             {stateData.count} destinations
                         </Badge>
                         </div>

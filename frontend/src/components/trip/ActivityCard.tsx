@@ -16,9 +16,6 @@ export const ActivityCard = ({ activity, imageUrl, hideTime = false }: { activit
                   <div className="flex items-center gap-2 text-sm text-muted-foreground md:hidden">
                     <Clock className="w-4 h-4" />
                     <span>{activity.time}</span>
-                    <Badge className="text-xs">
-                      {activity.duration}
-                    </Badge>
                   </div>
                 )}
                 <h4 className="font-semibold text-lg">{activity.activity}</h4>
