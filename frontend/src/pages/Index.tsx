@@ -33,19 +33,19 @@ const Index = () => {
   };
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="relative min-h-screen">
+    <div className="relative overflow-hidden bg-white">
+      <div className="relative bg-white">
         <HeroSlideShow />
         <HeroSection />
       </div>
       
       {/* Trip Planning Section - Overlapping the hero section */}
-      <div className="relative -mt-80 md:-mt-64 z-10">
+      <div className="relative -mt-24 z-10">
         <TripPlanningSection />
-      </div>
+      </div> 
       
       {/* Main content area with white background */}
-      <div className="bg-white pt-16">
+      <div>
         <ExploreDestinationsSection />
         
         <WhyPlanSection />
