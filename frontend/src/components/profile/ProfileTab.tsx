@@ -2,7 +2,6 @@ import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserStats } from "@/hooks/api-hooks";
-import { Badge } from "@/components/ui/badge";
 import { UserProfile } from "@clerk/clerk-react";
 import { useState } from "react";
 import { Edit, Mail, Calendar, MapPin, User } from "lucide-react";
@@ -30,8 +29,8 @@ export const ProfileTab = () => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-xl font-semibold">Personal Information</CardTitle>
           {showUserProfile ? (
-            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg max-w-4xl max-h-[95vh] overflow-hidden relative">
+            <div className="fixed inset-0 z-[99] bg-black/50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg max-w-4xl max-h-[85vh] overflow-hidden relative mt-16">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -115,7 +114,7 @@ export const ProfileTab = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bula"></div>
             </div>
           ) : userStatsData?.stats ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center justify-center gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <p className="text-3xl font-bold text-bula">{userStatsData.stats.total_trips}</p>
                 <p className="text-sm font-medium text-gray-600">Total Trips</p>
@@ -125,16 +124,7 @@ export const ProfileTab = () => {
                 <p className="text-3xl font-bold text-green-600">{userStatsData.stats.saved_trips}</p>
                 <p className="text-sm font-medium text-gray-600">Saved Trips</p>
               </div>
-              
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <p className="text-3xl font-bold text-purple-600">{userStatsData.stats.favorite_destinations.length}</p>
-                <p className="text-sm font-medium text-gray-600">Favorite Places</p>
-              </div>
-              
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <p className="text-3xl font-bold text-orange-600">{userStatsData.stats.recent_destinations.length}</p>
-                <p className="text-sm font-medium text-gray-600">Recent Places</p>
-              </div>
+                          
             </div>
           ) : (
             <div className="text-center py-8">
@@ -143,33 +133,6 @@ export const ProfileTab = () => {
             </div>
           )}
 
-          {/* Favorite Destinations */}
-          {userStatsData?.stats && userStatsData.stats.favorite_destinations.length > 0 && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold mb-3">Favorite Destinations</h4>
-              <div className="flex flex-wrap gap-2">
-                {userStatsData.stats.favorite_destinations.map((destination, index) => (
-                  <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
-                    {destination}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Recent Destinations */}
-          {userStatsData?.stats && userStatsData.stats.recent_destinations.length > 0 && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold mb-3">Recent Destinations</h4>
-              <div className="flex flex-wrap gap-2">
-                {userStatsData.stats.recent_destinations.map((destination, index) => (
-                  <Badge key={index} variant="outline" className="border-green-200 text-green-800">
-                    {destination}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation } from "lucide-react";
 import { TripDB, Itinerary, DailyPlan, Activity, Accommodation, TravelRoute, NeighboringPlace, TransportationHub, LocalTransportation } from "@/constants";
 import { useMemo } from "react";
+import { formatTitleCase } from "@/utils/tripUtils";
 
 interface ItineraryModalProps {
   trip: TripDB | null;
@@ -36,10 +37,63 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
     return `₹${amount.toLocaleString()}`;
   };
 
+  const formatActivityTimeRange = (time: string, duration?: string) => {
+    if (!time) return '';
+
+    // Parse start time - assume format like "09:00" or "9:00"
+    const timeMatch = time.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+    if (!timeMatch) return time; // fallback to original time if parsing fails
+
+    let hours = parseInt(timeMatch[1]);
+    const minutes = parseInt(timeMatch[2]);
+    const ampm = timeMatch[3]?.toUpperCase();
+
+    // Convert to 24-hour format if needed
+    if (ampm === 'PM' && hours !== 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+
+    const startDate = new Date();
+    startDate.setHours(hours, minutes, 0, 0);
+
+    let endDate = startDate;
+
+    // Parse duration and calculate end time
+    if (duration) {
+      const durationMatch = duration.match(/(\d+)\s*h(?:ours?)?(?:\s*(\d+)\s*m(?:in(?:utes?)?)?)?|(\d+)\s*m(?:in(?:utes?)?)?/i);
+      if (durationMatch) {
+        let addHours = 0;
+        let addMinutes = 0;
+
+        if (durationMatch[1]) { // hours and possibly minutes
+          addHours = parseInt(durationMatch[1]);
+          if (durationMatch[2]) addMinutes = parseInt(durationMatch[2]);
+        } else if (durationMatch[3]) { // only minutes
+          addMinutes = parseInt(durationMatch[3]);
+        }
+
+        endDate = new Date(startDate.getTime() + (addHours * 60 * 60 * 1000) + (addMinutes * 60 * 1000));
+      }
+    }
+
+    // Format times in 12-hour format
+    const formatTime12Hour = (date: Date) => {
+      const h = date.getHours();
+      const m = date.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
+    };
+
+    const startTime = formatTime12Hour(startDate);
+    const endTime = duration ? formatTime12Hour(endDate) : null;
+
+    return endTime ? `${startTime} - ${endTime}` : startTime;
+  };
+
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto mt-12">
+        <DialogHeader className="border-b border-bula text-bula">
           <DialogTitle className="text-2xl font-bold">{trip.title}</DialogTitle>
           <DialogDescription className="text-lg">
             <div className="flex items-center gap-4 text-muted-foreground">
@@ -111,30 +165,21 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
               </CardHeader>
               <CardContent className="space-y-4">
                 {itinerary.daily_plans.map((day: DailyPlan, index: number) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="secondary">Day {day.day}</Badge>
-                        <span className="font-semibold">{formatDate(day.date)}</span>
+                  <div key={index} className="border rounded-lg p-4 bg-bula">
+                    <div className="mb-3 bg-bula">
+                      <div className="flex items-center gap-2 p-4 ">
+                        <span className="font-semibold text-white">Day {day.day}</span>
                       </div>
-                      {day.theme && (
-                        <p className="text-lg font-medium text-primary">{day.theme}</p>
-                      )}
                     </div>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-3 bg-white  rounded-lg">
                       {day.activities?.map((activity: Activity, actIndex: number) => (
-                        <div key={actIndex} className="border-l-2 border-l-primary pl-4 py-2">
+                        <div key={actIndex} className="px-4 py-2">
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                                 <Clock className="h-3 w-3" />
-                                <span>{activity.time}</span>
-                                {activity.duration && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {activity.duration}
-                                  </Badge>
-                                )}
+                                <span>{formatActivityTimeRange(activity.time, activity.duration)}</span>
                               </div>
                               <h5 className="font-medium">{activity.activity}</h5>
                               {activity.location && (
@@ -170,10 +215,10 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                                   )}
                                 </div>
                                 {activity.booking_info.url && (
-                                  <Button size="sm" variant="outline" asChild>
+                                  <Button size="sm" asChild>
                                     <a 
                                       href={activity.booking_info.url} 
-                                      target="_blank" 
+                                      target="_blank"
                                       rel="noopener noreferrer"
                                       className="text-xs"
                                     >
@@ -218,7 +263,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                           )}
                           {acc.type && (
                             <Badge variant="outline" className="mt-1">
-                              {acc.type}
+                              {formatTitleCase(acc.type)}
                             </Badge>
                           )}
                         </div>
@@ -242,7 +287,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                         </div>
                       )}
                       {acc.booking_url && (
-                        <Button size="sm" variant="outline" className="mt-2" asChild>
+                        <Button size="sm" className="mt-2" asChild>
                           <a href={acc.booking_url} target="_blank" rel="noopener noreferrer">
                             View Details
                             <ExternalLink className="w-3 h-3 ml-1" />
@@ -271,7 +316,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                     <div key={index} className="border rounded-lg p-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h5 className="font-medium">{trans.type}</h5>
+                          <h5 className="font-medium">{formatTitleCase(trans.type)}</h5>
                           {trans.from && trans.to && (
                             <p className="text-sm text-muted-foreground">{trans.from} → {trans.to}</p>
                           )}
@@ -290,7 +335,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                         )}
                       </div>
                       {trans.booking_url && (
-                        <Button size="sm" variant="outline" className="mt-2" asChild>
+                        <Button size="sm" className="mt-2" asChild>
                           <a href={trans.booking_url} target="_blank" rel="noopener noreferrer">
                             Book Now
                             <ExternalLink className="w-3 h-3 ml-1" />
@@ -421,7 +466,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                     <div key={index} className="border rounded-lg p-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h5 className="font-medium">{local.type}</h5>
+                          <h5 className="font-medium">{formatTitleCase(local.type)}</h5>
                           <p className="text-sm text-muted-foreground">{local.description}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline" className="text-xs">
@@ -503,7 +548,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
         </div>
 
         <div className="flex justify-end pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+          <Button onClick={onClose}>
             Close
           </Button>
         </div>

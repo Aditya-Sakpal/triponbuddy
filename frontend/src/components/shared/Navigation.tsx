@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SignedIn, SignedOut, SignUpButton,SignInButton, SignOutButton, UserButton, useUser } from "@clerk/clerk-react";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
+import { AuthButtons } from "./AuthButtons";
+import { navLinks } from "@/constants/nav";
 
 export const Navigation = () => {
   const location = useLocation();
-  const { user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -33,20 +33,12 @@ export const Navigation = () => {
     }
   };
 
-  const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/explore", label: "Destinations" },
-    { to: "/seasonal", label: "Seasonal" },
-    { to: "/contact", label: "Contact" },
-    { to: "/profile?tab=trips", label: "My Trips" },
-  ];
-
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[70] bg-white shadow-md overflow-hidden">
-      <div className="container mx-auto px-6 md:px-24">
-        <div className="grid grid-cols-3 items-center">
-          {/* Left side: Logo and buttons */}
-          <div className="flex items-center space-x-4">
+    <nav className="fixed -top-4 left-0 right-0 z-[70] bg-white shadow-md h-20">
+      <div className="container mx-auto px-6 md:px-24 bg-white md:bg-transparent">
+        <div className="flex items-center justify-center ">
+          {/* Left side: Logo */}
+          <div className="flex items-center">
             <Link to="/" className="flex items-center" onClick={closeMenu}>
               <img 
                 src={tripBuddyLogo} 
@@ -57,13 +49,13 @@ export const Navigation = () => {
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="flex justify-center">
+          <div className="flex justify-center pl-36 flex-1">
             <div className="hidden sm:flex items-center space-x-8">
               {navLinks.map((link) => (
                 <Link 
                   key={link.to}
                   to={link.to} 
-                  className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap ${
+                  className={`relative transition-all duration-300 hover:text-bula after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-bula after:transition-transform after:duration-300 after:origin-left after:content-[''] hover:after:scale-x-100 whitespace-nowrap font-semibold ${
                     location.pathname === link.to 
                       ? 'text-bula after:scale-x-100' 
                       : 'text-gray-600 after:scale-x-0'
@@ -74,35 +66,14 @@ export const Navigation = () => {
               ))}
 
             </div>
-
-
           </div>
 
-          {/* Right side: Auth buttons for desktop */}
-          <div className="flex justify-end">
-            <div className="hidden sm:flex items-center space-x-2">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button variant="outline" size="lg"  className="border-bula">Login</Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button size="lg" className="text-white" >Sign Up</Button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <Link to="/profile">
-                  <Button variant="ghost" size="lg" className="flex items-center space-x-2">
-                    {user?.imageUrl && <img src={user.imageUrl} alt={user?.firstName || 'User'} className="w-6 h-6 rounded-full" />}
-                    <span>{user?.firstName || 'Profile'}</span>
-                  </Button>
-                </Link>
-                <SignOutButton>
-                  <Button size="lg" className="flex items-center space-x-2">
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </Button>
-                </SignOutButton>
-              </SignedIn>
+          {/* Right side: Auth buttons and mobile menu button */}
+          <div className="flex items-center space-x-2">
+            <div className="hidden sm:flex">
+              <div className="flex space-x-4">
+                <AuthButtons />
+              </div>
             </div>
             <Button
               variant="ghost"
@@ -110,7 +81,7 @@ export const Navigation = () => {
               className="sm:hidden"
               onClick={toggleMenu}
             >
-              {isMenuOpen ? <X className="h-32 w-32" /> : <Menu className="h-32 w-32" />}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
@@ -128,29 +99,8 @@ export const Navigation = () => {
             >
               <div className="mt-4 pb-4 border-t border-gray-200">
                 <div className="flex flex-col space-y-4 pt-4">
-                  <div className="flex space-x-2 pb-4">
-                    <SignedOut>
-                      <SignUpButton mode="modal">
-                        <Button size="sm">Sign Up</Button>
-                      </SignUpButton>
-                      <SignInButton mode="modal">
-                        <Button variant="outline" size="sm" onClick={closeMenu}>Sign In</Button>
-                      </SignInButton>
-                    </SignedOut>
-                    <SignedIn>
-                      <Link to="/profile" onClick={closeMenu}>
-                        <Button size="sm" variant="ghost" className="flex items-center space-x-2">
-                          {user?.imageUrl && <img src={user.imageUrl} alt={user?.firstName || 'User'} className="w-4 h-4 rounded-full" />}
-                          <span className="text-sm">{user?.firstName || 'Profile'}</span>
-                        </Button>
-                      </Link>
-                      <SignOutButton>
-                        <Button size="sm" onClick={closeMenu} className="flex items-center space-x-2">
-                          <LogOut className="w-4 h-4" />
-                          <span>Logout</span>
-                        </Button>
-                      </SignOutButton>
-                    </SignedIn>
+                  <div className="flex space-x-4 pb-4">
+                    <AuthButtons />
                   </div>
                   {navLinks.map((link) => (
                     <Link 

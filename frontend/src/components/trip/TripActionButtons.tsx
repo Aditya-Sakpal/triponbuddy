@@ -23,20 +23,19 @@ export const TripActionButtons = ({
     <>
       {/* Desktop Action Buttons */}
       <div className="items-start justify-between mb-6 hidden md:flex">
+        <div className="flex gap-2">
         <Button
-          variant="ghost"
+          variant="outline"
           onClick={() => navigate(-1)}
-          className="text-white hover:bg-white/20 mb-4"
+           className="bg-white/10 border-bula text-bula hover:bg-bula/20"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-
-        <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={onEditTrip}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="bg-white/10 border-bula text-bula hover:bg-bula/20"
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit Trip
@@ -44,7 +43,7 @@ export const TripActionButtons = ({
           <Button
             variant="outline"
             onClick={onShare}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="bg-white/10 border-bula text-bula hover:bg-bula/20"
           >
             <Share className="w-4 h-4 mr-2" />
             Share Trip
@@ -52,7 +51,7 @@ export const TripActionButtons = ({
           <Button
             onClick={onSaveToggle}
             disabled={isLoading}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="bg-bula hover:bg-blue-800 text-white"
           >
             {isSaved ? (
               <HeartOff className="w-4 h-4 mr-2" />
@@ -70,29 +69,32 @@ export const TripActionButtons = ({
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
+            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
           <Button
             variant="outline"
             onClick={onEditTrip}
+            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
           >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Trip
+            <Edit className="w-4 h-4" />
+            Edit
           </Button>
           <Button
             variant="outline"
             onClick={onShare}
+            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
           >
-            <Share className="w-4 h-4 mr-2" />
-            Share Trip
+            <Share className="w-4 h-4" />
+            Share
           </Button>
         </div>
         <Button
           onClick={onSaveToggle}
           disabled={isLoading}
-          className="w-full"
+          className="w-full px-4 py-2 text-sm"
         >
           {isSaved ? (
             <HeartOff className="w-4 h-4 mr-2" />

@@ -24,7 +24,7 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-6 px-4">
+    <div className="w-full max-w-6xl mx-auto mt-6 px-4">
       <Carousel
         setApi={setApi}
         opts={{

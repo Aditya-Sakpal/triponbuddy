@@ -2,6 +2,7 @@ import { MapPin, IndianRupee, Navigation, Building } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { TransportationHub } from "@/constants";
+import { formatTitleCase } from "@/utils/tripUtils";
 
 const getHubIcon = (type: string) => {
   const typeLower = type.toLowerCase();
@@ -26,7 +27,7 @@ export const TransportationHubCard = ({ hub }: { hub: TransportationHub }) => {
               <CardTitle className="text-base leading-tight">{hub.name}</CardTitle>
               <CardDescription className="flex items-center gap-1 mt-0.5 text-xs text-black">
                 <MapPin className="w-3 h-3" />
-                <span className="truncate capitalize">{hub.type.replace('_', ' ')}</span>
+                <span className="truncate">{formatTitleCase(hub.type)}</span>
               </CardDescription>
             </div>
           </div>

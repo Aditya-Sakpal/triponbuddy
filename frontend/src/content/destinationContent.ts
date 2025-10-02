@@ -1,81 +1,81 @@
   // Import all destination images
-import tirupatiTemple from "@/assets/destinations/tirupati-temple.jpg";
-import visakhapatnamBeach from "@/assets/destinations/visakhapatnam-beach.jpg";
-import tawangMonastery from "@/assets/destinations/tawang-monastery.jpg";
-import ziroValley from "@/assets/destinations/ziro-valley.jpg";
-import brahmaputraRiver from "@/assets/destinations/brahmaputra-river.jpg";
-import kazirangaNationalPark from "@/assets/destinations/kaziranga-national-park.jpg";
-import melbourne from "@/assets/destinations/melbourne.jpg";
-import sydney from "@/assets/destinations/sydney.jpg";
-import mahabodhiTemple from "@/assets/destinations/mahabodhi-temple.jpg";
-import nalandaUniversity from "@/assets/destinations/nalanda-university.jpg";
-import chitrakoteFalls from "@/assets/destinations/chitrakote-falls.jpg";
-import raipur from "@/assets/destinations/raipur.jpg";
-import nice from "@/assets/destinations/nice.jpg";
-import paris from "@/assets/destinations/paris.jpg";
-import northGoa from "@/assets/destinations/north-goa.jpg";
-import southGoa from "@/assets/destinations/south-goa.jpg";
-import ahmedabad from "@/assets/destinations/ahmedabad.jpg";
-import rannOfKutch from "@/assets/destinations/rann-of-kutch.jpg";
-import gurgaon from "@/assets/destinations/gurgaon.jpg";
-import kurukshetra from "@/assets/destinations/kurukshetra.jpg";
-import dharamshala from "@/assets/destinations/dharamshala.jpg";
-import manali from "@/assets/destinations/manali.jpg";
-import shimla from "@/assets/destinations/shimla.jpg";
-import florence from "@/assets/destinations/florence.jpg";
-import rome from "@/assets/destinations/rome.jpg";
-import venice from "@/assets/destinations/venice.jpg";
-import kyoto from "@/assets/destinations/kyoto.jpg";
-import tokyo from "@/assets/destinations/tokyo.jpg";
-import jamshedpur from "@/assets/destinations/jamshedpur.jpg";
-import ranchi from "@/assets/destinations/ranchi.jpg";
-import alleppey from "@/assets/destinations/alleppey.jpg";
-import kochi from "@/assets/destinations/kochi.jpg";
-import munnar from "@/assets/destinations/munnar.jpg";
-import bhopal from "@/assets/destinations/bhopal.jpg";
-import khajuraho from "@/assets/destinations/khajuraho.jpg";
-import lonavala from "@/assets/destinations/lonavala.jpg";
-import mumbai from "@/assets/destinations/mumbai.jpg";
-import pune from "@/assets/destinations/pune.jpg";
-import imphal from "@/assets/destinations/imphal.jpg";
-import loktakLake from "@/assets/destinations/loktak-lake.jpg";
-import cherrapunji from "@/assets/destinations/cherrapunji.jpg";
-import shillong from "@/assets/destinations/shillong.jpg";
-import aizawl from "@/assets/destinations/aizawl.jpg";
-import champhai from "@/assets/destinations/champhai.jpg";
-import dzukouValley from "@/assets/destinations/dzukou-valley.jpg";
-import kohima from "@/assets/destinations/kohima.jpg";
-import bhubaneswar from "@/assets/destinations/bhubaneswar.jpg";
-import puri from "@/assets/destinations/puri.jpg";
-import amritsar from "@/assets/destinations/amritsar.jpg";
-import chandigarh from "@/assets/destinations/chandigarh.jpg";
-import jaipur from "@/assets/destinations/jaipur.jpg";
-import jaisalmer from "@/assets/destinations/jaisalmer.jpg";
-import udaipur from "@/assets/destinations/udaipur.jpg";
-import gangtok from "@/assets/destinations/gangtok.jpg";
-import tsomgoLake from "@/assets/destinations/tsomgo-lake.jpg";
-import chennai from "@/assets/destinations/chennai.jpg";
-import madurai from "@/assets/destinations/madurai.jpg";
-import ooty from "@/assets/destinations/ooty.jpg";
-import hyderabad from "@/assets/destinations/hyderabad.jpg";
-import warangal from "@/assets/destinations/warangal.jpg";
-import bangkok from "@/assets/destinations/bangkok.jpg";
-import phuket from "@/assets/destinations/phuket.jpg";
-import agartala from "@/assets/destinations/agartala.jpg";
-import unakoti from "@/assets/destinations/unakoti.jpg";
-import abuDhabi from "@/assets/destinations/abu-dhabi.jpg";
-import dubai from "@/assets/destinations/dubai.jpg";
-import miami from "@/assets/destinations/miami.jpg";
-import newYork from "@/assets/destinations/new-york.jpg";
-import sanFrancisco from "@/assets/destinations/san-francisco.jpg";
-import fatehpurSikri from "@/assets/destinations/fatehpur-sikri.jpg";
-import lucknow from "@/assets/destinations/lucknow.jpg";
-import varanasi from "@/assets/destinations/varanasi.jpg";
-import nainital from "@/assets/destinations/nainital.jpg";
-import rishikesh from "@/assets/destinations/rishikesh.jpg";
-import darjeeling from "@/assets/destinations/darjeeling.jpg";
-import kolkata from "@/assets/destinations/kolkata.jpg";
-import sundarbans from "@/assets/destinations/sundarbans.jpg";
+const tirupatiTemple = "https://images.unsplash.com/photo-1741003412854-bd4b264c4af3?w=800&h=600&fit=crop";
+const visakhapatnamBeach = "https://images.unsplash.com/photo-1638705350009-e8c85668d2ef?w=800&h=600&fit=crop";
+const tawangMonastery = "https://images.unsplash.com/photo-1566728059008-079a722420d7?w=800&h=600&fit=crop";
+const ziroValley = "https://plus.unsplash.com/premium_photo-1730041692405-1715c91c09af?w=800&h=600&fit=crop";
+const brahmaputraRiver = "https://images.unsplash.com/photo-1647142465378-5bf5e757f43b?w=800&h=600&fit=crop";
+const kazirangaNationalPark = "https://images.unsplash.com/photo-1675296098308-f9f526c6b724?w=800&h=600&fit=crop";
+const melbourne = "https://plus.unsplash.com/premium_photo-1733292027787-6463fb0f9925?w=800&h=600&fit=crop";
+const sydney = "https://images.unsplash.com/photo-1528072164453-f4e8ef0d475a?w=800&h=600&fit=crop";
+const mahabodhiTemple = "https://images.unsplash.com/photo-1647960602115-69ad7d1f9233?w=800&h=600&fit=crop";
+const nalandaUniversity = "https://images.unsplash.com/photo-1699616150650-9215b2699733?w=800&h=600&fit=crop";
+const chitrakoteFalls = "https://images.unsplash.com/photo-1664627772528-2496cc1e88a0?w=800&h=600&fit=crop";
+const raipur = "https://images.unsplash.com/photo-1698846054044-71d9e13ce1c4?w=800&h=600&fit=crop";
+const nice = "https://plus.unsplash.com/premium_photo-1661962506417-f6056afac074?w=800&h=600&fit=crop";
+const paris = "https://plus.unsplash.com/premium_photo-1718035557075-5111d9d906d2?w=800&h=600&fit=crop";
+const northGoa = "https://images.unsplash.com/photo-1580741186862-c5d0bf2aff33?w=800&h=600&fit=crop";
+const southGoa = "https://images.unsplash.com/photo-1587922546307-776227941871?w=800&h=600&fit=crop";
+const ahmedabad = "https://images.unsplash.com/photo-1651408451633-ff492f347ec1?w=800&h=600&fit=crop";
+const rannOfKutch = "https://images.unsplash.com/photo-1670406312373-6d4d1776e4aa?w=800&h=600&fit=crop";
+const gurgaon = "https://images.unsplash.com/photo-1667330353574-2df2706f15a1?w=800&h=600&fit=crop";
+const kurukshetra = "https://images.unsplash.com/photo-1727253112274-ca80addee55c?w=800&h=600&fit=crop";
+const dharamshala = "https://images.unsplash.com/photo-1622225074638-1d80c0388697?w=800&h=600&fit=crop";
+const manali = "https://images.unsplash.com/photo-1712388430474-ace0c16051e2?w=800&h=600&fit=crop";
+const shimla = "https://images.unsplash.com/photo-1597074866923-dc0589150358?w=800&h=600&fit=crop";
+const florence = "https://images.unsplash.com/photo-1476362174823-3a23f4aa6d76?w=800&h=600&fit=crop";
+const rome = "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&h=600&fit=crop";
+const venice = "https://plus.unsplash.com/premium_photo-1661953180092-94e620a0d1ba?w=800&h=600&fit=crop";
+const kyoto = "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&h=600&fit=crop";
+const tokyo = "https://plus.unsplash.com/premium_photo-1661902398022-762e88ff3f82?w=800&h=600&fit=crop";
+const jamshedpur = "https://plus.unsplash.com/premium_photo-1697729713674-c974ef09eefd?w=800&h=600&fit=crop";
+const ranchi = "https://plus.unsplash.com/premium_photo-1697729770899-75269b3c26dc?w=800&h=600&fit=crop";
+const alleppey = "https://images.unsplash.com/photo-1593417033852-66b46de814b8?w=800&h=600&fit=crop";
+const kochi = "https://images.unsplash.com/photo-1605955794720-651b9ae7f5e7?w=800&h=600&fit=crop";
+const munnar = "https://images.unsplash.com/photo-1637066742971-726bee8d9f56?w=800&h=600&fit=crop";
+const bhopal = "https://plus.unsplash.com/premium_photo-1697730390709-48bebc012175?w=800&h=600&fit=crop";
+const khajuraho = "https://images.unsplash.com/photo-1606298855672-3efb63017be8?w=800&h=600&fit=crop";
+const lonavala = "https://images.unsplash.com/photo-1663089554996-43a79b00f34a?w=800&h=600&fit=crop";
+const mumbai = "https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=800&h=600&fit=crop";
+const pune = "https://images.unsplash.com/photo-1570356811230-2f3b816ebb29?w=800&h=600&fit=crop";
+const imphal = "https://images.unsplash.com/photo-1741972584867-05d3c3b2920b?w=800&h=600&fit=crop";
+const loktakLake = "https://plus.unsplash.com/premium_photo-1667926194869-e1e27051830f?w=800&h=600&fit=crop";
+const cherrapunji = "https://plus.unsplash.com/premium_photo-1677636665512-d210c919fe74?w=800&h=600&fit=crop";
+const shillong = "https://images.unsplash.com/photo-1594514113865-d1deac339435?w=800&h=600&fit=crop";
+const aizawl = "https://images.unsplash.com/photo-1588856066207-2134f183bc9e?w=800&h=600&fit=crop";
+const champhai = "https://images.unsplash.com/photo-1640529209198-0c56ce522607?w=800&h=600&fit=crop";
+const dzukouValley = "https://images.unsplash.com/photo-1542709111240-e9df0dd813b4?w=800&h=600&fit=crop";
+const kohima = "https://plus.unsplash.com/premium_photo-1678343841464-f1abd50d6143?w=800&h=600&fit=crop";
+const bhubaneswar = "https://images.unsplash.com/photo-1598323646582-18d2101c9aad?w=800&h=600&fit=crop";
+const puri = "https://images.unsplash.com/photo-1706790574525-d218c4c52b5c?w=800&h=600&fit=crop";
+const amritsar = "https://images.unsplash.com/photo-1583821017783-4333717df070?w=800&h=600&fit=crop"
+const chandigarh = "https://images.unsplash.com/photo-1592639296346-560c37a0f711?w=800&h=600&fit=crop";
+const jaipur = "https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?w=800&h=600&fit=crop";
+const jaisalmer = "https://plus.unsplash.com/premium_photo-1661962428918-6a57ab674e23?w=800&h=600&fit=crop";
+const udaipur = "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?w=800&h=600&fit=crop";
+const gangtok = "https://images.unsplash.com/photo-1715878537374-1cb05ca16f8a?w=800&h=600&fit=crop";
+const tsomgoLake = "https://plus.unsplash.com/premium_photo-1696531220266-362a418da9b4?w=800&h=600&fit=crop";
+const chennai = "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800&h=600&fit=crop";
+const madurai = "https://images.unsplash.com/photo-1664798742627-6330561766a7?w=800&h=600&fit=crop";
+const ooty = "https://plus.unsplash.com/premium_photo-1725408090963-49dd5bfc1baf?w=800&h=600&fit=crop";
+const hyderabad = "https://plus.unsplash.com/premium_photo-1694475128245-999b1ae8a44e?w=800&h=600&fit=crop";
+const warangal = "https://plus.unsplash.com/premium_photo-1694475205503-d6c6a71f03bc?w=800&h=600&fit=crop";
+const bangkok = "https://plus.unsplash.com/premium_photo-1661963188068-1bac46e28727?w=800&h=600&fit=crop";
+const phuket = "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&h=600&fit=crop";
+const agartala = "https://images.unsplash.com/photo-1701756793348-dfa0bdcfc41d?w=800&h=600&fit=crop";
+const unakoti = "https://images.unsplash.com/photo-1695150854909-a00039a284b8?w=800&h=600&fit=crop";
+const abuDhabi = "https://images.unsplash.com/photo-1512632578888-169bbbc64f33?w=800&h=600&fit=crop";
+const dubai = "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&h=600&fit=crop";
+const miami = "https://images.unsplash.com/photo-1589083130544-0d6a2926e519?w=800&h=600&fit=crop";
+const newYork = "https://plus.unsplash.com/premium_photo-1714051660720-888e8454a021?w=800&h=600&fit=crop";
+const sanFrancisco = "https://images.unsplash.com/photo-1610494475096-ad11c3a21638?w=800&h=600&fit=crop";
+const fatehpurSikri = "https://images.unsplash.com/photo-1717761558642-32cbeccbee7e?w=800&h=600&fit=crop";
+const lucknow = "https://images.unsplash.com/photo-1547716467-fdb9102f1ac4?w=800&h=600&fit=crop";
+const varanasi = "https://images.unsplash.com/photo-1596097825168-c9b773f404ff?w=800&h=600&fit=crop";
+const nainital = "https://plus.unsplash.com/premium_photo-1661941770505-9fe5c1c5002e?w=800&h=600&fit=crop";
+const rishikesh = "https://images.unsplash.com/photo-1720819029162-8500607ae232?w=800&h=600&fit=crop";
+const darjeeling = "https://images.unsplash.com/photo-1622308644420-b20142dc993c?w=800&h=600&fit=crop";
+const kolkata = "https://images.unsplash.com/photo-1571679654681-ba01b9e1e117?w=800&h=600&fit=crop";
+const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=800&h=600&fit=crop";
   
   const locations = [
     "All Locations",
@@ -126,6 +126,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Escape the heat in this cool hill station with colonial charm",
       image: shimla,
       season: "summer",
+      bestTimeToVisit: "May - Jun",
     },
     {
       id: "manali",
@@ -134,6 +135,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Adventure and natural beauty in the Himalayan foothills",
       image: manali,
       season: "summer",
+      bestTimeToVisit: "May - Jun",
     },
     {
       id: "darjeeling",
@@ -142,6 +144,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Enjoy tea gardens and misty mountains with pleasant weather",
       image: darjeeling,
       season: "summer",
+      bestTimeToVisit: "May - Jun",
     },
     {
       id: "ooty",
@@ -150,6 +153,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "South India's premier hill station with botanical gardens",
       image: ooty,
       season: "summer",
+      bestTimeToVisit: "May - Jun",
     },
     {
       id: "nainital",
@@ -158,6 +162,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Lake city surrounded by mountains with boating activities",
       image: nainital,
       season: "summer",
+      bestTimeToVisit: "May - Jun",
     },
     // Winter Destinations
     {
@@ -167,6 +172,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Perfect beach weather and vibrant nightlife",
       image: northGoa,
       season: "winter",
+      bestTimeToVisit: "Nov - Feb",
     },
     {
       id: "jaipur",
@@ -175,6 +181,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Explore the Pink City's forts and palaces in pleasant weather",
       image: jaipur,
       season: "winter",
+      bestTimeToVisit: "Nov - Feb",
     },
     {
       id: "rann-of-kutch",
@@ -183,6 +190,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Experience the white salt desert and cultural festival",
       image: rannOfKutch,
       season: "winter",
+      bestTimeToVisit: "Nov - Feb",
     },
     {
       id: "kerala-backwaters",
@@ -191,6 +199,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Houseboat cruises in perfect weather",
       image: alleppey,
       season: "winter",
+      bestTimeToVisit: "Nov - Feb",
     },
     {
       id: "varanasi-winter",
@@ -199,6 +208,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Spiritual experience along the Ganges in comfortable weather",
       image: varanasi,
       season: "winter",
+      bestTimeToVisit: "Nov - Feb",
     },
     // Monsoon Destinations
     {
@@ -208,6 +218,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Lush green hills and waterfalls come alive",
       image: lonavala,
       season: "monsoon",
+      bestTimeToVisit: "Jul - Sep",
     },
     {
       id: "munnar-monsoon",
@@ -216,6 +227,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Tea plantations turn more vibrant and misty",
       image: munnar,
       season: "monsoon",
+      bestTimeToVisit: "Jul - Sep",
     },
     {
       id: "cherrapunji",
@@ -224,6 +236,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "One of the wettest places with living root bridges",
       image: cherrapunji,
       season: "monsoon",
+      bestTimeToVisit: "Jul - Sep",
     },
     {
       id: "udaipur-monsoon",
@@ -232,6 +245,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "The Lake City looks even more romantic in the rains",
       image: udaipur,
       season: "monsoon",
+      bestTimeToVisit: "Jul - Sep",
     },
     // Autumn Destinations
     {
@@ -241,6 +255,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Experience Durga Puja, the city's biggest festival",
       image: kolkata,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
     {
       id: "varanasi-autumn",
@@ -249,6 +264,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Dev Deepawali illuminates the ghats in autumn",
       image: varanasi,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
     {
       id: "amritsar",
@@ -257,6 +273,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Golden Temple and pleasant weather after summer",
       image: amritsar,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
     {
       id: "ziro-valley",
@@ -265,6 +282,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Music festival and beautiful rice fields",
       image: ziroValley,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
     {
       id: "dharamshala-autumn",
@@ -273,6 +291,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "Pleasant weather and colorful mountain views",
       image: dharamshala,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
     {
       id: "shillong-autumn",
@@ -281,6 +300,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       description: "The 'Scotland of the East' with autumn colors",
       image: shillong,
       season: "autumn",
+      bestTimeToVisit: "Sep - Nov",
     },
   ];
 
@@ -292,12 +312,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Tirupati Temple",
           description: "Famous for the Sri Venkateswara Temple on Tirumala Hills, one of the most visited religious sites in the world.",
-          image: tirupatiTemple
+          image: tirupatiTemple,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Visakhapatnam Beach", 
           description: "A coastal city with beautiful beaches, Araku Valley, and the Submarine Museum. Known for its natural harbor and industrial importance.",
-          image: visakhapatnamBeach
+          image: visakhapatnamBeach,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -308,12 +330,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Tawang Monastery",
           description: "Home to the 400-year-old Tawang Monastery, stunning mountain views, and pristine lakes. A spiritual and scenic paradise.",
-          image: tawangMonastery
+          image: tawangMonastery,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Ziro Valley",
           description: "Known for its rice fields, the indigenous Apatani tribe, and the annual Ziro Music Festival. A UNESCO World Heritage Site.",
-          image: ziroValley
+          image: ziroValley,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -324,12 +348,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Brahmaputra River",
           description: "The gateway to Northeast India with the sacred Kamakhya Temple and proximity to the mighty Brahmaputra River.",
-          image: brahmaputraRiver
+          image: brahmaputraRiver,
+          bestTimeToVisit: "Nov - Mar"
         },
         {
           name: "Kaziranga National Park",
           description: "UNESCO World Heritage Site famous for the one-horned rhinoceros and tiger reserve. Home to diverse wildlife and bird species.",
-          image: kazirangaNationalPark
+          image: kazirangaNationalPark,
+          bestTimeToVisit: "Nov - Mar"
         }
       ]
     },
@@ -340,12 +366,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Melbourne",
           description: "A cultural hub with a European feel, known for its coffee culture, street art, and sporting events.",
-          image: melbourne
+          image: melbourne,
+          bestTimeToVisit: "Dec - Mar"
         },
         {
           name: "Sydney",
           description: "Australia's largest city with the iconic Opera House, Harbour Bridge, and beautiful beaches like Bondi.",
-          image: sydney
+          image: sydney,
+          bestTimeToVisit: "Dec - Mar"
         }
       ]
     },
@@ -356,12 +384,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Mahabodhi Temple, Bodh Gaya",
           description: "The place where Lord Buddha attained enlightenment. Home to the sacred Mahabodhi Temple and numerous Buddhist monasteries.",
-          image: mahabodhiTemple
+          image: mahabodhiTemple,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Nalanda University Ruins",
           description: "Site of the ancient Nalanda University, one of the world's oldest universities. A significant archaeological site.",
-          image: nalandaUniversity
+          image: nalandaUniversity,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -372,12 +402,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Chitrakote Falls",
           description: "Often called the 'Niagara Falls of India', this horseshoe-shaped waterfall on the Indravati River is a spectacular sight.",
-          image: chitrakoteFalls
+          image: chitrakoteFalls,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Raipur",
           description: "The capital city with a blend of urban development and natural beauty. Known for Mahant Ghasidas Memorial Museum and Nandan Van Zoo.",
-          image: raipur
+          image: raipur,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -388,12 +420,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Nice",
           description: "A beautiful coastal city on the French Riviera with stunning beaches, promenades, and Mediterranean charm.",
-          image: nice
+          image: nice,
+          bestTimeToVisit: "May - Sep"
         },
         {
           name: "Paris",
           description: "The City of Light famous for the Eiffel Tower, Louvre Museum, and charming boulevards. A global center for art, fashion, and culture.",
-          image: paris
+          image: paris,
+          bestTimeToVisit: "May - Sep"
         }
       ]
     },
@@ -404,12 +438,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "North Goa (Baga Beach)",
           description: "Known for its lively beaches, water sports, vibrant nightlife, and Portuguese heritage.",
-          image: northGoa
+          image: northGoa,
+          bestTimeToVisit: "Nov - May"
         },
         {
           name: "South Goa (Palolem Beach)",
           description: "Features more relaxed and less crowded beaches, luxury resorts, and pristine natural beauty. Perfect for a peaceful getaway.",
-          image: southGoa
+          image: southGoa,
+          bestTimeToVisit: "Nov - May"
         }
       ]
     },
@@ -420,12 +456,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Ahmedabad",
           description: "A UNESCO World Heritage City with stunning architecture, vibrant markets, and rich cultural heritage.",
-          image: ahmedabad
+          image: ahmedabad,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Rann of Kutch",
           description: "The white salt desert that transforms into a surreal landscape, especially during the Rann Utsav festival.",
-          image: rannOfKutch
+          image: rannOfKutch,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -436,12 +474,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Gurgaon",
           description: "A major financial and technology hub with modern architecture, shopping malls, and entertainment options.",
-          image: gurgaon
+          image: gurgaon,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Kurukshetra",
           description: "The legendary battlefield of the Mahabharata with historical and religious significance.",
-          image: kurukshetra
+          image: kurukshetra,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -452,17 +492,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Dharamshala",
           description: "Home to the Dalai Lama and Tibetan government in exile. Known for Tibetan culture, monasteries, and beautiful landscapes.",
-          image: dharamshala
+          image: dharamshala,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
         },
         {
           name: "Manali",
           description: "A popular hill station with adventure activities, snow-capped mountains, and the beautiful Rohtang Pass.",
-          image: manali
+          image: manali,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
         },
         {
           name: "Shimla",
           description: "The former summer capital of British India, known for its colonial architecture, Mall Road, and panoramic mountain views.",
-          image: shimla
+          image: shimla,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
         }
       ]
     },
@@ -473,17 +516,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Florence",
           description: "The birthplace of the Renaissance with the iconic Duomo, Uffizi Gallery, and Ponte Vecchio.",
-          image: florence
+          image: florence,
+          bestTimeToVisit: "Apr - Jun, Sep - Oct"
         },
         {
           name: "Rome",
           description: "The Eternal City with ancient ruins like the Colosseum and Roman Forum, alongside Vatican City and Renaissance masterpieces.",
-          image: rome
+          image: rome,
+          bestTimeToVisit: "Apr - Jun, Sep - Oct"
         },
         {
           name: "Venice",
           description: "The romantic city of canals with no roads, only waterways. Famous for St. Mark's Square, gondola rides, and unique architecture.",
-          image: venice
+          image: venice,
+          bestTimeToVisit: "Apr - Jun, Sep - Oct"
         }
       ]
     },
@@ -494,12 +540,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Kyoto",
           description: "Japan's cultural heart with over 1,600 Buddhist temples, 400 Shinto shrines, and beautiful gardens and palaces.",
-          image: kyoto
+          image: kyoto,
+          bestTimeToVisit: "Mar - May, Sep - Nov"
         },
         {
           name: "Tokyo",
           description: "A fascinating blend of ultramodern and traditional, with skyscrapers, historic temples, and vibrant pop culture scene.",
-          image: tokyo
+          image: tokyo,
+          bestTimeToVisit: "Mar - May, Sep - Nov"
         }
       ]
     },
@@ -510,12 +558,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Jamshedpur",
           description: "India's first planned industrial city with beautiful parks, lakes, and the Tata Steel plant.",
-          image: jamshedpur
+          image: jamshedpur,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Ranchi",
           description: "The capital city surrounded by waterfalls, hills, and forests. Known for Hundru Falls and Tagore Hill.",
-          image: ranchi
+          image: ranchi,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -526,17 +576,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Alleppey",
           description: "Famous for its backwaters, houseboats, and serene village life.",
-          image: alleppey
+          image: alleppey,
+          bestTimeToVisit: "Sep - Mar"
         },
         {
           name: "Kochi",
           description: "A coastal city with a rich history of trade, featuring Chinese fishing nets, colonial buildings, and vibrant local culture.",
-          image: kochi
+          image: kochi,
+          bestTimeToVisit: "Sep - Mar"
         },
         {
           name: "Munnar",
           description: "A hill station known for vast tea plantations, misty mountains, and cool climate.",
-          image: munnar
+          image: munnar,
+          bestTimeToVisit: "Sep - Mar"
         }
       ]
     },
@@ -547,12 +600,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Bhopal",
           description: "The City of Lakes with a blend of Islamic and Hindu architecture, museums, and natural beauty.",
-          image: bhopal
+          image: bhopal,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Khajuraho",
           description: "Famous for its ancient temples with intricate carvings and sculptures. A UNESCO World Heritage Site.",
-          image: khajuraho
+          image: khajuraho,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -563,17 +618,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Lonavala",
           description: "A popular hill station between Mumbai and Pune, known for valleys, lakes, and the famous Lonavala chikki.",
-          image: lonavala
+          image: lonavala,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Mumbai",
           description: "India's financial capital and home to Bollywood. Coastal beauty with colonial architecture.",
-          image: mumbai
+          image: mumbai,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Pune",
           description: "A blend of tradition and modernity with historical sites and educational institutions.",
-          image: pune
+          image: pune,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -584,12 +642,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Imphal",
           description: "The capital city with Loktak Lake, Kangla Fort, and vibrant cultural traditions.",
-          image: imphal
+          image: imphal,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Loktak Lake",
           description: "The largest freshwater lake in Northeast India with unique floating islands called phumdis.",
-          image: loktakLake
+          image: loktakLake,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -600,12 +660,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Cherrapunji",
           description: "Known for living root bridges and stunning waterfalls.",
-          image: cherrapunji
+          image: cherrapunji,
+          bestTimeToVisit: "Sep - May"
         },
         {
           name: "Shillong",
           description: "The 'Scotland of the East' with rolling hills, waterfalls, and pleasant climate.",
-          image: shillong
+          image: shillong,
+          bestTimeToVisit: "Sep - May"
         }
       ]
     },
@@ -616,12 +678,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Aizawl",
           description: "The capital city built on steep hills with panoramic views and vibrant markets.",
-          image: aizawl
+          image: aizawl,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Champhai",
           description: "A picturesque town near Myanmar border with vineyards, lakes, and landscapes.",
-          image: champhai
+          image: champhai,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -632,12 +696,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Dzukou Valley",
           description: "A hidden paradise with rolling hills, wildflowers, and trekking trails.",
-          image: dzukouValley
+          image: dzukouValley,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Kohima",
           description: "The capital city with Hornbill Festival, War Cemetery, and Naga tribal culture.",
-          image: kohima
+          image: kohima,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -648,12 +714,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Bhubaneswar",
           description: "The 'Temple City of India' with ancient temples and rich cultural heritage.",
-          image: bhubaneswar
+          image: bhubaneswar,
+          bestTimeToVisit: "Oct - Apr"
         },
         {
           name: "Puri",
           description: "Famous for Jagannath Temple, beaches, and the annual Rath Yatra festival.",
-          image: puri
+          image: puri,
+          bestTimeToVisit: "Oct - Apr"
         }
       ]
     },
@@ -664,12 +732,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Amritsar",
           description: "Home to the Golden Temple, Wagah Border ceremony, and Punjabi cuisine.",
-          image: amritsar
+          image: amritsar,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Chandigarh",
           description: "A well-planned city with Rock Garden, Sukhna Lake, and modern architecture.",
-          image: chandigarh
+          image: chandigarh,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -680,17 +750,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Jaipur",
           description: "The Pink City with forts, palaces, and vibrant culture.",
-          image: jaipur
+          image: jaipur,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Jaisalmer",
           description: "The Golden City with yellow sandstone architecture.",
-          image: jaisalmer
+          image: jaisalmer,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Udaipur",
           description: "The City of Lakes with romantic settings, palaces, and gardens.",
-          image: udaipur
+          image: udaipur,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -701,12 +774,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Gangtok",
           description: "The capital with monasteries, cable cars, and Himalayan views.",
-          image: gangtok
+          image: gangtok,
+          bestTimeToVisit: "Mar - May, Sep - Nov"
         },
         {
           name: "Tsomgo Lake",
           description: "A high-altitude glacial lake sacred to locals.",
-          image: tsomgoLake
+          image: tsomgoLake,
+          bestTimeToVisit: "Mar - May, Sep - Nov"
         }
       ]
     },
@@ -717,17 +792,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Chennai",
           description: "The cultural capital with beaches, temples, and heritage.",
-          image: chennai
+          image: chennai,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Madurai",
           description: "Known for magnificent Meenakshi Amman Temple.",
-          image: madurai
+          image: madurai,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Ooty",
           description: "A hill station with tea gardens, botanical gardens, and Nilgiri Mountain Railway.",
-          image: ooty
+          image: ooty,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -738,12 +816,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Hyderabad",
           description: "The 'City of Pearls' with Charminar, Golconda Fort, and a blend of cultures.",
-          image: hyderabad
+          image: hyderabad,
+          bestTimeToVisit: "Oct - May"
         },
         {
           name: "Warangal",
           description: "Ancient city with Warangal Fort, Thousand Pillar Temple, and Kakatiya heritage.",
-          image: warangal
+          image: warangal,
+          bestTimeToVisit: "Oct - May"
         }
       ]
     },
@@ -754,12 +834,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Bangkok",
           description: "Thailand's vibrant capital with ornate shrines and bustling street life.",
-          image: bangkok
+          image: bangkok,
+          bestTimeToVisit: "Nov - Mar"
         },
         {
           name: "Phuket",
           description: "Known for beaches, clear waters, and nightlife.",
-          image: phuket
+          image: phuket,
+          bestTimeToVisit: "Nov - Mar"
         }
       ]
     },
@@ -770,12 +852,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Agartala",
           description: "Capital city with Ujjayanta Palace, Neermahal Palace, and lakes.",
-          image: agartala
+          image: agartala,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Unakoti",
           description: "Ancient pilgrimage site with rock-cut sculptures from 7th–9th centuries.",
-          image: unakoti
+          image: unakoti,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -786,12 +870,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Abu Dhabi",
           description: "The UAE capital with stunning mosque, Ferrari World, and beaches.",
-          image: abuDhabi
+          image: abuDhabi,
+          bestTimeToVisit: "Nov - Mar"
         },
         {
           name: "Dubai",
           description: "A city of superlatives with Burj Khalifa, luxury shopping, and ultramodern architecture.",
-          image: dubai
+          image: dubai,
+          bestTimeToVisit: "Nov - Mar"
         }
       ]
     },
@@ -802,17 +888,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Miami",
           description: "A vibrant city with beaches, Art Deco architecture, and Latin cultural influence.",
-          image: miami
+          image: miami,
+          bestTimeToVisit: "May - Sep"
         },
         {
           name: "New York",
           description: "The Big Apple with Times Square, Central Park, Statue of Liberty.",
-          image: newYork
+          image: newYork,
+          bestTimeToVisit: "May - Sep"
         },
         {
           name: "San Francisco",
           description: "Known for Golden Gate Bridge, cable cars, and Victorian houses.",
-          image: sanFrancisco
+          image: sanFrancisco,
+          bestTimeToVisit: "May - Sep"
         }
       ]
     },
@@ -823,17 +912,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Fatehpur Sikri",
           description: "Iconic Mayapur, forts, and Mughal history.",
-          image: fatehpurSikri
+          image: fatehpurSikri,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Lucknow",
           description: "City of Nawabs famous for architecture, cuisine, and embroidery.",
-          image: lucknow
+          image: lucknow,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Varanasi",
           description: "One of the world's oldest cities with ghats, Ganges, and spiritual significance.",
-          image: varanasi
+          image: varanasi,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
@@ -844,12 +936,14 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Nainital",
           description: "Popular hill station with lake, boating, and trekking.",
-          image: nainital
+          image: nainital,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
         },
         {
           name: "Rishikesh",
           description: "The Yoga Capital with ashrams, adventure sports, and Ganges.",
-          image: rishikesh
+          image: rishikesh,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
         }
       ]
     },
@@ -860,17 +954,20 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         {
           name: "Darjeeling",
           description: "Famous for Darjeeling tea, Himalayan Railway, and Kanchenjunga views.",
-          image: darjeeling
+          image: darjeeling,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Kolkata",
           description: "The cultural capital with colonial architecture and rich heritage.",
-          image: kolkata
+          image: kolkata,
+          bestTimeToVisit: "Oct - Mar"
         },
         {
           name: "Sundarbans",
           description: "Largest mangrove forest, home to Royal Bengal Tiger, UNESCO World Heritage Site.",
-          image: sundarbans
+          image: sundarbans,
+          bestTimeToVisit: "Oct - Mar"
         }
       ]
     }
@@ -884,7 +981,8 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
       state: state.state,
       description: dest.description,
       image: dest.image,
-      season: "all"
+      season: "all",
+      bestTimeToVisit: "Oct - May"
     }))
   }));
 
@@ -898,6 +996,7 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
         dest.name = seasonal.name;
         dest.description = seasonal.description;
         dest.id = seasonal.id;
+        dest.bestTimeToVisit = seasonal.bestTimeToVisit;
       } else {
         // add new
         stateObj.destinations.push({
@@ -906,7 +1005,8 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
           state: seasonal.state,
           description: seasonal.description,
           image: seasonal.image,
-          season: seasonal.season
+          season: seasonal.season,
+          bestTimeToVisit: seasonal.bestTimeToVisit
         });
         stateObj.count++;
       }
@@ -922,4 +1022,4 @@ import sundarbans from "@/assets/destinations/sundarbans.jpg";
     "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
   ];
 
-export { locations, seasons, destinationList, indianStates };
+export { locations, seasons, destinationList, seasonalDestinations, indianStates };

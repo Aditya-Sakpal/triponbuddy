@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, MapPin, Users, IndianRupee } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel} from "@/components/trip";
@@ -23,10 +23,18 @@ export const TripItinerary = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editModalInitialDestination, setEditModalInitialDestination] = useState<string | undefined>(undefined);
   const [destinationImages, setDestinationImages] = useState<ImageData[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
+
+  const tabs = [
+    { value: "itinerary", label: "Itinerary" },
+    { value: "accommodation", label: "Accommodation" },
+    { value: "transportation", label: "Transportation" },
+    { value: "travel-tips", label: "Travel Tips" },
+  ];
 
   useEffect(() => {
     const fetchDestinationImages = async () => {
@@ -84,6 +92,12 @@ export const TripItinerary = ({
   };
 
   const handleEditTrip = () => {
+    setEditModalInitialDestination(undefined);
+    setIsEditModalOpen(true);
+  };
+
+  const handleGenerateTripForPlace = (placeName: string) => {
+    setEditModalInitialDestination(placeName);
     setIsEditModalOpen(true);
   };
 
@@ -109,57 +123,44 @@ export const TripItinerary = ({
   };
 
   return (
-    <div className="min-h-screen bg-background mt-16">
+    <div className="min-h-screen bg-gray-200/80">
       {/* Header */}
-      <div className="bg-gradient-to-r from-bula to-purple-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          
-          <div className="max-w-7xl mx-auto px-4 py-4 hidden md:block">
-            <TripActionButtons
-              onEditTrip={handleEditTrip}
-              onShare={handleShare}
-              onSaveToggle={handleSaveToggle}
-              isLoading={isLoading}
-              isSaved={trip.is_saved}
-          />
-
-          </div>
-
+      <div className=" text-black pt-12">
+        <div className="max-w-6xl mx-auto px-4 py-8">
 
           {/* trip overview section */}
 
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold">{itinerary?.title || trip.title}</h1>
-            <div className="flex flex-wrap items-center gap-6 text-white/90">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                <span>{trip.destination}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                <span>{formatDateRange(trip.start_date, trip.duration_days)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                <span>{trip.duration_days} {trip.duration_days === 1 ? 'Day' : 'Days'}</span>
-              </div>
-              {itinerary?.estimated_total_cost && (
+          <div className="flex justify-between items-start gap-8 ">
+            <div className="space-y-4 flex-1">
+              <h1 className="text-4xl font-bold">{itinerary?.title || trip.title}</h1>
+              <div className="flex flex-wrap items-center gap-6 text-black/90">
                 <div className="flex items-center gap-2">
-                  <IndianRupee className="w-5 h-5" />
-                  <span>{itinerary.estimated_total_cost}</span>
+                  <Calendar className="w-5 h-5" />
+                  <span>{formatDateRange(trip.start_date, trip.duration_days)}</span>
+                </div>
+              </div>
+              
+              {trip.tags && trip.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {trip.tags.map((tag, index) => (
+                    <Badge key={index} variant="secondary" className="bg-white/20 text-black">
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
               )}
             </div>
-            
-            {trip.tags && trip.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {trip.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="bg-white/20 text-white">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
+
+            {/* Desktop action buttons */}
+            <div className="hidden md:block">
+              <TripActionButtons
+                onEditTrip={handleEditTrip}
+                onShare={handleShare}
+                onSaveToggle={handleSaveToggle}
+                isLoading={isLoading}
+                isSaved={trip.is_saved}
+              />
+            </div>
           </div>
 
           {/* Image Carousel */}
@@ -170,7 +171,8 @@ export const TripItinerary = ({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-4 md:hidden">
+      {/* Mobile Action Buttons */}
+      <div className="max-w-6xl mx-auto px-4 py-4 md:hidden">
         <TripActionButtons
             onEditTrip={handleEditTrip}
             onShare={handleShare}
@@ -178,23 +180,27 @@ export const TripItinerary = ({
             isLoading={isLoading}
             isSaved={trip.is_saved}
           />
-
       </div>
       
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex w-full overflow-x-auto px-8 lg:w-auto lg:grid lg:grid-cols-4 lg:px-0">
-            <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-            <TabsTrigger value="accommodation">Accommodation</TabsTrigger>
-            <TabsTrigger value="transportation">Transportation</TabsTrigger>
-            <TabsTrigger value="travel-tips">Travel Tips</TabsTrigger>
+          <TabsList className="grid grid-cols-2 gap-4 md:inline-flex md:h-auto md:items-center md:justify-start md:gap-8 md:rounded-none md:bg-transparent md:p-0 md:border-b md:border-gray-200 md:w-full pb-20">
+            {tabs.map(tab => (
+              <TabsTrigger 
+                key={tab.value}
+                value={tab.value}
+                className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 md:text-lg"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="itinerary" className="space-y-6">
             <ItineraryTab itinerary={itinerary} />
-            <NeighboringPlaces places={itinerary?.neighboring_places || []} />
+            <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
           </TabsContent>
 
           <TabsContent value="accommodation">
@@ -222,9 +228,13 @@ export const TripItinerary = ({
       {/* Edit Trip Modal */}
       <EditTripModal 
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditModalInitialDestination(undefined);
+        }}
         trip={trip}
         onTripUpdated={handleTripUpdated}
+        initialDestination={editModalInitialDestination}
       />
     </div>
   );

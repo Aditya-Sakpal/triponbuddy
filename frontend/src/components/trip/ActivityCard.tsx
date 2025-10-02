@@ -4,21 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Activity } from "@/constants";
 
-export const ActivityCard = ({ activity, imageUrl }: { activity: Activity, imageUrl?: string }) => {
+export const ActivityCard = ({ activity, imageUrl, hideTime = false }: { activity: Activity, imageUrl?: string, hideTime?: boolean }) => {
   return (
-    <Card className="mb-4 border-l-4 border-l-primary">
+    <Card className="mb-4 border-none ">
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <span>{activity.time}</span>
-                  <Badge className="text-xs">
-                    {activity.duration}
-                  </Badge>
-                </div>
+                {!hideTime && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground md:hidden">
+                    <Clock className="w-4 h-4" />
+                    <span>{activity.time}</span>
+                  </div>
+                )}
                 <h4 className="font-semibold text-lg">{activity.activity}</h4>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4" />

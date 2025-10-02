@@ -9,19 +9,19 @@ export const ProfileCard = () => {
   const activeTab = searchParams.get('tab') === 'trips' ? 'trips' : 'profile';
 
   return (
-    <div className="container mx-auto px-6 -mt-16 relative z-10 mb-16">
-      <Card className="max-w-6xl mx-auto bg-white shadow-lg">
+    <div className="container mx-auto px-6 -mt-16 relative z-10 mb-16 ">
+      <Card className="max-w-6xl mx-auto bg-gray-100 shadow-lg">
         <Tabs defaultValue={activeTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 h-12">
+          <TabsList className="inline-flex h-auto items-center justify-start gap-8 rounded-none bg-transparent border-b border-gray-200 w-full p-4">
             <TabsTrigger 
               value="profile" 
-              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm"
+              className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg"
             >
               Profile
             </TabsTrigger>
             <TabsTrigger 
               value="trips" 
-              className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm"
+              className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg"
             >
               My Trips
             </TabsTrigger>

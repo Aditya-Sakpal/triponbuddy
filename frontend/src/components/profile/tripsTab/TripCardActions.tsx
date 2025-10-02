@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, Bookmark, BookmarkX, Trash2 } from "lucide-react";
+import { Eye, ExternalLink, Bookmark, BookmarkX, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
 import { TripDB } from "@/constants";
+import { useNavigate } from "react-router-dom";
 import { ItineraryModal } from "./ItineraryModal";
-import { DeleteTripDialog } from "../DeleteTripDialog";
+import { DeleteTripDialog } from "../../trip/DeleteTripDialog";
 
 interface TripCardActionsProps {
   trip: TripDB;
@@ -13,6 +14,7 @@ interface TripCardActionsProps {
 
 export const TripCardActions = ({ trip }: TripCardActionsProps) => {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const saveTrip = useSaveTrip();
   const unsaveTrip = useUnsaveTrip();
@@ -31,11 +33,14 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
     setIsModalOpen(true);
   };
 
+  const handleFullViewTrip = () => {
+    navigate(`/trip/${trip.trip_id}`);
+  };
+
   return (
     <>
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-4 pt-3 border-t">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center sm:gap-2 mt-4 pt-3 border-t">
         <Button
-          variant="outline"
           size="sm"
           onClick={handleViewTrip}
           className="flex-1"
@@ -46,7 +51,17 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
         </Button>
 
         <Button
-          variant={trip.is_saved ? "default" : "outline"}
+          variant="outline"
+          size="sm"
+          onClick={handleFullViewTrip}
+          className="flex-1"
+          aria-label={`View full itinerary for ${trip.title}`}
+        >
+          <ExternalLink className="w-4 h-4 mr-1" />
+          Full View
+        </Button>
+
+        <Button
           size="sm"
           onClick={handleSaveToggle}
           disabled={saveTrip.isPending || unsaveTrip.isPending}
