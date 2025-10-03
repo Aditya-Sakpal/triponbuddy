@@ -76,6 +76,122 @@ const rishikesh = "https://images.unsplash.com/photo-1720819029162-8500607ae232?
 const darjeeling = "https://images.unsplash.com/photo-1622308644420-b20142dc993c?w=800&h=600&fit=crop";
 const kolkata = "https://images.unsplash.com/photo-1571679654681-ba01b9e1e117?w=800&h=600&fit=crop";
 const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=800&h=600&fit=crop";
+const pangongLake = "https://images.unsplash.com/photo-1632815975120-dce4a293dc9f?w=800&h=600&fit=crop";
+const lehPalace = "https://plus.unsplash.com/premium_photo-1697729603596-90888a05a6bc?w=800&h=600&fit=crop";
+const hemisMonastery = "https://plus.unsplash.com/premium_photo-1697730426664-f04d9916f700?w=800&h=600&fit=crop";
+const nubraValley = "https://images.unsplash.com/photo-1660303941192-575c686e9b05?w=800&h=600&fit=crop";
+const magneticHill = "https://images.unsplash.com/photo-1641319626759-cc9ea5b18107?w=800&h=600&fit=crop";
+const arakuValley = "https://images.unsplash.com/photo-1704916902292-2d9eae6cd667?w=800&h=600&fit=crop";
+const lepakshi = "https://images.unsplash.com/photo-1723518134101-2bd5333a39b0?w=800&h=600&fit=crop";
+const amaravati = "https://plus.unsplash.com/premium_photo-1678593494392-20a8f9f076e6?w=800&h=600&fit=crop";
+const bomdila = "https://images.unsplash.com/photo-1677726964465-24f514c5baeb?w=800&h=600&fit=crop";
+const namdapha = "https://images.unsplash.com/photo-1740478870995-43b6e78ecf91?w=800&h=600&fit=crop";
+const selaPass = "https://images.unsplash.com/photo-1620236071371-24b21e6997db?w=800&h=600&fit=crop";
+const majuliIsland = "https://images.unsplash.com/photo-1650065453990-053bb6f0ce6b?w=800&h=600&fit=crop";
+const kamakhyaTemple = "https://images.unsplash.com/photo-1609151745346-c624e507baa2?w=800&h=600&fit=crop";
+const sualkuchi = "https://images.unsplash.com/photo-1656307965980-a465f4548ede?w=800&h=600&fit=crop";
+const manasNationalPark = "https://plus.unsplash.com/premium_photo-1661906061070-876e73beed12?w=800&h=600&fit=crop";
+const golghar = "https://images.unsplash.com/photo-1682343704791-a8afe4bc4430?w=800&h=600&fit=crop";
+const patnaSahibGurudwara = "https://plus.unsplash.com/premium_photo-1694475439235-0a0306a7477b?w=800&h=600&fit=crop";
+const vishnupadTemple = "https://plus.unsplash.com/premium_photo-1697730116501-72f5749dffce?w=800&h=600&fit=crop";
+const kangerValley = "https://images.unsplash.com/photo-1693118173873-8a71dbf39f1b?w=800&h=600&fit=crop";
+const bastar = "https://images.unsplash.com/photo-1734688245923-50f121b18c7f?w=800&h=600&fit=crop";
+const bhoramdeo = "https://plus.unsplash.com/premium_photo-1676240734590-1a38c51cee91?w=800&h=600&fit=crop";
+const bagaBeach = "https://images.unsplash.com/photo-1593620529462-619501b0f7f1?w=800&h=600&fit=crop";
+const calanguteBeach = "https://plus.unsplash.com/premium_photo-1697730411634-5313371ad8fe?w=800&h=600&fit=crop";
+const basilicaBomJesus = "https://plus.unsplash.com/premium_photo-1697730397449-a0dc23fe0fbc?w=800&h=600&fit=crop";
+const dudhsagarFalls = "https://plus.unsplash.com/premium_photo-1689084893630-7ed3ed9b6d80?w=800&h=600&fit=crop";
+const anjunaBeach = "https://images.unsplash.com/photo-1575747687077-b7a4bb468f65?w=800&h=600&fit=crop";
+const bengaluru = "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=800&h=600&fit=crop";
+const mysuru = "https://images.unsplash.com/photo-1600112356915-089abb8fc71a?w=800&h=600&fit=crop";
+const hampi = "https://plus.unsplash.com/premium_photo-1697730337612-8bd916249e30?w=800&h=600&fit=crop";
+const coorg = "https://images.unsplash.com/photo-1710612198146-77512950a4b7?w=800&h=600&fit=crop";
+const gokarna = "https://images.unsplash.com/photo-1567098628209-d182949882b0?w=800&h=600&fit=crop";
+const girNationalPark = "https://plus.unsplash.com/premium_photo-1664302791179-0c60a6d414e8?w=800&h=600&fit=crop";
+const somnath = "https://images.unsplash.com/photo-1591700430569-9469d38b1006?w=800&h=600&fit=crop";
+const dwarka = "https://plus.unsplash.com/premium_photo-1691031428291-1db669413fa0?w=800&h=600&fit=crop";
+const saputara = "https://images.unsplash.com/photo-1583168493328-8249a78a6ff3?w=800&h=600&fit=crop";
+const pinjoreGardens = "https://plus.unsplash.com/premium_photo-1680854771656-9708edc39cee?w=800&h=600&fit=crop";
+const sultanpurBirdSanctuary = "https://images.unsplash.com/photo-1732771713762-6a1a7534bd0f?w=800&h=600&fit=crop";
+const morniHills = "https://images.unsplash.com/photo-1638812233699-8ef9f63a196b?w=800&h=600&fit=crop";
+const spitiValley = "https://images.unsplash.com/photo-1617159156637-dfb8655c9f95?w=800&h=600&fit=crop";
+const kullu = "https://images.unsplash.com/photo-1621340978972-1e3717f1eef6?w=800&h=600&fit=crop";
+const promenadeBeach = "https://images.unsplash.com/photo-1619946867233-8ab174932307?w=800&h=600&fit=crop";
+const auroville = "https://images.unsplash.com/photo-1715794202088-84a7792062b0?w=800&h=600&fit=crop";
+const paradiseBeach = "https://images.unsplash.com/photo-1437719417032-8595fd9e9dc6?w=800&h=600&fit=crop";
+const frenchQuarter = "https://images.unsplash.com/photo-1568693059993-a239b9cd4957?w=800&h=600&fit=crop";
+const serenityBeach = "https://images.unsplash.com/photo-1687357281786-d4d344e0049c?w=800&h=600&fit=crop";
+const dimapur = "https://images.unsplash.com/photo-1693588901698-6d86a6c9b7ad?w=800&h=600&fit=crop";
+const mokokchung = "https://plus.unsplash.com/premium_photo-1716968595130-3df477c0087d?w=800&h=600&fit=crop";
+const monNagaland = "https://plus.unsplash.com/premium_photo-1754269244312-7cee532bb22f?w=800&h=600&fit=crop";
+const konarkSunTemple = "https://images.unsplash.com/photo-1702970091346-8e4e72427691?w=800&h=600&fit=crop";
+const chilikaLake = "https://plus.unsplash.com/premium_photo-1677636665512-d210c919fe74?w=800&h=600&fit=crop";
+const udayagiriCaves = "https://plus.unsplash.com/premium_photo-1702598911851-307ed72ebce8?w=800&h=600&fit=crop";
+const wagahBorder = "https://images.unsplash.com/photo-1651910031211-42aaa52b87cc?w=800&h=600&fit=crop";
+const jallianwalaBagh = "https://images.unsplash.com/photo-1730620776839-e42ce7d3a78c?w=800&h=600&fit=crop";
+const anandpurSahib = "https://plus.unsplash.com/premium_photo-1691031429475-a18a2c89d83c?w=800&h=600&fit=crop";
+const indiaGate = "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop";
+const qutubMinar = "https://images.unsplash.com/photo-1711191751380-e3a5a8f27b11?w=800&h=600&fit=crop";
+const redFort = "https://plus.unsplash.com/premium_photo-1661919589683-f11880119fb7?w=800&h=600&fit=crop";
+const lotusTemple = "https://images.unsplash.com/photo-1688257899811-d96d969416bf?w=800&h=600&fit=crop";
+const akshardhamTemple = "https://plus.unsplash.com/premium_photo-1697730464803-fcede713753e?w=800&h=600&fit=crop";
+const jodhpur = "https://plus.unsplash.com/premium_photo-1661904165347-369200d4bf72?w=800&h=600&fit=crop";
+const pushkar = "https://plus.unsplash.com/premium_photo-1718570256515-8ff542703621?w=800&h=600&fit=crop";
+const nathulaPass = "https://plus.unsplash.com/premium_photo-1694475616112-bf74aa5f12ea?w=800&h=600&fit=crop";
+const yumthangValley = "https://plus.unsplash.com/premium_photo-1697363572125-d54c1a30592e?w=800&h=600&fit=crop";
+const pelling = "https://images.unsplash.com/photo-1721884487052-8fb79415772c?w=800&h=600&fit=crop";
+const rameswaram = "https://images.unsplash.com/photo-1701665836456-5d9103ae83d0?w=800&h=600&fit=crop";
+const kanyakumari = "https://images.unsplash.com/photo-1593185541987-92f858cf43f8?w=800&h=600&fit=crop";
+const nagarjunaSagar = "https://images.unsplash.com/photo-1606049910442-36d2f218a5ca?w=800&h=600&fit=crop";
+const ramojiFilmCity = "https://images.unsplash.com/photo-1598610339755-6e4e24737a27?w=800&h=600&fit=crop";
+const basar = "https://images.unsplash.com/photo-1509533423496-1627a90e02c1?w=800&h=600&fit=crop";
+const srinagar = "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?w=800&h=600&fit=crop";
+const gulmarg = "https://images.unsplash.com/photo-1568889753852-196c487a536e?w=800&h=600&fit=crop";
+const pahalgam = "https://images.unsplash.com/photo-1646204892016-711ed35535ec?w=800&h=600&fit=crop";
+const vaishnoDevi = "https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?w=800&h=600&fit=crop";
+const sonamarg = "https://images.unsplash.com/photo-1623996243194-fd281057d568?w=800&h=600&fit=crop";
+
+const ujjayantaPalace = "https://images.unsplash.com/photo-1645334633515-4adec58e546a?w=800&h=600&fit=crop";
+const neermahal = "https://plus.unsplash.com/premium_photo-1697729584915-bf08db03ba19?w=800&h=600&fit=crop";
+const jampuiHills = "https://plus.unsplash.com/premium_photo-1749499938560-22c59862d722?w=800&h=600&fit=crop";
+const sepahijala = "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=800&h=600&fit=crop";
+const tajMahal = "https://plus.unsplash.com/premium_photo-1661885523029-fc960a2bb4f3?w=800&h=600&fit=crop";
+const ayodhya = "https://images.unsplash.com/photo-1710429814573-7f07a792cba2?w=800&h=600&fit=crop";
+const haridwar = "https://images.unsplash.com/photo-1511754863001-18d44abd0a93?w=800&h=600&fit=crop";
+const mussoorie = "https://images.unsplash.com/photo-1547106365-bb4b17f50a15?w=800&h=600&fit=crop";
+const kedarnath = "https://images.unsplash.com/photo-1612438214708-f428a707dd4e?w=800&h=600&fit=crop";
+const victoriaMemorial = "https://images.unsplash.com/photo-1600080077823-a44592513861?w=800&h=600&fit=crop";
+const kalimpong = "https://plus.unsplash.com/premium_photo-1697729733902-f8c92710db07?w=800&h=600&fit=crop";
+const digha = "https://images.unsplash.com/photo-1605853166869-7967373db45f?w=800&h=600&fit=crop";
+const radhanagarBeach = "https://plus.unsplash.com/premium_photo-1679541668015-8906c2cd6bc2?w=800&h=600&fit=crop";
+const cellularJail = "https://plus.unsplash.com/premium_photo-1678447713054-7fbb2f129351?w=800&h=600&fit=crop";
+const rossIsland = "https://plus.unsplash.com/premium_photo-1733281228593-0566b4b74a10?w=800&h=600&fit=crop";
+const havelockIsland = "https://plus.unsplash.com/premium_photo-1711037791618-6ce98aabd42a?w=800&h=600&fit=crop";
+const neilIsland = "https://plus.unsplash.com/premium_photo-1668883189361-9c754861dbd6?w=800&h=600&fit=crop";
+const agattiIsland = "https://images.unsplash.com/photo-1572025600482-08238b1ed5a3?w=800&h=600&fit=crop";
+const bangaramIsland = "https://images.unsplash.com/photo-1649519764815-ec68b9e7c52a?w=800&h=600&fit=crop";
+const kadmatIsland = "https://images.unsplash.com/photo-1691422774701-f842e1219a06?w=800&h=600&fit=crop";
+const minicoyIsland = "https://images.unsplash.com/photo-1691422774701-f842e1219a06?w=800&h=600&fit=crop";
+const kavarattiIsland = "https://images.unsplash.com/photo-1667568988313-945bd22ecc8d?w=800&h=600&fit=crop";
+const thekkady = "https://images.unsplash.com/photo-1716404985743-8c0e007cb358?w=800&h=600&fit=crop";
+const kumarakom = "https://images.unsplash.com/photo-1652460816777-a58bf8ed1f08?w=800&h=600&fit=crop";
+const kanhaNationalPark = "https://plus.unsplash.com/premium_photo-1669887010550-b29c6afef045?w=800&h=600&fit=crop";
+const bandhavgarh = "https://images.unsplash.com/photo-1701368533954-f0dc06ebfbed?w=800&h=600&fit=crop";
+const gwaliorFort = "https://plus.unsplash.com/premium_photo-1661930618375-aafabc2bf3e7?w=800&h=600&fit=crop";
+const orchha = "https://images.unsplash.com/photo-1642152654247-5b9a9c5e8092?w=800&h=600&fit=crop";
+const ajantaCaves = "https://images.unsplash.com/photo-1620558601903-9f2441730121?w=800&h=600&fit=crop";
+const elloraCaves = "https://plus.unsplash.com/premium_photo-1697729588019-20a1f5a325d1?w=800&h=600&fit=crop";
+const mahabaleshwar = "https://images.unsplash.com/photo-1574323109400-7477368b7b03?w=800&h=600&fit=crop";
+const shirdi = "https://images.unsplash.com/photo-1707733580929-19bf89c7ede6?w=800&h=600&fit=crop";
+const keibulLamjao = "https://images.unsplash.com/photo-1654079829969-eab18faf843d?w=800&h=600&fit=crop";
+const imaMarket = "https://plus.unsplash.com/premium_photo-1755719591642-e1008676ff6f?w=800&h=600&fit=crop";
+const ukhrul = "https://images.unsplash.com/photo-1689518364045-5251bccacf43?w=800&h=600&fit=crop";
+const mawsynram = "https://images.unsplash.com/photo-1590420361215-8c890e6571b8?w=800&h=600&fit=crop";
+const livingRootBridges = "https://images.unsplash.com/photo-1625654325562-762dcec9e6f2?w=800&h=600&fit=crop";
+const dawki = "https://images.unsplash.com/photo-1521437620269-f477f5437820?w=800&h=600&fit=crop";
+const phawngpui = "https://plus.unsplash.com/premium_photo-1726579710883-7040d0e6d379?w=800&h=600&fit=crop";
+const vantawngFalls = "https://images.unsplash.com/photo-1695432266974-975f2fd1d8d9?w=800&h=600&fit=crop";
+const reiek = "https://plus.unsplash.com/premium_photo-1750864966673-de251dfd7aef?w=800&h=600&fit=crop";
   
   const locations = [
     "All Locations",
@@ -306,9 +422,63 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
 
   const destinationsByState = [
     {
+  state: "Ladakh",
+  count: 5,
+  destinations: [
+    {
+      name: "Pangong Lake",
+      description: "High-altitude lake known for changing colors.",
+      image: pangongLake,
+      bestTimeToVisit: "Jun - Sep"
+    },
+    {
+      name: "Leh Palace",
+      description: "Historic palace overlooking Leh town.",
+      image: lehPalace,
+      bestTimeToVisit: "May - Sep"
+    },
+    {
+      name: "Hemis Monastery",
+      description: "Largest and richest monastery in Ladakh.",
+      image: hemisMonastery,
+      bestTimeToVisit: "Jun - Sep"
+    },
+    {
+      name: "Nubra Valley",
+      description: "Scenic valley with sand dunes, monasteries, and Bactrian camels.",
+      image: nubraValley,
+      bestTimeToVisit: "Jun - Sep"
+    },
+    {
+      name: "Magnetic Hill",
+      description: "Optical illusion where vehicles appear to move uphill.",
+      image: magneticHill,
+      bestTimeToVisit: "May - Sep"
+    }
+  ]
+},
+    {
       state: "Andhra Pradesh",
       count: 2,
       destinations: [
+            {
+      name: "Araku Valley",
+      description: "Scenic hill station with coffee plantations.",
+      image: arakuValley,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Lepakshi",
+      description: "Famous for Veerabhadra Temple and hanging pillar.",
+      image: lepakshi,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Amaravati",
+      description: "Historic Buddhist site with ancient stupas.",
+      image: amaravati,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Tirupati Temple",
           description: "Famous for the Sri Venkateswara Temple on Tirumala Hills, one of the most visited religious sites in the world.",
@@ -327,6 +497,24 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       state: "Arunachal Pradesh",
       count: 2,
       destinations: [
+            {
+      name: "Bomdila",
+      description: "Hill town with monasteries and apple orchards.",
+      image: bomdila,
+      bestTimeToVisit: "Mar - Jun, Sep - Nov"
+    },
+    {
+      name: "Namdapha National Park",
+      description: "Fourth largest national park in India with diverse wildlife.",
+      image: namdapha,
+      bestTimeToVisit: "Nov - Mar"
+    },
+    {
+      name: "Sela Pass",
+      description: "High mountain pass with stunning views and Sela Lake.",
+      image: selaPass,
+      bestTimeToVisit: "Mar - Jun, Sep - Nov"
+    },
         {
           name: "Tawang Monastery",
           description: "Home to the 400-year-old Tawang Monastery, stunning mountain views, and pristine lakes. A spiritual and scenic paradise.",
@@ -343,8 +531,32 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Assam",
-      count: 2,
+      count: 6,
       destinations: [
+            {
+      name: "Majuli Island",
+      description: "World’s largest river island, famous for satras and culture.",
+      image: majuliIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Kamakhya Temple",
+      description: "Famous Shakti Peetha dedicated to Goddess Kamakhya.",
+      image: kamakhyaTemple,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Sualkuchi",
+      description: "Village known as the Silk capital of Assam.",
+      image: sualkuchi,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Manas National Park",
+      description: "UNESCO biosphere reserve with elephants, tigers, and diverse fauna.",
+      image: manasNationalPark,
+      bestTimeToVisit: "Nov - Apr"
+    },
         {
           name: "Brahmaputra River",
           description: "The gateway to Northeast India with the sacred Kamakhya Temple and proximity to the mighty Brahmaputra River.",
@@ -379,7 +591,7 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Bihar",
-      count: 2,
+      count: 5,
       destinations: [
         {
           name: "Mahabodhi Temple, Bodh Gaya",
@@ -388,17 +600,53 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
           bestTimeToVisit: "Oct - Mar"
         },
         {
-          name: "Nalanda University Ruins",
-          description: "Site of the ancient Nalanda University, one of the world's oldest universities. A significant archaeological site.",
-          image: nalandaUniversity,
-          bestTimeToVisit: "Oct - Mar"
+            name: "Golghar",
+            description: "Granary built during British rule with panoramic city views.",
+            image: golghar,
+            "bestTimeToVisit": "Oct - Mar"
+        },
+        {
+            name: "Patna Sahib Gurudwara",
+            description: "Important Sikh pilgrimage site, birthplace of Guru Gobind Singh.",
+            image: patnaSahibGurudwara,
+            "bestTimeToVisit": "All Year"
+        },
+        {
+            name: "Vishnupad Temple",
+            description: "Ancient temple dedicated to Lord Vishnu.",
+            image: vishnupadTemple,
+            "bestTimeToVisit": "Oct - Mar"
+        },
+        {
+              name: "Nalanda University Ruins",
+              description: "Site of the ancient Nalanda University, one of the world's oldest universities. A significant archaeological site.",
+              image: nalandaUniversity,
+              bestTimeToVisit: "Oct - Mar"
         }
       ]
     },
     {
       state: "Chhattisgarh",
-      count: 2,
+      count: 5,
       destinations: [
+            {
+      name: "Kanger Valley National Park",
+      description: "Biodiversity hotspot with caves and waterfalls.",
+      image: kangerValley,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Bastar",
+      description: "Cultural hub with tribal villages, handicrafts, and festivals.",
+      image: bastar,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Bhoramdeo Temple",
+      description: "Historic temple complex often called the Khajuraho of Chhattisgarh.",
+      image: bhoramdeo,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Chitrakote Falls",
           description: "Often called the 'Niagara Falls of India', this horseshoe-shaped waterfall on the Indravati River is a spectacular sight.",
@@ -413,6 +661,78 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
         }
       ]
     },
+    {
+  state: "Andaman & Nicobar Islands",
+  count: 5,
+  destinations: [
+    {
+      name: "Radhanagar Beach",
+      description: "Pristine beach on Havelock Island, ideal for sunsets and swimming.",
+      image: radhanagarBeach,
+      bestTimeToVisit: "Nov - Apr"
+    },
+    {
+      name: "Cellular Jail",
+      description: "Historic colonial prison and freedom struggle monument in Port Blair.",
+      image: cellularJail,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Ross Island",
+      description: "Abandoned British settlement with ruins and history.",
+      image: rossIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Havelock Island",
+      description: "Popular for diving, snorkeling, and clear waters.",
+      image: havelockIsland,
+      bestTimeToVisit: "Nov - Apr"
+    },
+    {
+      name: "Neil Island",
+      description: "Serene island with beaches and coral reefs.",
+      image: neilIsland,
+      bestTimeToVisit: "Nov - Apr"
+    }
+  ]
+},
+{
+  state: "Lakshadweep",
+  count: 5,
+  destinations: [
+    {
+      name: "Agatti Island",
+      description: "Coral island with lagoons, water sports, and diving.",
+      image: agattiIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Bangaram Island",
+      description: "Uninhabited island, perfect for beach lovers and snorkelling.",
+      image: bangaramIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Kadmat Island",
+      description: "Famous for diving, dolphin spotting, and pristine beaches.",
+      image: kadmatIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Minicoy Island",
+      description: "Island with lighthouse, lagoon, and rich culture.",
+      image: minicoyIsland,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Kavaratti Island",
+      description: "Capital island with mosques, beaches, and lagoons.",
+      image: kavarattiIsland,
+      bestTimeToVisit: "Oct - Mar"
+    }
+  ]
+},
     {
       state: "France",
       count: 2,
@@ -433,8 +753,38 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Goa",
-      count: 2,
+      count: 7,
       destinations: [
+            {
+      name: "Baga Beach",
+      description: "Lively beach famous for nightlife and water sports.",
+      image: bagaBeach,
+      bestTimeToVisit: "Nov - Feb"
+    },
+    {
+      name: "Calangute Beach",
+      description: "Queen of Beaches, bustling with tourists and shacks.",
+      image: calanguteBeach,
+      bestTimeToVisit: "Nov - Feb"
+    },
+    {
+      name: "Basilica of Bom Jesus",
+      description: "UNESCO World Heritage Church housing relics of St. Francis Xavier.",
+      image: basilicaBomJesus,
+      bestTimeToVisit: "Nov - Feb"
+    },
+    {
+      name: "Dudhsagar Falls",
+      description: "Spectacular four-tiered waterfall on Goa-Karnataka border.",
+      image: dudhsagarFalls,
+      bestTimeToVisit: "Jul - Sep"
+    },
+    {
+      name: "Anjuna Beach",
+      description: "Known for trance parties and flea markets.",
+      image: anjunaBeach,
+      bestTimeToVisit: "Nov - Feb"
+    },
         {
           name: "North Goa (Baga Beach)",
           description: "Known for its lively beaches, water sports, vibrant nightlife, and Portuguese heritage.",
@@ -450,9 +800,70 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       ]
     },
     {
+  state: "Karnataka",
+  count: 5,
+  destinations: [
+    {
+      name: "Bengaluru",
+      description: "IT hub with parks, nightlife, and modern culture.",
+      image: bengaluru,
+      bestTimeToVisit: "Oct - Feb"
+    },
+    {
+      name: "Mysuru",
+      description: "Famous for Mysore Palace and Dasara festival.",
+      image: mysuru,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Hampi",
+      description: "UNESCO World Heritage ruins of Vijayanagara Empire.",
+      image: hampi,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Coorg",
+      description: "Scenic coffee plantations and lush hills.",
+      image: coorg,
+      bestTimeToVisit: "Oct - May"
+    },
+    {
+      name: "Gokarna",
+      description: "Peaceful beach town with temples and trekking.",
+      image: gokarna,
+      bestTimeToVisit: "Oct - Mar"
+    }
+  ]
+},
+
+    {
       state: "Gujarat",
-      count: 2,
+      count: 6,
       destinations: [
+            {
+      name: "Gir National Park",
+      description: "Only natural habitat of Asiatic lions.",
+      image: girNationalPark,
+      bestTimeToVisit: "Dec - Mar"
+    },
+    {
+      name: "Somnath",
+      description: "One of the twelve Jyotirlingas of Lord Shiva.",
+      image: somnath,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Dwarka",
+      description: "Ancient kingdom of Lord Krishna and Char Dham site.",
+      image: dwarka,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Saputara",
+      description: "Hill station with lush greenery and waterfalls.",
+      image: saputara,
+      bestTimeToVisit: "Jul - Sep"
+    },
         {
           name: "Ahmedabad",
           description: "A UNESCO World Heritage City with stunning architecture, vibrant markets, and rich cultural heritage.",
@@ -469,8 +880,27 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Haryana",
-      count: 2,
+      count: 5,
       destinations: [
+        {
+          name: "Pinjore Gardens",
+          description: "Beautiful Mughal garden complex with fountains and historic structures.",
+          image: pinjoreGardens,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Sultanpur Bird Sanctuary",
+          description: "Haven for migratory birds, ideal for birdwatching and nature walks.",
+          image: sultanpurBirdSanctuary,
+          bestTimeToVisit: "Nov - Feb"
+        },
+        {
+          name: "Morni Hills",
+          description: "Scenic hill station with lakes, trekking routes, and greenery.",
+          image: morniHills,
+          bestTimeToVisit: "Oct - Mar"
+        },
+
         {
           name: "Gurgaon",
           description: "A major financial and technology hub with modern architecture, shopping malls, and entertainment options.",
@@ -487,7 +917,7 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Himachal Pradesh", 
-      count: 3,
+      count: 5,
       destinations: [
         {
           name: "Dharamshala",
@@ -506,9 +936,57 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
           description: "The former summer capital of British India, known for its colonial architecture, Mall Road, and panoramic mountain views.",
           image: shimla,
           bestTimeToVisit: "Apr - Jun, Sep - Nov"
+        },
+            {
+          name: "Spiti Valley",
+          description: "Cold desert valley with monasteries and breathtaking landscapes.",
+          image: spitiValley,
+          bestTimeToVisit: "Jun - Sep"
+        },
+        {
+          name: "Kullu",
+          description: "Valley of Gods, famous for apple orchards and Dussehra festival.",
+          image: kullu,
+          bestTimeToVisit: "Mar - Jun, Sep - Nov"
         }
       ]
     },
+    {
+  state: "Puducherry",
+  count: 5,
+  destinations: [
+    {
+      name: "Promenade Beach",
+      description: "Popular urban beach for evening strolls.",
+      image: promenadeBeach,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Auroville",
+      description: "International township known for Matrimandir and spirituality.",
+      image: auroville,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Paradise Beach",
+      description: "Secluded beach accessible by boat, perfect for relaxation.",
+      image: paradiseBeach,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "French Quarter",
+      description: "Colonial architecture with colorful streets and cafes.",
+      image: frenchQuarter,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Serenity Beach",
+      description: "Quiet beach ideal for surfing and meditation.",
+      image: serenityBeach,
+      bestTimeToVisit: "Oct - Mar"
+    }
+  ]
+},
     {
       state: "Italy",
       count: 3,
@@ -571,8 +1049,20 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Kerala",
-      count: 3,
+      count: 2,
       destinations: [
+            {
+      name: "Thekkady",
+      description: "Home to Periyar Wildlife Sanctuary and spice plantations.",
+      image: thekkady,
+      bestTimeToVisit: "Sep - May"
+    },
+    {
+      name: "Kumarakom",
+      description: "Backwater village famous for bird sanctuary and luxury resorts.",
+      image: kumarakom,
+      bestTimeToVisit: "Nov - Feb"
+    },
         {
           name: "Alleppey",
           description: "Famous for its backwaters, houseboats, and serene village life.",
@@ -595,8 +1085,32 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Madhya Pradesh",
-      count: 2,
+      count: 6,
       destinations: [
+            {
+      name: "Kanha National Park",
+      description: "Tiger reserve and lush forest sanctuary.",
+      image: kanhaNationalPark,
+      bestTimeToVisit: "Oct - Jun"
+    },
+    {
+      name: "Bandhavgarh National Park",
+      description: "Famous for tiger sightings and ancient fort ruins.",
+      image: bandhavgarh,
+      bestTimeToVisit: "Oct - Jun"
+    },
+    {
+      name: "Gwalior Fort",
+      description: "Historic hill fort with palaces and temples.",
+      image: gwaliorFort,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Orchha",
+      description: "Medieval town with palaces, temples, and river views.",
+      image: orchha,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Bhopal",
           description: "The City of Lakes with a blend of Islamic and Hindu architecture, museums, and natural beauty.",
@@ -613,8 +1127,32 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Maharashtra",
-      count: 3,
+      count: 7,
       destinations: [
+            {
+      name: "Ajanta Caves",
+      description: "UNESCO World Heritage Buddhist rock-cut caves.",
+      image: ajantaCaves,
+      bestTimeToVisit: "Nov - Mar"
+    },
+    {
+      name: "Ellora Caves",
+      description: "Remarkable rock-cut temples of Hindu, Buddhist, and Jain heritage.",
+      image: elloraCaves,
+      bestTimeToVisit: "Nov - Mar"
+    },
+    {
+      name: "Mahabaleshwar",
+      description: "Hill station famous for strawberries and viewpoints.",
+      image: mahabaleshwar,
+      bestTimeToVisit: "Oct - Jun"
+    },
+    {
+      name: "Shirdi",
+      description: "Spiritual town of Sai Baba devotees.",
+      image: shirdi,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Lonavala",
           description: "A popular hill station between Mumbai and Pune, known for valleys, lakes, and the famous Lonavala chikki.",
@@ -639,6 +1177,24 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       state: "Manipur",
       count: 2,
       destinations: [
+            {
+      name: "Keibul Lamjao National Park",
+      description: "World’s only floating national park, home to Sangai deer.",
+      image: keibulLamjao,
+      bestTimeToVisit: "Nov - Apr"
+    },
+    {
+      name: "Ima Keithel Market",
+      description: "Unique all-women’s market in Imphal.",
+      image: imaMarket,
+      bestTimeToVisit: "All Year"
+    },
+    {
+      name: "Ukhrul",
+      description: "Hill town famous for Shirui lily and tribal culture.",
+      image: ukhrul,
+      bestTimeToVisit: "Mar - Jun, Sep - Nov"
+    },
         {
           name: "Imphal",
           description: "The capital city with Loktak Lake, Kangla Fort, and vibrant cultural traditions.",
@@ -655,8 +1211,26 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Meghalaya",
-      count: 2,
+      count: 5,
       destinations: [
+            {
+      name: "Mawsynram",
+      description: "Holds record as wettest place in the world.",
+      image: mawsynram,
+      bestTimeToVisit: "Oct - May"
+    },
+    {
+      name: "Living Root Bridges",
+      description: "Unique bio-engineered bridges made of tree roots.",
+      image: livingRootBridges,
+      bestTimeToVisit: "Oct - May"
+    },
+    {
+      name: "Dawki",
+      description: "Famous for its crystal-clear Umngot River.",
+      image: dawki,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Cherrapunji",
           description: "Known for living root bridges and stunning waterfalls.",
@@ -673,8 +1247,26 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Mizoram",
-      count: 2,
+      count: 5,
       destinations: [
+            {
+      name: "Phawngpui (Blue Mountain)",
+      description: "Highest peak of Mizoram with rich biodiversity.",
+      image: phawngpui,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Vantawng Falls",
+      description: "Tallest waterfall in Mizoram surrounded by lush forests.",
+      image: vantawngFalls,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Reiek",
+      description: "Scenic hill offering panoramic views and heritage village.",
+      image: reiek,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Aizawl",
           description: "The capital city built on steep hills with panoramic views and vibrant markets.",
@@ -691,8 +1283,32 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Nagaland",
-      count: 2,
+      count: 6,
       destinations: [
+            {
+      name: "Dimapur",
+      description: "Commercial hub with ancient ruins and markets.",
+      image: dimapur,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Dzükou Valley",
+      description: "Beautiful valley of flowers and trekking paradise.",
+      image: dzukouValley,
+      bestTimeToVisit: "Jun - Sep"
+    },
+    {
+      name: "Mokokchung",
+      description: "Cultural center of the Ao tribe.",
+      image: mokokchung,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Mon",
+      description: "Home of the Konyak tribe, known for traditional headhunting culture.",
+      image: monNagaland,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Dzukou Valley",
           description: "A hidden paradise with rolling hills, wildflowers, and trekking trails.",
@@ -709,8 +1325,26 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Odisha",
-      count: 2,
+      count: 5,
       destinations: [
+        {
+          name: "Konark Sun Temple",
+          description: "UNESCO World Heritage Site shaped like a giant chariot.",
+          image: konarkSunTemple,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Chilika Lake",
+          description: "Asia’s largest brackish water lagoon, famous for birdwatching and dolphins.",
+          image: chilikaLake,
+          bestTimeToVisit: "Nov - Feb"
+        },
+        {
+          name: "Udayagiri & Khandagiri Caves",
+          description: "Ancient rock-cut caves with Jain heritage.",
+          image: udayagiriCaves,
+          bestTimeToVisit: "Oct - Mar"
+        },
         {
           name: "Bhubaneswar",
           description: "The 'Temple City of India' with ancient temples and rich cultural heritage.",
@@ -727,8 +1361,26 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Punjab",
-      count: 2,
+      count: 5,
       destinations: [
+        {
+          name: "Wagah Border",
+          description: "International border with Pakistan, famous for daily Beating Retreat ceremony.",
+          image: wagahBorder,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Jallianwala Bagh",
+          description: "Historic site of the 1919 massacre, now a memorial garden.",
+          image: jallianwalaBagh,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Anandpur Sahib",
+          description: "Important Sikh pilgrimage town, birthplace of Khalsa.",
+          image: anandpurSahib,
+          bestTimeToVisit: "Oct - Mar"
+        },
         {
           name: "Amritsar",
           description: "Home to the Golden Temple, Wagah Border ceremony, and Punjabi cuisine.",
@@ -744,9 +1396,57 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       ]
     },
     {
-      state: "Rajasthan",
-      count: 3,
+      state: "Delhi",
+      count: 5,
       destinations: [
+        {
+          name: "India Gate",
+          description: "War memorial dedicated to Indian soldiers.",
+          image: indiaGate,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Qutub Minar",
+          description: "Tallest brick minaret in the world and UNESCO World Heritage Site.",
+          image: qutubMinar,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Red Fort",
+          description: "Magnificent Mughal fort and UNESCO heritage site.",
+          image: redFort,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Lotus Temple",
+          description: "Baháʼí House of Worship known for its flower-like architecture.",
+          image: lotusTemple,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Akshardham Temple",
+          description: "Grand Hindu temple showcasing Indian culture and spirituality.",
+          image: akshardhamTemple,
+          bestTimeToVisit: "Oct - Mar"
+        }
+      ]
+    },
+    {
+      state: "Rajasthan",
+      count: 5,
+      destinations: [
+            {
+      name: "Jodhpur",
+      description: "Blue City with Mehrangarh Fort and old-world charm.",
+      image: jodhpur,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Pushkar",
+      description: "Holy town with Brahma Temple and Camel Fair.",
+      image: pushkar,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Jaipur",
           description: "The Pink City with forts, palaces, and vibrant culture.",
@@ -769,8 +1469,26 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Sikkim",
-      count: 2,
+      count: 5,
       destinations: [
+        {
+          name: "Nathula Pass",
+          description: "Historic mountain pass on Indo-China border.",
+          image: nathulaPass,
+          bestTimeToVisit: "May - Oct"
+        },
+        {
+          name: "Yumthang Valley",
+          description: "Valley of Flowers, famous for rhododendrons and hot springs.",
+          image: yumthangValley,
+          bestTimeToVisit: "Apr - Jun, Sep - Nov"
+        },
+        {
+          name: "Pelling",
+          description: "Town with views of Kanchenjunga and ancient monasteries.",
+          image: pelling,
+          bestTimeToVisit: "Mar - Jun, Sep - Nov"
+        },
         {
           name: "Gangtok",
           description: "The capital with monasteries, cable cars, and Himalayan views.",
@@ -789,6 +1507,18 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       state: "Tamil Nadu",
       count: 3,
       destinations: [
+            {
+      name: "Rameswaram",
+      description: "Spiritual town and one of the Char Dhams.",
+      image: rameswaram,
+      bestTimeToVisit: "Oct - Apr"
+    },
+    {
+      name: "Kanyakumari",
+      description: "Southern tip of India where three seas meet.",
+      image: kanyakumari,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Chennai",
           description: "The cultural capital with beaches, temples, and heritage.",
@@ -813,6 +1543,24 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       state: "Telangana",
       count: 2,
       destinations: [
+            {
+      name: "Nagarjuna Sagar",
+      description: "Massive dam and Buddhist heritage site.",
+      image: nagarjunaSagar,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Ramoji Film City",
+      description: "World’s largest film studio complex.",
+      image: ramojiFilmCity,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Basar",
+      description: "Pilgrimage town famous for Saraswati temple.",
+      image: basar,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Hyderabad",
           description: "The 'City of Pearls' with Charminar, Golconda Fort, and a blend of cultures.",
@@ -827,6 +1575,42 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
         }
       ]
     },
+    {
+  state: "Jammu & Kashmir",
+  count: 5,
+  destinations: [
+    {
+      name: "Srinagar",
+      description: "Famous for Dal Lake, houseboats, and Mughal gardens.",
+      image: srinagar,
+      bestTimeToVisit: "Apr - Oct"
+    },
+    {
+      name: "Gulmarg",
+      description: "Popular ski resort and meadow of flowers.",
+      image: gulmarg,
+      bestTimeToVisit: "Dec - Mar (snow), Apr - Oct (scenic)"
+    },
+    {
+      name: "Pahalgam",
+      description: "Picturesque valley, starting point for Amarnath Yatra.",
+      image: pahalgam,
+      bestTimeToVisit: "Apr - Oct"
+    },
+    {
+      name: "Vaishno Devi",
+      description: "One of the most revered Hindu pilgrimage sites.",
+      image: vaishnoDevi,
+      bestTimeToVisit: "All Year"
+    },
+    {
+      name: "Sonamarg",
+      description: "Valley of Gold, famous for glaciers and trekking.",
+      image: sonamarg,
+      bestTimeToVisit: "Apr - Oct"
+    }
+  ]
+},
     {
       state: "Thailand",
       count: 2,
@@ -849,6 +1633,30 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
       state: "Tripura",
       count: 2,
       destinations: [
+            {
+      name: "Ujjayanta Palace",
+      description: "Royal palace in Agartala, now a museum.",
+      image: ujjayantaPalace,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Neermahal",
+      description: "Water palace built in the middle of Rudrasagar Lake.",
+      image: neermahal,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Jampui Hills",
+      description: "Hill station known for oranges and scenic beauty.",
+      image: jampuiHills,
+      bestTimeToVisit: "Oct - Mar"
+    },
+    {
+      name: "Sepahijala Wildlife Sanctuary",
+      description: "Biodiversity hotspot with primates, birds, and lakes.",
+      image: sepahijala,
+      bestTimeToVisit: "Oct - Mar"
+    },
         {
           name: "Agartala",
           description: "Capital city with Ujjayanta Palace, Neermahal Palace, and lakes.",
@@ -907,7 +1715,7 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
     },
     {
       state: "Uttar Pradesh",
-      count: 3,
+      count: 5,
       destinations: [
         {
           name: "Fatehpur Sikri",
@@ -926,12 +1734,25 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
           description: "One of the world's oldest cities with ghats, Ganges, and spiritual significance.",
           image: varanasi,
           bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Taj Mahal",
+          description: "UNESCO World Heritage Site and one of the Seven Wonders of the World.",
+          image: tajMahal,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Ayodhya",
+          description: "Birthplace of Lord Rama and major Hindu pilgrimage site.",
+          image: ayodhya,
+          bestTimeToVisit: "Oct - Mar"
         }
+
       ]
     },
     {
       state: "Uttarakhand",
-      count: 2,
+      count: 5,
       destinations: [
         {
           name: "Nainital",
@@ -944,13 +1765,49 @@ const sundarbans = "https://images.unsplash.com/photo-1549300461-11c5b94e8855?w=
           description: "The Yoga Capital with ashrams, adventure sports, and Ganges.",
           image: rishikesh,
           bestTimeToVisit: "Apr - Jun, Sep - Nov"
+        },
+        {
+          name: "Haridwar",
+          description: "Major Hindu pilgrimage site on the banks of the Ganges, famous for Ganga Aarti.",
+          image: haridwar,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Mussoorie",
+          description: "Known as the 'Queen of Hills' with colonial charm and panoramic views.",
+          image: mussoorie,
+          bestTimeToVisit: "Mar - Jun, Sep - Nov"
+        },
+        {
+          name: "Kedarnath",
+          description: "Sacred Hindu temple dedicated to Lord Shiva in the Himalayas.",
+          image: kedarnath,
+          bestTimeToVisit: "May - Oct"
         }
       ]
     },
     {
       state: "West Bengal",
-      count: 3,
+      count: 6,
       destinations: [
+        {
+          name: "Kolkata Victoria Memorial",
+          description: "Iconic marble building symbolizing British India’s legacy.",
+          image: victoriaMemorial,
+          bestTimeToVisit: "Oct - Mar"
+        },
+        {
+          name: "Kalimpong",
+          description: "Scenic hill town with monasteries and orchid nurseries.",
+          image: kalimpong,
+          bestTimeToVisit: "Mar - Jun, Sep - Nov"
+        },
+        {
+          name: "Digha",
+          description: "Popular seaside destination on the Bay of Bengal.",
+          image: digha,
+          bestTimeToVisit: "Oct - Mar"
+        },
         {
           name: "Darjeeling",
           description: "Famous for Darjeeling tea, Himalayan Railway, and Kanchenjunga views.",

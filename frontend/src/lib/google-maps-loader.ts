@@ -120,6 +120,7 @@ class GoogleMapsLoader {
         key: apiKey,
         libraries: libraries.join(','),
         language,
+        loading: 'async',
         callback: 'initGoogleMaps'
       });
 
