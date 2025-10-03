@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useState, } from "react";
+import { LuX, LuMenu } from "react-icons/lu";
+
 import { motion, AnimatePresence } from "framer-motion";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 import { AuthButtons } from "./AuthButtons";
@@ -36,7 +37,7 @@ export const Navigation = () => {
   return (
     <nav className="fixed -top-4 left-0 right-0 z-[70] bg-white shadow-md h-20">
       <div className="container mx-auto px-6 md:px-24 bg-white md:bg-transparent">
-        <div className="flex items-center justify-center ">
+        <div className="flex items-center justify-center my-2 md:my-0">
           {/* Left side: Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center" onClick={closeMenu}>
@@ -77,11 +78,10 @@ export const Navigation = () => {
             </div>
             <Button
               variant="ghost"
-              size="icon"
               className="sm:hidden"
               onClick={toggleMenu}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? <LuX className="h-20 w-20" /> : <LuMenu className="h-20 w-20" />}
             </Button>
           </div>
         </div>

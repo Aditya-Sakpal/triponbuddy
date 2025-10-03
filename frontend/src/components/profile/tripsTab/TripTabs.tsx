@@ -19,10 +19,10 @@ export const TripTabs = ({
 }: TripTabsProps) => {
   return (
     <Tabs defaultValue="history" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 h-12">
+      <TabsList className="inline-flex h-auto items-center justify-start gap-8 rounded-none bg-transparent border-b border-gray-200 w-full p-4">
         <TabsTrigger
           value="history"
-          className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm gap-2"
+          className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg gap-2"
         >
           <Clock className="h-4 w-4" />
           Trip History
@@ -34,7 +34,7 @@ export const TripTabs = ({
         </TabsTrigger>
         <TabsTrigger
           value="saved"
-          className="text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-bula data-[state=active]:shadow-sm gap-2"
+          className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg gap-2"
         >
           <Bookmark className="h-4 w-4" />
           Saved Trips

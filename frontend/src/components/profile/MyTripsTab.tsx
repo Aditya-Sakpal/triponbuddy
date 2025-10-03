@@ -7,12 +7,14 @@ import { TripHeader, TripControls, TripTabs, AuthRequiredState, LoadingState } f
 
 
 type SortOption = "date-newest" | "date-oldest" | "name-asc" | "name-desc";
+type TripTypeOption = "all" | "domestic" | "international";
 
 export const MyTripsTab = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("date-newest");
+  const [tripType, setTripType] = useState<TripTypeOption>("all");
 
   const { data: tripsData, isLoading } = useTrips({
     user_id: user?.id || "",
@@ -24,7 +26,8 @@ export const MyTripsTab = () => {
   const { savedTrips, historyTrips, filterAndSortTrips } = useTripFilters(
     trips,
     searchQuery,
-    sortBy
+    sortBy,
+    tripType
   );
 
   const handlePlanNewTrip = () => {
@@ -48,6 +51,8 @@ export const MyTripsTab = () => {
         onSearchChange={setSearchQuery}
         sortBy={sortBy}
         onSortChange={setSortBy}
+        tripType={tripType}
+        onTripTypeChange={setTripType}
       />
 
       <TripTabs

@@ -105,21 +105,21 @@ export const DestList = () => {
   }, []);
 
   return (
-    <section className="py-12 px-6">
+    <section className="py-12">
             <div className="container mx-auto">
-                <h2 className="text-3xl font-bold text-center mb-12">Destinations by Location</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">Destinations by Location</h2>
                 
                 <div className="space-y-12">
                     {filteredDestinations.map((stateData) => (
-                    <div key={stateData.state} className="space-y-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow p-6 max-w-6xl mx-auto">
+                    <div key={stateData.state} className="space-y-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow  p-2 md:p-6 max-w-6xl mx-auto">
                         <div className="flex items-center justify-between">
                         <h3 className="text-3xl font-bold text-foreground">{stateData.state}</h3>
-                        <Badge variant="secondary" className="bg-bula text-white text-xs text-center md:text-lg px-2">
+                        <Badge variant="secondary" className="bg-bula text-white text-xs text-center md:text-lg">
                             {stateData.count} destinations
                         </Badge>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="flex flex-row overflow-x-auto md:grid md:grid-cols-3 gap-6 horizontal-scroll">
                         {stateData.destinations.map((destination, index) => {
                             const isImageLoaded = loadedImages.has(destination.image);
                             
@@ -134,13 +134,14 @@ export const DestList = () => {
                             };
                             
                             return (
+                            <div key={index} className="flex-shrink-0 w-80 md:w-auto">
                             <DestinationCard
-                                key={index}
                                 destination={compatibleDestination}
                                 showState={false}
                                 isImageLoaded={isImageLoaded}
                                 onImageLoad={() => handleImageLoad(destination.image)}
                             />
+                            </div>
                             );
                         })}
                         </div>

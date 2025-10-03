@@ -2,11 +2,13 @@ import { useMemo } from "react";
 import { TripDB } from "@/constants";
 
 type SortOption = "date-newest" | "date-oldest" | "name-asc" | "name-desc";
+type TripTypeOption = "all" | "domestic" | "international";
 
 export const useTripFilters = (
   trips: TripDB[],
   searchQuery: string,
-  sortBy: SortOption
+  sortBy: SortOption,
+  tripType: TripTypeOption
 ) => {
   // Separate saved and unsaved trips
   const savedTrips = useMemo(() =>
@@ -26,6 +28,13 @@ export const useTripFilters = (
       filtered = filtered.filter(trip =>
         trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by trip type
+    if (tripType !== "all") {
+      filtered = filtered.filter(trip =>
+        tripType === "domestic" ? !trip.is_international : trip.is_international
       );
     }
 

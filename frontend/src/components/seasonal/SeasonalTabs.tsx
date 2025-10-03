@@ -52,11 +52,11 @@ export const SeasonalTabs = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="flex flex-row overflow-x-auto md:grid md:grid-cols-3 gap-8 horizontal-scroll">
                   {getDestinationsBySeason(season).map((destination, index) => (
                     <div
                       key={destination.id}
-                      className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+                      className="flex-shrink-0 w-80 md:w-auto animate-in fade-in slide-in-from-bottom-4 duration-500"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <DestinationCard

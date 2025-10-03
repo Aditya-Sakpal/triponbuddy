@@ -175,3 +175,26 @@ All colors MUST be HSL.
 .animate-pulse-slow {
   animation: pulse-slow 2s ease-in-out infinite;
 }
+
+/* Custom scrollbar styles */
+.horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+  background: #4b6cf7;
+  border-radius: 4px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #4b6cf7;
+}
+
+.horizontal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #4b6cf7 transparent;
+}

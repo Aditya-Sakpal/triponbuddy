@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useSingleImage } from "@/hooks/api-hooks";
 import type { ImageData } from "@/constants";
+import { WaveLoader } from "@/components/trip/WaveLoader";
 
 interface TripGenerationModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface TripGenerationModalProps {
   destination?: string;
   onCancel?: () => void;
   preloadedImages?: ImageData[];
+  generationComplete?: boolean;
 }
 
 const loadingMessages = [
@@ -27,12 +29,10 @@ const travelTips = [
   "Tip: Learn a few basic phrases in the local language",
 ];
 
-export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, preloadedImages }: TripGenerationModalProps) => {
+export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, preloadedImages, generationComplete = false }: TripGenerationModalProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [images, setImages] = useState<ImageData[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const [waveOffset, setWaveOffset] = useState(0);
   const [imagesFetched, setImagesFetched] = useState(false);
   
   const singleImageMutation = useSingleImage();
@@ -49,7 +49,6 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
   useEffect(() => {
     if (isOpen && destination && !imagesFetched && (!preloadedImages || preloadedImages.length === 0)) {
       setMessageIndex(0);
-      setCurrentImageIndex(0);
       setCurrentTipIndex(0);
       setImagesFetched(true);
       
@@ -57,7 +56,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
       singleImageMutation.mutate(
         {
           location: destination,
-          max_images: 10, // Increased from 5 to 10 for more variety
+          max_images: 50, 
           min_width: 800,
           min_height: 600,
         },
@@ -122,57 +121,37 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
       );
     }
     
-    // Reset imagesFetched when modal closes
-    if (!isOpen) {
+    // Reset imagesFetched when modal closes or generation completes
+    if (!isOpen || generationComplete) {
       setImagesFetched(false);
       setImages([]);
+      setMessageIndex(0);
+      setCurrentTipIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, destination, imagesFetched, preloadedImages]);
+  }, [isOpen, destination, imagesFetched, preloadedImages, generationComplete]);
 
   // Loading messages rotation
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || generationComplete) return;
     
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [isOpen]);
-
-  // Image carousel effect with horizontal sliding motion
-  useEffect(() => {
-    if (!isOpen || images.length === 0) return;
-
-    const imageInterval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // Change image every 3 seconds for faster pace
-
-    return () => clearInterval(imageInterval);
-  }, [isOpen, images.length]);
-
-  // Continuous sliding animation - faster speed
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const slideInterval = setInterval(() => {
-      setWaveOffset((prev) => (prev + 0.06) % (Math.PI * 2)); // Increased from 0.02 to 0.06 for faster sliding
-    }, 40); // Decreased from 50ms to 40ms for smoother faster animation
-
-    return () => clearInterval(slideInterval);
-  }, [isOpen]);
+  }, [isOpen, generationComplete]);
 
   // Travel tips rotation
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || generationComplete) return;
 
     const tipInterval = setInterval(() => {
       setCurrentTipIndex((prev) => (prev + 1) % travelTips.length);
     }, 5000); // Change tip every 5 seconds
 
     return () => clearInterval(tipInterval);
-  }, [isOpen]);
+  }, [isOpen, generationComplete]);
 
   const handleCancel = () => {
     if (onCancel) {
@@ -238,57 +217,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
             </div>
 
             {/* Image Carousel with sliding animation */}
-            {images.length > 0 && (
-              <div className="relative w-full h-36 flex items-center justify-center overflow-hidden">
-                {Array.from({ length: 6 }, (_, i) => {
-                  // Calculate which image this card should show
-                  const imageIndex = (currentImageIndex + i) % images.length;
-                  const image = images[imageIndex];
-                  
-                  // Calculate horizontal position for sliding effect
-                  // Cards start from right (positive X) and move left (negative X)
-                  const basePosition = i * 120 - 200; // Space cards 120px apart, start 200px to the right
-                  const slideOffset = waveOffset * 50; // Convert wave offset to pixels
-                  const horizontalPosition = basePosition - slideOffset;
-                  
-                  // Add slight vertical wave motion
-                  const verticalOffset = Math.sin(waveOffset + i * 0.5) * 8;
-                  
-                  // Calculate distance from center for opacity and z-index effects
-                  const distanceFromCenter = Math.abs(horizontalPosition);
-                  
-                  // All cards have consistent size - no automatic scaling
-                  const scale = 1.0;
-                  
-                  // Opacity based on distance from center
-                  const opacity = Math.max(0.3, 1 - distanceFromCenter / 400);
-                  
-                  return (
-                    <div
-                      key={`card-${i}`} // Stable key based on position
-                      className="absolute w-28 h-32 rounded-2xl shadow-xl bg-white dark:bg-gray-800 p-2 transition-all duration-1000 ease-out hover:scale-110 cursor-pointer"
-                      style={{
-                        transform: `translate(${horizontalPosition}px, ${verticalOffset}px) scale(${scale})`,
-                        opacity: opacity,
-                        zIndex: Math.floor(100 - distanceFromCenter), // Closer cards appear on top
-                      }}
-                    >
-                      <div className="w-full h-full overflow-hidden rounded-xl">
-                        <img
-                          src={image.url}
-                          alt={image.title}
-                          className="w-full h-full object-cover transition-opacity duration-500"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                        <div className="absolute inset-2 rounded-xl bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <WaveLoader images={images} isActive={isOpen && !generationComplete} />
 
             {/* Progress Bar */}
             <div className="w-full max-w-xs bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 overflow-hidden">
