@@ -28,9 +28,8 @@ class Settings(BaseSettings):
     cache_maxsize: int = Field(default=1000, env="CACHE_MAXSIZE")
 
     # Image Scraping Configuration
-    max_concurrent_requests: int = Field(default=50, env="MAX_CONCURRENT_REQUESTS")
     image_scrape_timeout: int = Field(default=10, env="IMAGE_SCRAPE_TIMEOUT")
-    max_images_per_location: int = Field(default=5, env="MAX_IMAGES_PER_LOCATION")
+    max_images_per_location: int = Field(default=50, env="MAX_IMAGES_PER_LOCATION")
 
     # Application Configuration
     debug: bool = Field(default=False, env="DEBUG")

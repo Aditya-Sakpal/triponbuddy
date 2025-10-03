@@ -4,6 +4,7 @@ import { useAuthStore } from "@/lib/stores";
 import { TripItinerary } from "@/components/trip/TripItinerary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { LoadingState } from "@/components/shared/LoadingState";
 
 const Trip = () => {
   const { tripId } = useParams<{ tripId: string }>();
@@ -52,12 +53,8 @@ const Trip = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-96">
-          <CardContent className="flex items-center justify-center py-12">
-            <div className="text-center space-y-4">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-              <h3 className="text-lg font-semibold">Loading your trip...</h3>
-              <p className="text-muted-foreground">Please wait while we fetch your itinerary</p>
-            </div>
+          <CardContent className="py-12">
+            <LoadingState />
           </CardContent>
         </Card>
       </div>

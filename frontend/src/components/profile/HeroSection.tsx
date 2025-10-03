@@ -9,10 +9,10 @@ export const HeroSection = () => {
             }}
         >
             <div className="container mx-auto text-center relative z-10">
-            <h1 className="font-bold text-white mb-6 leading-tight" style={{ fontSize: '2.8rem' }}>
+            <h1 className="font-bold mb-6 text-4xl md:text-5xl text-white">
                 My Profile
             </h1>
-            <p className="text-white/90 max-w-4xl mx-auto leading-relaxed" style={{ fontSize: '1.2rem' }}>
+            <p className="leading-relaxed text-white/90">
                 Manage your account and view your travel history.
             </p>
             </div>

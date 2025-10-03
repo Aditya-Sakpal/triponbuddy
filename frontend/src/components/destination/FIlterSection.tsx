@@ -10,11 +10,11 @@ export const FilterSection = () => {
     const [isWorldwide, setIsWorldwide] = useState(false);
     
   return (
-    <section className="relative -mt-16 px-6 z-20">
+    <section className="relative -mt-16 z-20">
         <div className="container mx-auto max-w-4xl">
           <Card className="p-6 shadow-lg bg-white rounded-lg">
-            <div className="flex flex-col md:flex-row gap-6 items-end justify-center">
-              <div className="space-y-2 flex-1 max-w-xs">
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-center">
+              <div className="space-y-2 w-full md:flex-1 md:max-w-xs">
                 <label className="text-sm font-medium text-muted-foreground">Location</label>
                 <Select value={selectedLocation} onValueChange={setSelectedLocation}>
                   <SelectTrigger>
@@ -30,7 +30,7 @@ export const FilterSection = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2 flex-1 max-w-xs">
+              <div className="space-y-2 w-full md:flex-1 md:max-w-xs">
                 <label className="text-sm font-medium text-muted-foreground">Season</label>
                 <Select value={selectedSeason} onValueChange={setSelectedSeason}>
                   <SelectTrigger>
@@ -46,7 +46,7 @@ export const FilterSection = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center w-full md:w-auto">
                 <div className="flex flex-col items-center space-y-2">
                   <label className="text-sm font-medium text-muted-foreground">Worldwide</label>
                   <Switch

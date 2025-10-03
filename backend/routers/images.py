@@ -41,7 +41,7 @@ async def bulk_images(request: Request, locations: List[str]):
 async def single_image(
     request: Request,
     location: str = Query(..., description="Location to search for"),
-    max_images: Optional[int] = Query(5, ge=1, le=10, description="Maximum number of images"),
+    max_images: Optional[int] = Query(5, ge=1, le=50, description="Maximum number of images"),
     min_width: Optional[int] = Query(800, ge=100, description="Minimum image width"),
     min_height: Optional[int] = Query(600, ge=100, description="Minimum image height")
 ):
