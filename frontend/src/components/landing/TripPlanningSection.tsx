@@ -261,6 +261,8 @@ export const TripPlanningSection = () => {
               onDemo={handleDemo}
               isGenerating={generateTripMutation.isPending}
               isDisabled={!destination || !startDate || !durationDays}
+              isSignedIn={isSignedIn}
+              isLoaded={isLoaded}
             />
           </CardContent>
         </Card>
