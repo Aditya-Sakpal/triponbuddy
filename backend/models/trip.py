@@ -14,6 +14,7 @@ class Activity(BaseModel):
     activity: str = Field(description="Activity name")
     location: str = Field(description="Location of activity")
     description: str = Field(description="Brief description")
+    detailed_description: str = Field(description="Detailed description with more context and information")
     estimated_cost: str = Field(description="Cost in INR")
     duration: str = Field(description="Duration of activity")
     image_search_query: str = Field(description="Query for image search")

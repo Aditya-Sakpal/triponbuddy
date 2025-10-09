@@ -32,12 +32,11 @@ export const TravelPreferences = ({
             <button
               key={index}
               onClick={() => onToggle(pref.label)}
-              disabled={selectedPreferences.length >= 3 && !isSelected}
               className={`flex flex-col items-center space-y-2 p-4 rounded-lg border transition-all ${
                 isSelected
                   ? 'bg-primary/10 border-primary text-primary'
                   : 'bg-background border-border hover:border-primary/50'
-              } ${selectedPreferences.length >= 3 && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}`}
+              }`}
             >
               <Icon className="w-6 h-6" />
               <span className="text-sm font-medium">{pref.label}</span>
@@ -46,7 +45,7 @@ export const TravelPreferences = ({
         })}
       </div>
       <p className="text-sm text-muted-foreground mt-2">
-        {selectedPreferences.length}/3 selected
+        {selectedPreferences.length} selected
       </p>
     </div>
   );

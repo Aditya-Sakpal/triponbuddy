@@ -72,7 +72,7 @@ export const TripPlanningSection = () => {
   const handleToggle = (label: string) => {
     if (selectedPreferences.includes(label)) {
       setSelectedPreferences(selectedPreferences.filter(p => p !== label));
-    } else if (selectedPreferences.length < 3) {
+    } else {
       setSelectedPreferences([...selectedPreferences, label]);
     }
   };
