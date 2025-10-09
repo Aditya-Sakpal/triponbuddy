@@ -101,7 +101,8 @@ class AIService:
                             "time": "10:00 AM",
                             "activity": "[Activity Name]",
                             "location": "[Location]",
-                            "description": "[Description]",
+                            "description": "[Brief description in 1-2 sentences]",
+                            "detailed_description": "[Detailed description in 3-4 paragraphs covering history, significance, visitor experience, tips, and interesting facts about this activity/location]",
                             "estimated_cost": "₹XXX",
                             "duration": "X hours",
                             "image_search_query": "[Short query]",
@@ -227,6 +228,7 @@ class AIService:
         9. Include transportation hubs for both starting location and destination
         10. Provide comprehensive local transportation options for the destination
         11. Include realistic costs and practical details for all transportation options
+        12. For each activity, provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs with rich information about history, significance, visitor experience, tips, and interesting facts)
         """
 
         return prompt

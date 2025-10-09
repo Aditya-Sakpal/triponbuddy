@@ -26,6 +26,7 @@ export interface Activity {
   activity: string;
   location: string;
   description: string;
+  detailed_description: string;
   estimated_cost: string;
   duration: string;
   image_search_query: string;

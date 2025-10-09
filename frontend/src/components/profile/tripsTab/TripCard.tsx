@@ -17,14 +17,14 @@ export const TripCard = ({ trip }: TripCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col gap-4">
           {/* Destination Image */}
           {trip.destination_image && (
-            <div className="flex-shrink-0">
+            <div className="w-full">
               <img
                 src={trip.destination_image}
                 alt={trip.destination}
-                className="w-24 h-24 object-cover rounded-lg"
+                className="w-full h-48 object-cover rounded-lg"
                 onError={(e) => {
                   console.error('Image failed to load:', trip.destination_image);
                   e.currentTarget.style.display = 'none';
@@ -37,7 +37,7 @@ export const TripCard = ({ trip }: TripCardProps) => {
           )}
 
           {/* Trip Details */}
-          <div className="flex-1 min-w-0">
+          <div className="w-full">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
               <h3 className="font-semibold text-lg text-bula mb-1">{trip.title}</h3>
@@ -46,15 +46,12 @@ export const TripCard = ({ trip }: TripCardProps) => {
                 <span className="text-sm">{trip.destination}</span>
               </div>
 
+            <div className="flex gap-2 mb-3">
               {trip.start_location && (
-                  <div className="flex items-center gap-2 text-gray-600 mb-3">
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                      From: {trip.start_location}
-                    </span>
-                  </div>
-                )}
-
-            <div className="flex items-center gap-2 text-gray-600 mb-3">
+                <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                  From: {trip.start_location}
+                </span>
+              )}
               <span className="text-xs bg-gray-100 px-2 py-1 rounded">
                 Type: {trip.is_international ? "International" : "Domestic"}
               </span>

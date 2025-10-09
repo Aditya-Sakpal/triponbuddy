@@ -63,26 +63,10 @@ export const DestinationCard = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute bottom-4 left-4 text-white">
           <h3 className="text-xl font-semibold">{destination.name}</h3>
-          {showState && destination.state && (
-            <p className="text-white/80 text-sm">{destination.state}</p>
-          )}
         </div>
-        {destination.bestTimeToVisit && (
-          <div className="absolute bottom-4 right-4 z-10">
-            <TooltipProvider delayDuration={200} skipDelayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="bg-black/50 hover:bg-black/70 rounded-full p-2 text-white transition-colors">
-                    <Info className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="z-[99] pr-24">
-                  <p>Best time to visit: <br/>{destination.bestTimeToVisit}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
+        <div className="absolute bottom-4 right-4 text-white text-sm text-right">
+          <h3 className="font-semibold">{destination.bestTimeToVisit}</h3>
+        </div>
       </div>
       <CardContent className="p-6 flex-1 flex flex-col">
         <CardDescription className="text-muted-foreground mb-4 flex-1 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>

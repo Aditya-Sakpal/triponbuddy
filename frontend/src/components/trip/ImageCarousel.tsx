@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import type { ImageData } from "@/constants";
 
@@ -33,10 +33,10 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
         }}
         plugins={[
           Autoplay({
-            delay: 1100,
+            delay: 2400,
           }),
         ]}
-        className="w-full"
+        className="relative w-full"
       >
         <CarouselContent>
           {images.map((image, index) => (
@@ -58,6 +58,8 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
             </CarouselItem>
           ))}
         </CarouselContent>
+        <CarouselPrevious className="border-none absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/30 text-black rounded-full p-2 hover:bg-white/70 transition-colors" />
+        <CarouselNext className="border-none absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/30 text-black rounded-full p-2 hover:bg-white/70 transition-colors" />
       </Carousel>
     </div>
   );

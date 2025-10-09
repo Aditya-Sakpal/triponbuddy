@@ -9,7 +9,7 @@ export const ProfileCard = () => {
   const activeTab = searchParams.get('tab') === 'trips' ? 'trips' : 'profile';
 
   return (
-    <div className="container mx-auto px-6 -mt-16 relative z-10 mb-16 ">
+    <div className="container mx-auto px-6 -mt-16 relative z-10 pb-16">
       <Card className="max-w-4xl mx-auto bg-gray-100 shadow-lg">
         <Tabs defaultValue={activeTab} className="w-full">
           <TabsList className="inline-flex h-auto items-center justify-start gap-8 rounded-none bg-transparent border-b border-gray-200 w-full p-4">
