@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     image_scrape_timeout: int = Field(default=10, env="IMAGE_SCRAPE_TIMEOUT")
     max_images_per_location: int = Field(default=50, env="MAX_IMAGES_PER_LOCATION")
 
+    # Unsplash API Configuration
+    unsplash_access_key: str = Field(default="", env="UNSPLASH_ACCESS_KEY")
+    unsplash_api_url: str = Field(default="https://api.unsplash.com", env="UNSPLASH_API_URL")
+    unsplash_timeout: int = Field(default=10, env="UNSPLASH_TIMEOUT")
+    unsplash_per_page: int = Field(default=10, env="UNSPLASH_PER_PAGE")
+
     # Application Configuration
     debug: bool = Field(default=False, env="DEBUG")
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
