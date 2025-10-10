@@ -56,14 +56,15 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
       singleImageMutation.mutate(
         {
           location: destination,
-          max_images: 50, 
+          max_images: 10, // Fetch up to 10 images only
           min_width: 800,
           min_height: 600,
         },
         {
           onSuccess: (data) => {
             if (data.images && data.images.length > 0) {
-              setImages(data.images);
+              // Only keep the first 8-10 images
+              setImages(data.images.slice(0, 10));
             } else {
               // Fallback to placeholder images if no images found
               setImages([
@@ -217,6 +218,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
             </div>
 
             {/* Image Carousel with sliding animation */}
+            {/* Loop over images in the WaveLoader (WaveLoader should handle the array) */}
             <WaveLoader images={images} isActive={isOpen && !generationComplete} />
 
             {/* Progress Bar */}
