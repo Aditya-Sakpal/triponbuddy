@@ -35,6 +35,8 @@ export interface Activity {
     url: string;
     price_range: string;
   };
+  tag?: string; // arrival_departure, dining, sightseeing, shopping, entertainment, relaxation, adventure, cultural
+  alternatives?: string[]; // List of alternative activity names
 }
 
 export interface DailyPlan {

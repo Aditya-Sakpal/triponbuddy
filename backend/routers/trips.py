@@ -11,7 +11,9 @@ from models.trip import (
     TripGenerationResponse,
     TripUpdateRequest,
     TripListResponse,
-    TripResponse
+    TripResponse,
+    ActivityReplaceRequest,
+    ActivityRemoveRequest
 )
 from services.trip_service import trip_service
 
@@ -211,4 +213,75 @@ async def unsave_trip(
         raise HTTPException(
             status_code=500,
             detail="Failed to unsave trip"
+        )
+
+
+@router.post("/{trip_id}/activities/replace", response_model=dict)
+async def replace_activity(
+    request: Request,
+    trip_id: str,
+    replace_request: ActivityReplaceRequest,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Replace an activity in a trip with a new AI-generated one"""
+
+    try:
+        result = await trip_service.replace_activity(
+            trip_id=trip_id,
+            user_id=user_id,
+            day=replace_request.day,
+            activity_index=replace_request.activity_index,
+            new_activity_name=replace_request.new_activity_name
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("error", "Failed to replace activity")
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error replacing activity: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to replace activity"
+        )
+
+
+@router.delete("/{trip_id}/activities/remove", response_model=dict)
+async def remove_activity(
+    request: Request,
+    trip_id: str,
+    remove_request: ActivityRemoveRequest,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Remove an activity from a trip"""
+
+    try:
+        result = await trip_service.remove_activity(
+            trip_id=trip_id,
+            user_id=user_id,
+            day=remove_request.day,
+            activity_index=remove_request.activity_index
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("error", "Failed to remove activity")
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error removing activity: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to remove activity"
         )

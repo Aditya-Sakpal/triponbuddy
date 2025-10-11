@@ -110,7 +110,9 @@ class AIService:
                                 "required": true/false,
                                 "url": "[URL]",
                                 "price_range": "₹XXX-XXX"
-                            }}
+                            }},
+                            "tag": "[arrival_departure/dining/sightseeing/shopping/entertainment/relaxation/adventure/cultural]",
+                            "alternatives": ["Alternative Activity 1", "Alternative Activity 2", "Alternative Activity 3"]
                         }}
                     ]
                 }}
@@ -229,6 +231,16 @@ class AIService:
         10. Provide comprehensive local transportation options for the destination
         11. Include realistic costs and practical details for all transportation options
         12. For each activity, provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs with rich information about history, significance, visitor experience, tips, and interesting facts)
+        13. For each activity, assign an appropriate tag based on the activity type:
+            - "arrival_departure" for airports, railway stations, check-in/check-out activities
+            - "dining" for restaurants, cafes, food courts, breakfast/lunch/dinner activities
+            - "sightseeing" for tourist attractions, monuments, viewpoints, landmarks
+            - "shopping" for markets, malls, shopping districts, souvenir shops
+            - "entertainment" for shows, performances, cinemas, nightlife
+            - "relaxation" for spas, beaches, parks, leisure activities
+            - "adventure" for trekking, water sports, adventure activities
+            - "cultural" for museums, galleries, cultural centers, heritage sites
+        14. For each activity, provide 3-5 alternative activities that could replace it in the same time slot, keeping similar duration and theme. These should be simple activity names as strings.
         """
 
         return prompt
@@ -401,6 +413,95 @@ class AIService:
         # Remove duplicates and limit
         unique_queries = list(set(queries))
         return unique_queries[:10]  # Limit to 10 queries
+
+    async def generate_single_activity(
+        self, 
+        destination: str, 
+        activity_name: str, 
+        time_slot: str,
+        duration: str,
+        preferences: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """Generate a single replacement activity with full details"""
+
+        preferences_text = ""
+        if preferences:
+            prefs = []
+            if preferences.get('adventure'):
+                prefs.append("adventure activities")
+            if preferences.get('culture'):
+                prefs.append("cultural experiences")
+            if preferences.get('relaxation'):
+                prefs.append("relaxation and wellness")
+            if preferences.get('classical'):
+                prefs.append("classical sightseeing")
+            if preferences.get('shopping'):
+                prefs.append("shopping experiences")
+            if preferences.get('food'):
+                prefs.append("food and cuisine")
+            preferences_text = f" with focus on: {', '.join(prefs)}" if prefs else ""
+
+        prompt = f"""
+        Generate a detailed activity entry for a trip to {destination}.
+
+        Activity Details:
+        - Activity Name: {activity_name}
+        - Time Slot: {time_slot}
+        - Duration: {duration}
+        - Destination: {destination}
+        - Preferences: {preferences_text}
+
+        Please provide a detailed JSON response with the following structure:
+        {{
+            "time": "{time_slot}",
+            "activity": "{activity_name}",
+            "location": "[Specific location in {destination}]",
+            "description": "[Brief description in 1-2 sentences]",
+            "detailed_description": "[Detailed description in 3-4 paragraphs covering history, significance, visitor experience, tips, and interesting facts about this activity/location]",
+            "estimated_cost": "₹XXX",
+            "duration": "{duration}",
+            "image_search_query": "[Short query for this activity]",
+            "booking_info": {{
+                "required": true/false,
+                "url": "[URL if applicable]",
+                "price_range": "₹XXX-XXX"
+            }},
+            "tag": "[arrival_departure/dining/sightseeing/shopping/entertainment/relaxation/adventure/cultural]",
+            "alternatives": ["Alternative Activity 1", "Alternative Activity 2", "Alternative Activity 3"]
+        }}
+
+        Requirements:
+        1. All costs must be in Indian Rupees (₹)
+        2. Provide realistic booking URLs for major attractions
+        3. Generate a short, specific image search query (1-2 words)
+        4. Provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs)
+        5. Assign an appropriate tag based on the activity type:
+            - "arrival_departure" for airports, railway stations, check-in/check-out activities
+            - "dining" for restaurants, cafes, food courts, breakfast/lunch/dinner activities
+            - "sightseeing" for tourist attractions, monuments, viewpoints, landmarks
+            - "shopping" for markets, malls, shopping districts, souvenir shops
+            - "entertainment" for shows, performances, cinemas, nightlife
+            - "relaxation" for spas, beaches, parks, leisure activities
+            - "adventure" for trekking, water sports, adventure activities
+            - "cultural" for museums, galleries, cultural centers, heritage sites
+        6. Provide 3-5 alternative activities that could replace it in the same time slot
+        """
+
+        try:
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            activity_data = self._parse_response(response.text)
+
+            return {
+                "success": True,
+                "activity": activity_data
+            }
+
+        except Exception as e:
+            logger.error(f"Error generating single activity: {str(e)}")
+            raise Exception(f"Failed to generate activity: {str(e)}")
 
 
 # Global AI service instance

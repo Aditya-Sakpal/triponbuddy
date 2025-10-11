@@ -100,8 +100,8 @@ class ApiClient {
     return response.data;
   }
 
-  async delete<T>(url: string, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
-    const response = await this.client.delete(url, { params, signal });
+  async delete<T>(url: string, params?: Record<string, unknown>, data?: unknown, signal?: AbortSignal): Promise<T> {
+    const response = await this.client.delete(url, { params, data, signal });
     return response.data;
   }
 }

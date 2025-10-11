@@ -19,6 +19,8 @@ class Activity(BaseModel):
     duration: str = Field(description="Duration of activity")
     image_search_query: str = Field(description="Query for image search")
     booking_info: Optional[Dict[str, Any]] = Field(default=None, description="Booking information")
+    tag: str = Field(default="sightseeing", description="Activity tag: arrival_departure, dining, sightseeing, shopping, entertainment, relaxation, adventure, cultural")
+    alternatives: List[str] = Field(default_factory=list, description="List of alternative activity names for this time slot")
 
 
 class DailyPlan(BaseModel):
@@ -185,6 +187,19 @@ class TripUpdateRequest(BaseModel):
     title: Optional[str] = None
     is_saved: Optional[bool] = None
     tags: Optional[List[str]] = None
+
+
+class ActivityReplaceRequest(BaseModel):
+    """Request model for replacing an activity"""
+    day: int = Field(ge=1, description="Day number")
+    activity_index: int = Field(ge=0, description="Index of activity in the day's activities list")
+    new_activity_name: str = Field(description="Name of the new activity to generate")
+
+
+class ActivityRemoveRequest(BaseModel):
+    """Request model for removing an activity"""
+    day: int = Field(ge=1, description="Day number")
+    activity_index: int = Field(ge=0, description="Index of activity in the day's activities list")
 
 
 class TripListResponse(BaseModel):

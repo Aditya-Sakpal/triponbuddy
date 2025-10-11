@@ -160,6 +160,15 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
 }
@@ -174,6 +183,10 @@ All colors MUST be HSL.
 
 .animate-pulse-slow {
   animation: pulse-slow 2s ease-in-out infinite;
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out infinite;
 }
 
 /* Custom scrollbar styles */
