@@ -1,59 +1,23 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { DailyPlan } from "@/constants";
+import type { DailyPlan, Activity } from "@/constants";
 import { ActivityCard } from "@/components/trip";
 
-// Helper function to calculate end time
-// const calculateEndTime = (startTime: string, duration: string): string => {
-//   try {
-//     // Parse start time (e.g., "7:00 AM")
-//     const [time, period] = startTime.split(' ');
-//     let [hours, minutes] = time.split(':').map(Number);
-    
-//     // Convert to 24-hour format
-//     if (period === 'PM' && hours !== 12) hours += 12;
-//     if (period === 'AM' && hours === 12) hours = 0;
-    
-//     // Parse duration (e.g., "1 hour", "2 hours", "30 minutes")
-//     const durationMatch = duration.match(/(\d+)\s*(hour|minute)s?/i);
-//     if (!durationMatch) return startTime;
-    
-//     const durationValue = parseInt(durationMatch[1]);
-//     const durationUnit = durationMatch[2].toLowerCase();
-    
-//     // Add duration
-//     if (durationUnit === 'hour') {
-//       hours += durationValue;
-//     } else if (durationUnit === 'minute') {
-//       minutes += durationValue;
-//     }
-    
-//     // Handle overflow
-//     if (minutes >= 60) {
-//       hours += Math.floor(minutes / 60);
-//       minutes = minutes % 60;
-//     }
-//     if (hours >= 24) {
-//       hours = hours % 24;
-//     }
-    
-//     // Convert back to 12-hour format
-//     const endPeriod = hours >= 12 ? 'PM' : 'AM';
-//     const endHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-//     const endMinutes = minutes.toString().padStart(2, '0');
-    
-//     return `${endHours}:${endMinutes} ${endPeriod}`;
-//   } catch (error) {
-//     return startTime;
-//   }
-// };
-
-export const DayPlan = ({ dayPlan, isExpanded, onToggle, activityImages }: {
+export const DayPlan = ({ 
+  dayPlan, 
+  isExpanded, 
+  onToggle, 
+  activityImages,
+  isEditMode = false,
+  onModifyActivity
+}: {
   dayPlan: DailyPlan;
   isExpanded: boolean;
   onToggle: () => void;
   activityImages: { [query: string]: string | undefined };
+  isEditMode?: boolean;
+  onModifyActivity?: (index: number, activity: Activity) => void;
 }) => {
   const dayName = new Date(dayPlan.date).toLocaleDateString('en-US', { weekday: 'long' });
   const formattedDate = new Date(dayPlan.date).toLocaleDateString('en-US', {
@@ -95,6 +59,8 @@ export const DayPlan = ({ dayPlan, isExpanded, onToggle, activityImages }: {
                 key={index}
                 activity={activity}
                 imageUrl={activityImages[activity.image_search_query]}
+                isEditMode={isEditMode}
+                onModify={() => onModifyActivity?.(index, activity)}
               />
             ))}
           </div>
@@ -102,7 +68,6 @@ export const DayPlan = ({ dayPlan, isExpanded, onToggle, activityImages }: {
           {/* Desktop View - Timeline Layout */}
           <div className="hidden md:block">
             {dayPlan.activities.map((activity, index) => {
-              // const endTime = calculateEndTime(activity.time, activity.duration);
               const isLastActivity = index === dayPlan.activities.length - 1;
               
               return (
@@ -123,6 +88,8 @@ export const DayPlan = ({ dayPlan, isExpanded, onToggle, activityImages }: {
                       activity={activity}
                       imageUrl={activityImages[activity.image_search_query]}
                       hideTime={true}
+                      isEditMode={isEditMode}
+                      onModify={() => onModifyActivity?.(index, activity)}
                     />
                   </div>
                 </div>

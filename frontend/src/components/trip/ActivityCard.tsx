@@ -1,32 +1,95 @@
-import { Clock, MapPin, IndianRupee, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, MapPin, IndianRupee, ExternalLink, ChevronDown, ChevronUp, MinusCircle } from "lucide-react";
 import { FaInfoCircle } from "react-icons/fa";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { Activity } from "@/constants";
 import { useState } from "react";
+import { sanitizePrice } from "@/utils/tripUtils";
 
-export const ActivityCard = ({ activity, imageUrl, hideTime = false }: { activity: Activity, imageUrl?: string, hideTime?: boolean }) => {
+const getTagColor = (tag?: string) => {
+  switch (tag) {
+    case "arrival_departure":
+      return "bg-purple-100 text-purple-800 border-purple-300";
+    case "dining":
+      return "bg-orange-100 text-orange-800 border-orange-300";
+    case "sightseeing":
+      return "bg-blue-100 text-blue-800 border-blue-300";
+    case "shopping":
+      return "bg-pink-100 text-pink-800 border-pink-300";
+    case "entertainment":
+      return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    case "relaxation":
+      return "bg-green-100 text-green-800 border-green-300";
+    case "adventure":
+      return "bg-red-100 text-red-800 border-red-300";
+    case "cultural":
+      return "bg-indigo-100 text-indigo-800 border-indigo-300";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-300";
+  }
+};
+
+const getTagLabel = (tag?: string) => {
+  if (!tag) return "General";
+  return tag.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
+
+export const ActivityCard = ({ 
+  activity, 
+  imageUrl, 
+  hideTime = false,
+  isEditMode = false,
+  onModify
+}: { 
+  activity: Activity, 
+  imageUrl?: string, 
+  hideTime?: boolean,
+  isEditMode?: boolean,
+  onModify?: () => void
+}) => {
   const [showDetailedDescription, setShowDetailedDescription] = useState(false);
 
   return (
-    <Card className="mb-4 border-none ">
+    <Card className="mb-4 border-none relative">
+      {/* Modify Button - Shown only in edit mode and not for arrival_departure activities */}
+      {isEditMode && activity.tag !== "arrival_departure" && (
+        <Button
+          variant="destructive"
+          size="icon"
+          className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full shadow-lg"
+          onClick={onModify}
+        >
+          <MinusCircle className="w-5 h-5" />
+        </Button>
+      )}
+      
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start justify-between">
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1 pr-10">
                 {!hideTime && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground md:hidden">
                     <Clock className="w-4 h-4" />
                     <span>{activity.time}</span>
                   </div>
                 )}
-                <h4 className="font-semibold text-lg">{activity.activity}</h4>
-
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-semibold text-lg">{activity.activity}</h4>
+                  {activity.tag && (
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs ${getTagColor(activity.tag)}`}
+                    >
+                      {getTagLabel(activity.tag)}
+                    </Badge>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-1 text-sm font-medium text-green-600">
                 <IndianRupee className="w-4 h-4" />
-                <span>{activity.estimated_cost}</span>
+                <span>{sanitizePrice(activity.estimated_cost)}</span>
               </div>
             </div>
             

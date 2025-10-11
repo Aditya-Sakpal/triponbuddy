@@ -227,7 +227,7 @@ export const TripPlanningSection = () => {
         preloadedImages={modalImages}
       />
       
-      <div className="relative px-6 overflow-x-hidden">
+      <div className="relative px-6 overflow-x-hidden pb-12">
       <div className="max-w-6xl mx-auto">
         <Card className="rounded-2xl shadow-xl border-0 bg-white">
           <CardHeader className="text-center pb-6">

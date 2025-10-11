@@ -1,9 +1,9 @@
 export const HeroSection = () => {
   return (
-    <div className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center px-6 ">
+    <div className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center px-6">
       <div className="max-w-4xl mx-auto space-y-6 animate-fade-in my-12">
         {/* Main Title */}
-        <h1 className="text-3xl md:text-6xl font-bold font-latin text-white leading-tight">
+        <h1 className="text-4xl md:text-6xl font-bold font-latin text-white leading-tight">
           TripOnBuddy
         </h1>
         

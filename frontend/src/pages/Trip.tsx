@@ -16,7 +16,8 @@ const Trip = () => {
   const { 
     data: tripResponse, 
     isLoading, 
-    error 
+    error,
+    refetch
   } = useTrip(tripId || "", userId || "");
 
   // Skip API call for demo trips
@@ -125,12 +126,19 @@ const Trip = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    if (!isDemo && refetch) {
+      await refetch();
+    }
+  };
+
   return (
     <TripItinerary
       trip={currentTrip}
       onSaveTrip={handleSaveTrip}
       onUnsaveTrip={handleUnsaveTrip}
       isLoading={isSaving || isUnsaving}
+      onRefresh={handleRefresh}
     />
   );
 };

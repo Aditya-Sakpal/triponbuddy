@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Clock, BookmarkCheck } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
 import { TripCardActions } from "@/components/trip";
-import { formatDate } from "@/utils/tripUtils";
+import { formatDate, sanitizePrice } from "@/utils/tripUtils";
 
 interface TripCardProps {
   trip: TripDB;
@@ -94,10 +94,7 @@ export const TripCard = ({ trip }: TripCardProps) => {
           {itinerary?.estimated_total_cost && (
             <div className="mb-3">
               <Badge variant="secondary" className="text-xs">
-                Total Cost: {(() => {
-                  const match = itinerary.estimated_total_cost.match(/₹[^()]+/);
-                  return match ? match[0].trim().replace(/ - ₹/g, ' - ') : itinerary.estimated_total_cost.replace(/ - ₹/g, ' - ');
-                })()}
+                Total Cost: {sanitizePrice(itinerary.estimated_total_cost)}
               </Badge>
             </div>
           )}

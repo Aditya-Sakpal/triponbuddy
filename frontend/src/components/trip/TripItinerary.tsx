@@ -12,13 +12,15 @@ interface TripItineraryProps {
   onSaveTrip?: (tripId: string) => void;
   onUnsaveTrip?: (tripId: string) => void;
   isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
 export const TripItinerary = ({ 
   trip, 
   onSaveTrip, 
   onUnsaveTrip, 
-  isLoading = false 
+  isLoading = false,
+  onRefresh
 }: TripItineraryProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
@@ -199,7 +201,7 @@ export const TripItinerary = ({
           </TabsList>
 
           <TabsContent value="itinerary" className="space-y-6">
-            <ItineraryTab itinerary={itinerary} />
+            <ItineraryTab itinerary={itinerary} tripId={trip.trip_id} onRefresh={onRefresh} />
             <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
           </TabsContent>
 

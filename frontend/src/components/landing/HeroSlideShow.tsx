@@ -43,7 +43,7 @@ export const HeroSlideShow = () => {
   }, [images, currentIndex]);
 
   return (
-    <div className="absolute inset-0 overflow-x-hidden bg-white">
+    <div className="absolute inset-0 overflow-hidden bg-white">
       <img
         src={displaySrc}
         className={`absolute inset-0 w-full h-[60vh] md:h-[70vh] object-cover transition-opacity duration-1000 ${

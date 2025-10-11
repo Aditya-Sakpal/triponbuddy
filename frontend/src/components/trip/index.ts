@@ -15,3 +15,6 @@ export { ItineraryModal } from '../profile/tripsTab/ItineraryModal';
 export { TripActionButtons } from './TripActionButtons';
 export { ImageCarousel } from './ImageCarousel';
 export { TripCardActions } from '../profile/tripsTab/TripCardActions';
+export { ActivityModificationModal } from './ActivityModificationModal';
+export { BuildYourOwnTripPanel } from './BuildYourOwnTripPanel';
+export { ApplyingChangesModal } from './ApplyingChangesModal';

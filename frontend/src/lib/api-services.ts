@@ -48,6 +48,40 @@ export class TripsApiService {
   static async unsaveTrip(tripId: string, userId: string): Promise<{ success: boolean; message: string }> {
     return apiClient.put(`/api/trips/${tripId}/unsave`, {}, { user_id: userId });
   }
+
+  static async replaceActivity(
+    tripId: string,
+    day: number,
+    activityIndex: number,
+    newActivityName: string,
+    userId: string
+  ): Promise<{ success: boolean; activity: unknown; message: string }> {
+    return apiClient.post(
+      `/api/trips/${tripId}/activities/replace`,
+      {
+        day,
+        activity_index: activityIndex,
+        new_activity_name: newActivityName,
+      },
+      { user_id: userId }
+    );
+  }
+
+  static async removeActivity(
+    tripId: string,
+    day: number,
+    activityIndex: number,
+    userId: string
+  ): Promise<{ success: boolean; removed_activity: unknown; message: string }> {
+    return apiClient.delete(
+      `/api/trips/${tripId}/activities/remove`,
+      { user_id: userId },
+      {
+        day,
+        activity_index: activityIndex,
+      }
+    );
+  }
 }
 
 // Users API Service

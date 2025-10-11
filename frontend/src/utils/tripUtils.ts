@@ -15,3 +15,15 @@ export const formatTitleCase = (text: string): string => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 };
+
+/**
+ * Sanitizes price strings to extract only the numeric price range
+ * Example: "₹300 - ₹1,00,000+ (Covers local transport...)" -> "₹300 - ₹1,00,000+"
+ */
+export const sanitizePrice = (priceString: string): string => {
+  if (!priceString) return '';
+
+  // Match pattern: ₹ followed by numbers and commas, optionally with +, possibly a range
+  const match = priceString.match(/₹[\d,]+\+?(?:\s*-\s*₹[\d,]+\+?)?/);
+  return match ? match[0].trim() : priceString;
+};
