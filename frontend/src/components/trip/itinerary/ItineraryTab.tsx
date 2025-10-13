@@ -117,17 +117,22 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
     
     setIsApplyingChanges(true);
     try {
-      // Apply all changes sequentially
-      for (const change of pendingChanges) {
-        if (change.type === "remove") {
-          await TripsApiService.removeActivity(
-            tripId,
-            change.day,
-            change.activityIndex,
-            user.id
-          );
-        } else if (change.type === "replace" && change.newActivity) {
-          // Pass the complete activity object (already generated from alternatives)
+      // Sort changes to avoid index conflicts:
+      // 1. Apply replacements first (indices stay the same)
+      // 2. Apply removals in reverse order (highest index first)
+      //    This ensures removing an activity doesn't affect the indices of activities below it
+      const replaceChanges = pendingChanges.filter(c => c.type === "replace");
+      const removeChanges = pendingChanges
+        .filter(c => c.type === "remove")
+        .sort((a, b) => {
+          // Sort by day first, then by activity index in descending order
+          if (a.day !== b.day) return a.day - b.day;
+          return b.activityIndex - a.activityIndex;
+        });
+      
+      // Apply replacements first
+      for (const change of replaceChanges) {
+        if (change.newActivity) {
           await TripsApiService.replaceActivity(
             tripId,
             change.day,
@@ -136,6 +141,16 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
             user.id
           );
         }
+      }
+      
+      // Then apply removals in reverse order
+      for (const change of removeChanges) {
+        await TripsApiService.removeActivity(
+          tripId,
+          change.day,
+          change.activityIndex,
+          user.id
+        );
       }
       
       // Clear pending changes
