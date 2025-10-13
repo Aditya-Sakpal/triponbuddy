@@ -4,7 +4,6 @@ Image scraping service for destination images
 import asyncio
 import logging
 from typing import List, Dict, Any, Optional
-from urllib.parse import quote_plus
 import aiohttp
 from config import settings
 from utils.cache import cache_result
@@ -80,9 +79,12 @@ class ImageService:
             # Try Unsplash first for rich metadata
             if unsplash_service.is_enabled():
                 try:
-                    cleaned_location = self.location_cleaner.clean_location_for_search(location)
+                    # Use Unsplash-optimized query
+                    unsplash_query = self.location_cleaner.build_search_query_for_unsplash(location)
+                    logger.info(f"Unsplash search query for '{location}': {unsplash_query}")
+                    
                     unsplash_results = await unsplash_service.search(
-                        query=cleaned_location,
+                        query=unsplash_query,
                         per_page=max_images
                     )
                     
@@ -129,10 +131,13 @@ class ImageService:
         if unsplash_service.is_enabled():
             try:
                 logger.info(f"Fetching images from Unsplash for: {location}")
-                cleaned_location = self.location_cleaner.clean_location_for_search(location)
+                
+                # Use Unsplash-optimized query
+                unsplash_query = self.location_cleaner.build_search_query_for_unsplash(location)
+                logger.info(f"Unsplash search query: {unsplash_query}")
                 
                 unsplash_results = await unsplash_service.search(
-                    query=cleaned_location,
+                    query=unsplash_query,
                     per_page=max_images
                 )
                 
@@ -147,10 +152,13 @@ class ImageService:
 
         # Fallback to Bing scraping
         logger.info(f"Fetching images from Bing for: {location}")
-        cleaned_location = self.location_cleaner.clean_location_for_search(location)
         
-        encoded_location = quote_plus(cleaned_location)
-        url = self.url_builder.build_image_search_url(encoded_location)
+        # Use Bing-optimized query with quotes for exact matching
+        bing_query = self.location_cleaner.build_search_query_for_bing(location)
+        logger.info(f"Bing search query: {bing_query}")
+        
+        # Build URL with the optimized query (no need for manual encoding)
+        url = self.url_builder.build_image_search_url(bing_query)
 
         try:
             async with aiohttp.ClientSession(headers=self.headers) as session:
