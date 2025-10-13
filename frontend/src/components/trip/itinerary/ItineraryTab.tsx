@@ -127,12 +127,12 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
             user.id
           );
         } else if (change.type === "replace" && change.newActivity) {
-          // Use the new replaceActivity endpoint with the full activity
+          // Pass the complete activity object (already generated from alternatives)
           await TripsApiService.replaceActivity(
             tripId,
             change.day,
             change.activityIndex,
-            change.newActivity.activity, // Use the activity name from the new activity
+            change.newActivity, // Pass the entire activity object, not just the name
             user.id
           );
         }

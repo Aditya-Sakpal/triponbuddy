@@ -1,16 +1,23 @@
 """
 Image scraping service for destination images
 """
-import json
 import asyncio
 import logging
 from typing import List, Dict, Any, Optional
 from urllib.parse import quote_plus
 import aiohttp
-from bs4 import BeautifulSoup
 from config import settings
 from utils.cache import cache_result
 from services.unsplash_service import unsplash_service
+from services.helpers.image_helper import (
+    ImageUrlValidator,
+    LocationQueryCleaner,
+    ImageMetadataBuilder
+)
+from services.helpers.bing_parser import (
+    BingImageParser,
+    BingSearchUrlBuilder
+)
 
 logger = logging.getLogger(__name__)
 
@@ -26,40 +33,11 @@ class ImageService:
                 "Chrome/113.0.0.0 Safari/537.36"
             )
         }
-        self.watermark_domains = {
-            "shutterstock.com", "alamy.com", "istockphoto.com", "dreamstime.com",
-            "gettyimages.com", "123rf.com", "depositphotos.com", "bigstockphoto.com"
-        }
-        self.excluded_paths = {
-            "element_pic", "icon", "badge", "sticker", "logo", "clipart", 
-            "/new-", "/new_", "new-icon", "new-badge", "new-sticker",
-            "pngtree.com/element", "flaticon", "freepik"
-        }
-
-    def _clean_location_for_search(self, location: str) -> str:
-        """
-        Clean and simplify location string for better image search results.
-        Examples:
-        - "New Delhi, Delhi, India" -> "New Delhi India"
-        - "New York, NY, USA" -> "New York USA"
-        - "Taj Mahal" -> "Taj Mahal"
-        """
-        # Split by comma and take first and last parts (city and country)
-        parts = [part.strip() for part in location.split(',') if part.strip()]
-        
-        if len(parts) >= 3:
-            # For "City, State, Country" format, use "City Country"
-            clean_location = f"{parts[0]} {parts[-1]}"
-        elif len(parts) == 2:
-            # For "City, Country" format, keep as is
-            clean_location = f"{parts[0]} {parts[1]}"
-        else:
-            # Single location name, return as is
-            clean_location = location.strip()
-        
-        # Add context keywords to improve search results
-        # This helps avoid generic "new" images and gets actual destination photos
-        return f"{clean_location} city destination travel"
+        self.url_validator = ImageUrlValidator()
+        self.location_cleaner = LocationQueryCleaner()
+        self.metadata_builder = ImageMetadataBuilder()
+        self.bing_parser = BingImageParser()
+        self.url_builder = BingSearchUrlBuilder()
 
     @cache_result(ttl=3600)  # Cache for 1 hour
     async def fetch_bulk_images(self, locations: List[str], max_images: int = 5) -> Dict[str, List[str]]:
@@ -102,54 +80,43 @@ class ImageService:
             # Try Unsplash first for rich metadata
             if unsplash_service.is_enabled():
                 try:
-                    cleaned_location = self._clean_location_for_search(location)
+                    cleaned_location = self.location_cleaner.clean_location_for_search(location)
                     unsplash_results = await unsplash_service.search(
                         query=cleaned_location,
                         per_page=max_images
                     )
                     
                     if unsplash_results:
-                        return {
-                            "success": True,
-                            "images": [item.to_dict() for item in unsplash_results],
-                            "cached": False,
-                            "query": location,
-                            "source": "unsplash"
-                        }
+                        return self.metadata_builder.build_response_structure(
+                            success=True,
+                            images=[item.to_dict() for item in unsplash_results],
+                            query=location,
+                            source="unsplash"
+                        )
                 except Exception as e:
                     logger.error(f"Unsplash fetch failed for {location}: {str(e)}")
 
             # Fallback to Bing scraping (legacy format)
             images = await self._fetch_location_images(location, max_images)
 
-            return {
-                "success": True,
-                "images": [
-                    {
-                        "url": url,
-                        "width": min_width,
-                        "height": min_height,
-                        "source": "bing",
-                        "title": f"{location} image",
-                        "photographer_name": None,
-                        "photographer_url": None,
-                        "license": None,
-                        "attribution_html": None
-                    } for url in images
+            return self.metadata_builder.build_response_structure(
+                success=True,
+                images=[
+                    self.metadata_builder.build_bing_metadata(url, min_width, min_height, location)
+                    for url in images
                 ],
-                "cached": False,
-                "query": location,
-                "source": "bing"
-            }
+                query=location,
+                source="bing"
+            )
 
         except Exception as e:
             logger.error(f"Error fetching images for {location}: {str(e)}")
-            return {
-                "success": False,
-                "images": [],
-                "error": str(e),
-                "query": location
-            }
+            return self.metadata_builder.build_response_structure(
+                success=False,
+                images=[],
+                query=location,
+                error=str(e)
+            )
 
     async def _fetch_location_images(self, location: str, max_images: int) -> List[str]:
         """
@@ -162,7 +129,7 @@ class ImageService:
         if unsplash_service.is_enabled():
             try:
                 logger.info(f"Fetching images from Unsplash for: {location}")
-                cleaned_location = self._clean_location_for_search(location)
+                cleaned_location = self.location_cleaner.clean_location_for_search(location)
                 
                 unsplash_results = await unsplash_service.search(
                     query=cleaned_location,
@@ -180,12 +147,10 @@ class ImageService:
 
         # Fallback to Bing scraping
         logger.info(f"Fetching images from Bing for: {location}")
-        cleaned_location = self._clean_location_for_search(location)
+        cleaned_location = self.location_cleaner.clean_location_for_search(location)
         
         encoded_location = quote_plus(cleaned_location)
-        
-        url = f"https://www.bing.com/images/search?q={encoded_location}&form=HDRSC2&first=1&tsc=ImageHoverTitle"
-
+        url = self.url_builder.build_image_search_url(encoded_location)
 
         try:
             async with aiohttp.ClientSession(headers=self.headers) as session:
@@ -200,8 +165,8 @@ class ImageService:
 
                     html = await response.text()
 
-            # Parse HTML and extract images
-            images = self._parse_bing_images(html, max_images)
+            # Parse HTML and extract images using helper
+            images = self.bing_parser.parse_bing_html(html, max_images, self.url_validator)
             return images
 
         except asyncio.TimeoutError:
@@ -210,64 +175,6 @@ class ImageService:
         except Exception as e:
             logger.error(f"Error fetching images: {str(e)}")
             return []
-
-    def _parse_bing_images(self, html: str, max_images: int) -> List[str]:
-        """Parse Bing HTML and extract image URLs"""
-
-        soup = BeautifulSoup(html, "html.parser")
-        images = []
-
-        # Find image elements
-        image_elements = soup.select("a.iusc")
-
-        for idx, element in enumerate(image_elements):
-            try:
-                # Extract image metadata
-                data = element.get("m", "{}")
-                if not data:
-                    logger.debug(f"Element {idx} has no 'm' attribute")
-                    continue
-
-                # Parse JSON data
-                image_data = json.loads(data)
-
-                # Extract image URL
-                image_url = image_data.get("murl")
-                if not image_url:
-                    logger.debug(f"Element {idx} has no 'murl' in data")
-                    continue
-
-                # Filter out watermarked images
-                if self._is_watermark_source(image_url):
-                    logger.debug(f"Filtered watermark image: {image_url[:50]}...")
-                    continue
-
-                # Filter out icon/badge/sticker images
-                if self._is_excluded_image(image_url):
-                    logger.debug(f"Filtered excluded image type: {image_url[:50]}...")
-                    continue
-
-                images.append(image_url)
-                logger.debug(f"Added image {len(images)}: {image_url[:80]}...")
-
-                # Stop when we have enough images
-                if len(images) >= max_images:
-                    break
-
-            except Exception as e:
-                logger.debug(f"Failed to parse image element {idx}: {str(e)}")
-                continue
-
-        return images
-
-    def _is_watermark_source(self, url: str) -> bool:
-        """Check if URL is from a watermark source"""
-        return any(domain in url.lower() for domain in self.watermark_domains)
-
-    def _is_excluded_image(self, url: str) -> bool:
-        """Check if URL contains patterns indicating non-destination images (icons, badges, stickers)"""
-        url_lower = url.lower()
-        return any(pattern in url_lower for pattern in self.excluded_paths)
 
     def clear_cache(self):
         """Clear the image cache"""

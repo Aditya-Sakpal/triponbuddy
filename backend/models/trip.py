@@ -4,7 +4,7 @@ Trip-related Pydantic models
 
 from typing import List, Optional, Dict, Any
 from datetime import date, datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from uuid import uuid4
 
 
@@ -193,7 +193,7 @@ class ActivityReplaceRequest(BaseModel):
     """Request model for replacing an activity"""
     day: int = Field(ge=1, description="Day number")
     activity_index: int = Field(ge=0, description="Index of activity in the day's activities list")
-    new_activity_name: str = Field(description="Name of the new activity to generate")
+    new_activity_data: Dict[str, Any] = Field(description="Complete activity data to replace with (already generated from alternatives)")
 
 
 class ActivityRemoveRequest(BaseModel):
