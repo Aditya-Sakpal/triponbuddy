@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, Trash2, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Trash2, RefreshCw, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,25 +11,110 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { ActivityCard } from "./ActivityCard";
+import { LoadingState } from "@/components/shared/LoadingState";
+import { TripsApiService } from "@/lib/api-services";
+import { apiClient } from "@/lib/api-client";
+import { useUser } from "@clerk/clerk-react";
 import type { Activity } from "@/constants";
 
 interface ActivityModificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   activity: Activity;
+  tripId: string;
+  day: number;
+  activityIndex: number;
   onRemove: () => void;
-  onSwitch: (newActivityName: string) => void;
+  onSwitch: (newActivity: Activity) => void;
 }
 
 export const ActivityModificationModal = ({
   isOpen,
   onClose,
   activity,
+  tripId,
+  day,
+  activityIndex,
   onRemove,
   onSwitch,
 }: ActivityModificationModalProps) => {
+  const { user } = useUser();
   const [action, setAction] = useState<"remove" | "switch" | null>(null);
-  const [selectedAlternative, setSelectedAlternative] = useState<string>("");
+  const [selectedAlternative, setSelectedAlternative] = useState<Activity | null>(null);
+  const [alternatives, setAlternatives] = useState<Activity[]>([]);
+  const [isLoadingAlternatives, setIsLoadingAlternatives] = useState(false);
+  const [alternativesError, setAlternativesError] = useState<string | null>(null);
+  const [alternativeImages, setAlternativeImages] = useState<{ [query: string]: string | undefined }>({});
+
+  // Fetch alternatives when user selects "switch"
+  useEffect(() => {
+    if (action === "switch" && alternatives.length === 0 && !isLoadingAlternatives) {
+      fetchAlternatives();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [action]);
+
+  // Fetch images for alternatives
+  useEffect(() => {
+    if (alternatives.length > 0) {
+      fetchAlternativeImages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alternatives]);
+
+  const fetchAlternativeImages = async () => {
+    try {
+      const queries = alternatives.map(alt => alt.image_search_query);
+      const results: { [query: string]: string | undefined } = {};
+      
+      await Promise.all(
+        queries.map(async (query) => {
+          try {
+            const res = await apiClient.post<{ success: boolean; images: { url: string }[] }>(
+              "/api/images/single",
+              {},
+              { location: query, max_images: 1, min_width: 300, min_height: 200 }
+            );
+            results[query] = res.images?.[0]?.url;
+          } catch (err: unknown) {
+            results[query] = undefined;
+          }
+        })
+      );
+      
+      setAlternativeImages(results);
+    } catch (error) {
+      console.error("Error fetching alternative images:", error);
+    }
+  };
+
+  const fetchAlternatives = async () => {
+    if (!user) return;
+    
+    setIsLoadingAlternatives(true);
+    setAlternativesError(null);
+    
+    try {
+      const response = await TripsApiService.getActivityAlternatives(
+        tripId,
+        day,
+        activityIndex,
+        user.id
+      );
+      
+      if (response.success && response.alternatives) {
+        setAlternatives(response.alternatives as Activity[]);
+      } else {
+        setAlternativesError("Failed to generate alternatives");
+      }
+    } catch (error) {
+      console.error("Error fetching alternatives:", error);
+      setAlternativesError("Failed to generate alternatives. Please try again.");
+    } finally {
+      setIsLoadingAlternatives(false);
+    }
+  };
 
   const handleApply = () => {
     if (action === "remove") {
@@ -42,13 +127,16 @@ export const ActivityModificationModal = ({
 
   const handleClose = () => {
     setAction(null);
-    setSelectedAlternative("");
+    setSelectedAlternative(null);
+    setAlternatives([]);
+    setAlternativeImages({});
+    setAlternativesError(null);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Modify Activity</DialogTitle>
           <DialogDescription>
@@ -64,7 +152,7 @@ export const ActivityModificationModal = ({
               className="w-full justify-start gap-2"
               onClick={() => {
                 setAction("remove");
-                setSelectedAlternative("");
+                setSelectedAlternative(null);
               }}
             >
               <Trash2 className="w-4 h-4" />
@@ -87,28 +175,65 @@ export const ActivityModificationModal = ({
               <Label className="text-base font-semibold">
                 Choose an alternative:
               </Label>
-              {activity.alternatives && activity.alternatives.length > 0 ? (
+              
+              {isLoadingAlternatives && (
+                <div className="py-4">
+                  <LoadingState />
+                  <p className="text-center text-sm text-muted-foreground mt-4">
+                    Generating alternative activities...
+                  </p>
+                </div>
+              )}
+              
+              {alternativesError && (
+                <div className="p-4 rounded-lg bg-red-50 border border-red-200">
+                  <p className="text-sm text-red-800">{alternativesError}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchAlternatives}
+                    className="mt-2"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              )}
+              
+              {!isLoadingAlternatives && !alternativesError && alternatives.length > 0 && (
                 <RadioGroup
-                  value={selectedAlternative}
-                  onValueChange={setSelectedAlternative}
-                  className="space-y-2"
+                  value={selectedAlternative?.activity || ""}
+                  onValueChange={(value) => {
+                    const selected = alternatives.find(alt => alt.activity === value);
+                    setSelectedAlternative(selected || null);
+                  }}
+                  className="space-y-4"
                 >
-                  {activity.alternatives.map((alt, index) => (
+                  {alternatives.map((alt, index) => (
                     <div
                       key={index}
-                      className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                        selectedAlternative?.activity === alt.activity
+                          ? 'border-primary bg-primary/5 ring-2 ring-primary'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedAlternative(alt)}
                     >
-                      <RadioGroupItem value={alt} id={`alt-${index}`} />
-                      <Label
-                        htmlFor={`alt-${index}`}
-                        className="flex-1 cursor-pointer"
-                      >
-                        {alt}
-                      </Label>
+                      <div className="flex items-start space-x-3">
+                        <RadioGroupItem value={alt.activity} id={`alt-${index}`} className="mt-6" />
+                        <div className="flex-1">
+                          <ActivityCard
+                            activity={alt}
+                            imageUrl={alternativeImages[alt.image_search_query]}
+                            hideTime={true}
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </RadioGroup>
-              ) : (
+              )}
+              
+              {!isLoadingAlternatives && !alternativesError && alternatives.length === 0 && (
                 <p className="text-sm text-muted-foreground">
                   No alternatives available for this activity.
                 </p>

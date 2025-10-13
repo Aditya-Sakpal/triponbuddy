@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { Activity } from "@/constants";
 
 export interface PendingChange {
   type: "remove" | "replace";
@@ -11,6 +12,7 @@ export interface PendingChange {
   activityIndex: number;
   activityName: string;
   newActivityName?: string;
+  newActivity?: Activity;
 }
 
 interface BuildYourOwnTripPanelProps {
@@ -77,7 +79,7 @@ export const BuildYourOwnTripPanel = ({
             <ul className="space-y-1 pl-6">
               {replacedActivities.map((change, index) => (
                 <li key={index} className="text-sm text-muted-foreground">
-                  • Day {change.day}: {change.activityName} → {change.newActivityName}
+                  • Day {change.day}: {change.activityName} → {change.newActivity?.activity || change.newActivityName || "New Activity"}
                 </li>
               ))}
             </ul>

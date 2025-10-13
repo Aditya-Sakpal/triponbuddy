@@ -82,6 +82,22 @@ export class TripsApiService {
       }
     );
   }
+
+  static async getActivityAlternatives(
+    tripId: string,
+    day: number,
+    activityIndex: number,
+    userId: string
+  ): Promise<{ success: boolean; alternatives: unknown[]; original_activity: unknown; message: string }> {
+    return apiClient.post(
+      `/api/trips/${tripId}/activities/alternatives`,
+      {
+        day,
+        activity_index: activityIndex,
+      },
+      { user_id: userId }
+    );
+  }
 }
 
 // Users API Service
