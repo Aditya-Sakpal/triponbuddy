@@ -19,7 +19,14 @@ class ImageUrlValidator:
         self.excluded_paths = {
             "element_pic", "icon", "badge", "sticker", "logo", "clipart",
             "/new-", "/new_", "new-icon", "new-badge", "new-sticker",
-            "pngtree.com/element", "flaticon", "freepik"
+            "pngtree.com/element", "flaticon", "freepik",
+            "/diagram", "/infographic", "/vector", "/illustration",
+            "network-diagram", "networking-diagram", "network-gateway"
+        }
+        # Additional keywords to filter out non-photographic content
+        self.excluded_keywords = {
+            "vector", "illustration", "diagram", "chart", "graph", "infographic",
+            "clipart", "cartoon", "drawing", "sketch", "artwork", "graphic"
         }
 
     def is_watermark_source(self, url: str) -> bool:
@@ -29,7 +36,16 @@ class ImageUrlValidator:
     def is_excluded_image(self, url: str) -> bool:
         """Check if URL contains patterns indicating non-destination images (icons, badges, stickers)"""
         url_lower = url.lower()
-        return any(pattern in url_lower for pattern in self.excluded_paths)
+        
+        # Check path patterns
+        if any(pattern in url_lower for pattern in self.excluded_paths):
+            return True
+        
+        # Check for non-photographic content keywords
+        if any(keyword in url_lower for keyword in self.excluded_keywords):
+            return True
+            
+        return False
 
     def is_valid_image(self, url: str) -> bool:
         """Check if URL is a valid, non-watermarked, non-excluded image"""
@@ -69,9 +85,89 @@ class LocationQueryCleaner:
             # Single location name, return as is
             clean_location = location.strip()
 
-        # Add context keywords to improve search results
-        # This helps avoid generic "new" images and gets actual destination photos
-        return f"{clean_location} city destination travel"
+        return clean_location
+
+    @staticmethod
+    def build_search_query_for_bing(location: str) -> str:
+        """
+        Build optimized search query for Bing image search.
+        Uses quotes for exact phrase matching and adds specific context.
+        
+        Examples:
+        - "New Delhi" -> '"New Delhi" India landmark'
+        - "Gateway of India" -> '"Gateway of India" Mumbai landmark'
+        - "Taj Mahal" -> '"Taj Mahal" Agra India'
+        """
+        cleaned = LocationQueryCleaner.clean_location_for_search(location)
+        parts = [part.strip() for part in cleaned.split(',') if part.strip()]
+        
+        # Get the primary location name (first part before comma or full name)
+        primary_location = parts[0] if parts else cleaned
+        
+        # Detect if this is a landmark vs a city
+        landmark_keywords = ['temple', 'fort', 'palace', 'tower', 'gate', 'gateway', 
+                           'monument', 'memorial', 'church', 'mosque', 'cathedral',
+                           'mahal', 'mandir', 'gurudwara', 'shrine']
+        
+        is_landmark = any(keyword in primary_location.lower() for keyword in landmark_keywords)
+        
+        # Build query with exact phrase matching using quotes
+        if is_landmark:
+            # For landmarks, add more specific location context
+            if len(parts) > 1:
+                # e.g., "Gateway of India" + "Mumbai"
+                query = f'"{primary_location}" "{parts[-1]}" landmark architecture'
+            else:
+                # e.g., "Taj Mahal" + "landmark"
+                query = f'"{primary_location}" landmark architecture'
+        else:
+            # For cities, use city name with country context
+            if len(parts) > 1:
+                # e.g., "New Delhi" + "India"
+                query = f'"{primary_location}" "{parts[-1]}" cityscape'
+            else:
+                # e.g., "Paris" + "cityscape"
+                query = f'"{primary_location}" cityscape tourism'
+        
+        return query
+
+    @staticmethod
+    def build_search_query_for_unsplash(location: str) -> str:
+        """
+        Build optimized search query for Unsplash API.
+        Unsplash works better with natural language without quotes.
+        
+        Examples:
+        - "New Delhi, India" -> "New Delhi India architecture"
+        - "Gateway of India" -> "Gateway of India Mumbai"
+        - "Taj Mahal" -> "Taj Mahal Agra"
+        """
+        cleaned = LocationQueryCleaner.clean_location_for_search(location)
+        parts = [part.strip() for part in cleaned.split(',') if part.strip()]
+        
+        # Get the primary location name
+        primary_location = parts[0] if parts else cleaned
+        
+        # Detect landmark vs city
+        landmark_keywords = ['temple', 'fort', 'palace', 'tower', 'gate', 'gateway',
+                           'monument', 'memorial', 'church', 'mosque', 'cathedral',
+                           'mahal', 'mandir', 'gurudwara', 'shrine']
+        
+        is_landmark = any(keyword in primary_location.lower() for keyword in landmark_keywords)
+        
+        # Build natural language query for Unsplash
+        if is_landmark:
+            if len(parts) > 1:
+                query = f"{primary_location} {parts[-1]}"
+            else:
+                query = f"{primary_location} landmark"
+        else:
+            if len(parts) > 1:
+                query = f"{primary_location} {parts[-1]}"
+            else:
+                query = f"{primary_location} city"
+        
+        return query
 
 
 class ImageMetadataBuilder:

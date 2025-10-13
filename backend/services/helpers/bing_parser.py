@@ -77,6 +77,29 @@ class BingSearchUrlBuilder:
     """Helper class for building Bing search URLs"""
 
     @staticmethod
-    def build_image_search_url(encoded_query: str) -> str:
-        """Build Bing image search URL"""
-        return f"https://www.bing.com/images/search?q={encoded_query}&form=HDRSC2&first=1&tsc=ImageHoverTitle"
+    def build_image_search_url(query: str) -> str:
+        """
+        Build Bing image search URL with properly encoded query.
+        
+        Args:
+            query: Search query (can contain quotes for exact matching)
+            
+        Returns:
+            Properly formatted Bing image search URL
+        """
+        from urllib.parse import quote_plus
+        
+        # URL encode the query (quote_plus handles spaces and special chars)
+        encoded_query = quote_plus(query)
+        
+        # Add filters for high quality, large images
+        # qft parameter filters: filterui:imagesize-large (large images)
+        # The form and tsc parameters help ensure we get proper image results
+        return (
+            f"https://www.bing.com/images/search?"
+            f"q={encoded_query}&"
+            f"form=HDRSC2&"
+            f"first=1&"
+            f"tsc=ImageHoverTitle&"
+            f"qft=+filterui:imagesize-large"
+        )

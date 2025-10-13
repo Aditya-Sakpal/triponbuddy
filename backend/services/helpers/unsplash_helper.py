@@ -132,13 +132,13 @@ class UnsplashImageVerifier:
     """Helper class for verifying Unsplash image URLs"""
 
     @staticmethod
-    async def verify_image(url: str, session) -> bool:
+    async def verify_image(url: str, session=None) -> bool:
         """
         Verify image URL with HEAD request to check content type and size.
         
         Args:
             url: Image URL to verify
-            session: aiohttp ClientSession
+            session: Optional aiohttp ClientSession (creates one if not provided)
             
         Returns:
             True if image is valid, False otherwise
@@ -146,33 +146,45 @@ class UnsplashImageVerifier:
         try:
             import aiohttp
             
-            async with session.head(
-                url,
-                timeout=aiohttp.ClientTimeout(total=5)
-            ) as response:
-
-                if response.status != 200:
-                    return False
-
-                # Check content type
-                content_type = response.headers.get("Content-Type", "")
-                if not content_type.startswith("image/"):
-                    logger.debug(f"Invalid content type: {content_type}")
-                    return False
-
-                # Check content length (at least 2KB to filter out tiny images)
-                content_length = response.headers.get("Content-Length")
-                if content_length:
-                    size = int(content_length)
-                    if size < 2048:
-                        logger.debug(f"Image too small: {size} bytes")
-                        return False
-
-                return True
+            # Create session if not provided
+            if session is None:
+                async with aiohttp.ClientSession() as temp_session:
+                    return await UnsplashImageVerifier._do_verify(url, temp_session)
+            else:
+                return await UnsplashImageVerifier._do_verify(url, session)
 
         except Exception as e:
             logger.debug(f"Image verification error: {str(e)}")
             # Don't fail on verification errors - assume valid
+            return True
+
+    @staticmethod
+    async def _do_verify(url: str, session) -> bool:
+        """Internal method to perform the actual verification"""
+        import aiohttp
+        
+        async with session.head(
+            url,
+            timeout=aiohttp.ClientTimeout(total=5)
+        ) as response:
+
+            if response.status != 200:
+                return False
+
+            # Check content type
+            content_type = response.headers.get("Content-Type", "")
+            if not content_type.startswith("image/"):
+                logger.debug(f"Invalid content type: {content_type}")
+                return False
+
+            # Check content length (at least 2KB to filter out tiny images)
+            content_length = response.headers.get("Content-Length")
+            if content_length:
+                size = int(content_length)
+                if size < 2048:
+                    logger.debug(f"Image too small: {size} bytes")
+                    return False
+
             return True
 
 
