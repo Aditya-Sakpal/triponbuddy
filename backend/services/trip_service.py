@@ -5,7 +5,6 @@ Trip management service
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
-from uuid import uuid4
 
 from database import mongodb
 from models.trip import TripGenerationRequest, TripUpdateRequest
@@ -13,12 +12,24 @@ from services.ai_service import ai_service
 from services.image_service import image_service
 from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
 from utils.validators import validate_trip_title
+from services.helpers.trip_data_helper import (
+    TripDataBuilder,
+    TripItineraryHelper,
+    TripQueryBuilder,
+    TripResponseBuilder
+)
 
 logger = logging.getLogger(__name__)
 
 
 class TripService:
     """Service for managing trips"""
+
+    def __init__(self):
+        self.data_builder = TripDataBuilder()
+        self.itinerary_helper = TripItineraryHelper()
+        self.query_builder = TripQueryBuilder()
+        self.response_builder = TripResponseBuilder()
 
     async def generate_trip(self, request: TripGenerationRequest) -> Dict[str, Any]:
         """Generate a new trip using AI"""
@@ -43,24 +54,13 @@ class TripService:
                 logger.warning(f"Failed to fetch destination image: {str(img_error)}")
                 # Continue without image
 
-            # Create trip record
-            trip_data = {
-                "trip_id": str(uuid4()),
-                "user_id": request.user_id,
-                "title": ai_response["itinerary"]["title"],
-                "destination": request.destination,
-                "start_location": request.start_location,
-                "start_date": request.start_date.isoformat() if hasattr(request.start_date, 'isoformat') else str(request.start_date),
-                "duration_days": request.duration_days,
-                "budget": request.budget,
-                "is_international": request.is_international,
-                "is_saved": False,
-                "destination_image": destination_image,
-                "itinerary_data": ai_response["itinerary"],
-                "tags": [],
-                "created_at": datetime.now(timezone.utc),
-                "updated_at": datetime.now(timezone.utc)
-            }
+            # Build trip data using helper
+            trip_data = self.data_builder.build_trip_data(
+                user_id=request.user_id,
+                ai_response=ai_response,
+                request_data=request.dict(),
+                destination_image=destination_image
+            )
 
             # Save to database
             trip_id = await mongodb.insert_one("trips", trip_data)
@@ -91,22 +91,19 @@ class TripService:
         try:
             logger.info(f"Getting trips for user: {user_id}")
             
-            # Build filter
-            filter_query = {"user_id": user_id}
-            if is_saved is not None:
-                filter_query["is_saved"] = is_saved
-            
+            # Build filter using helper
+            filter_query = self.query_builder.build_user_trips_filter(user_id, is_saved)
             logger.info(f"Filter query: {filter_query}")
 
-            # Calculate skip
-            skip = (page - 1) * limit
+            # Calculate pagination using helper
+            pagination = self.query_builder.calculate_pagination(page, limit)
 
             # Get trips
             trip_docs = await mongodb.find_many(
                 "trips",
                 filter_query,
-                limit=limit,
-                skip=skip,
+                limit=pagination["limit"],
+                skip=pagination["skip"],
                 sort=[("created_at", -1)]
             )
             
@@ -120,15 +117,8 @@ class TripService:
             # Get total count
             total = await mongodb.count_documents("trips", filter_query)
             
-            result = {
-                "success": True,
-                "trips": trips,
-                "total": total,
-                "page": page,
-                "limit": limit,
-                "has_next": (page * limit) < total,
-                "has_prev": page > 1
-            }
+            # Build response using helper
+            result = self.response_builder.build_trips_response(trips, total, page, limit)
             
             logger.info(f"Returning result with {len(trips)} trips, total: {total}")
             return result
@@ -184,14 +174,8 @@ class TripService:
             if updates.title and not validate_trip_title(updates.title):
                 raise ValueError("Invalid trip title")
 
-            # Build update document
-            update_doc = {}
-            if updates.title is not None:
-                update_doc["title"] = updates.title
-            if updates.is_saved is not None:
-                update_doc["is_saved"] = updates.is_saved
-            if updates.tags is not None:
-                update_doc["tags"] = updates.tags
+            # Build update document using helper
+            update_doc = self.data_builder.build_update_document(updates)
 
             if not update_doc:
                 return True  # No updates needed
@@ -199,7 +183,7 @@ class TripService:
             # Update in database
             success = await mongodb.update_one(
                 "trips",
-                {"trip_id": trip_id, "user_id": user_id},
+                self.query_builder.build_trip_filter(trip_id, user_id),
                 {"$set": update_doc}
             )
 
@@ -306,9 +290,13 @@ class TripService:
         user_id: str,
         day: int,
         activity_index: int,
-        new_activity_name: str
+        new_activity_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Replace an activity in a trip with a new one generated by AI"""
+        """
+        Replace an activity in a trip with pre-generated activity data.
+        The activity data should come from the alternatives already generated.
+        No AI call is made here - just a simple data replacement.
+        """
 
         try:
             # Get the trip
@@ -324,43 +312,24 @@ class TripService:
             itinerary_data = trip_doc.get("itinerary_data", {})
             daily_plans = itinerary_data.get("daily_plans", [])
 
-            # Find the day and activity
-            target_day = None
-            for plan in daily_plans:
-                if plan.get("day") == day:
-                    target_day = plan
-                    break
+            # Find the day and activity using helper
+            target_day = self.itinerary_helper.find_day_in_itinerary(daily_plans, day)
 
             if not target_day or not target_day.get("activities"):
                 return {"success": False, "error": "Day or activities not found"}
 
-            if activity_index < 0 or activity_index >= len(target_day["activities"]):
+            # Validate activity index using helper
+            if not self.itinerary_helper.validate_activity_index(target_day["activities"], activity_index):
                 return {"success": False, "error": "Invalid activity index"}
 
-            # Get the original activity details
-            original_activity = target_day["activities"][activity_index]
-            time_slot = original_activity.get("time", "10:00 AM")
-            duration = original_activity.get("duration", "2 hours")
-
-            # Generate new activity using AI
-            ai_response = await ai_service.generate_single_activity(
-                destination=itinerary_data.get("destination", ""),
-                activity_name=new_activity_name,
-                time_slot=time_slot,
-                duration=duration,
-                preferences=None  # Could pass trip preferences if stored
-            )
-
-            if not ai_response.get("success"):
-                return {"success": False, "error": "Failed to generate new activity"}
-
-            # Replace the activity
-            target_day["activities"][activity_index] = ai_response["activity"]
+            # Simply replace the activity with the provided data (no AI call)
+            target_day["activities"][activity_index] = new_activity_data
+            logger.info(f"Replaced activity at day {day}, index {activity_index} with pre-generated data")
 
             # Update the trip in database
             success = await mongodb.update_one(
                 "trips",
-                {"trip_id": trip_id, "user_id": user_id},
+                self.query_builder.build_trip_filter(trip_id, user_id),
                 {
                     "$set": {
                         "itinerary_data": itinerary_data,
@@ -370,13 +339,12 @@ class TripService:
             )
 
             if success:
-                return {
-                    "success": True,
-                    "activity": ai_response["activity"],
-                    "message": "Activity replaced successfully"
-                }
+                return self.response_builder.build_success_response(
+                    {"activity": new_activity_data},
+                    "Activity replaced successfully"
+                )
             else:
-                return {"success": False, "error": "Failed to update trip"}
+                return self.response_builder.build_error_response("Failed to update trip")
 
         except Exception as e:
             logger.error(f"Error replacing activity: {str(e)}")

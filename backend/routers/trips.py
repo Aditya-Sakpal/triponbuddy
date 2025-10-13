@@ -225,7 +225,7 @@ async def replace_activity(
     replace_request: ActivityReplaceRequest,
     user_id: str = Query(..., description="User ID from Clerk")
 ):
-    """Replace an activity in a trip with a new AI-generated one"""
+    """Replace an activity in a trip with pre-generated activity data (no AI call)"""
 
     try:
         result = await trip_service.replace_activity(
@@ -233,7 +233,7 @@ async def replace_activity(
             user_id=user_id,
             day=replace_request.day,
             activity_index=replace_request.activity_index,
-            new_activity_name=replace_request.new_activity_name
+            new_activity_data=replace_request.new_activity_data
         )
 
         if not result.get("success"):

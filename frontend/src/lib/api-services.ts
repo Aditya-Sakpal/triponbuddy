@@ -53,7 +53,7 @@ export class TripsApiService {
     tripId: string,
     day: number,
     activityIndex: number,
-    newActivityName: string,
+    newActivityData: unknown, // Complete activity object, not just the name
     userId: string
   ): Promise<{ success: boolean; activity: unknown; message: string }> {
     return apiClient.post(
@@ -61,7 +61,7 @@ export class TripsApiService {
       {
         day,
         activity_index: activityIndex,
-        new_activity_name: newActivityName,
+        new_activity_data: newActivityData, // Send the complete activity object
       },
       { user_id: userId }
     );

@@ -135,8 +135,8 @@ export const ActivityModificationModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleClose} >
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto z-[90]">
         <DialogHeader>
           <DialogTitle>Modify Activity</DialogTitle>
           <DialogDescription>
