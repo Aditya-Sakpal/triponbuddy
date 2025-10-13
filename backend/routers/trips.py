@@ -13,7 +13,9 @@ from models.trip import (
     TripListResponse,
     TripResponse,
     ActivityReplaceRequest,
-    ActivityRemoveRequest
+    ActivityRemoveRequest,
+    ActivityAlternativesRequest,
+    ActivityAlternativesResponse
 )
 from services.trip_service import trip_service
 
@@ -285,3 +287,39 @@ async def remove_activity(
             status_code=500,
             detail="Failed to remove activity"
         )
+
+
+@router.post("/{trip_id}/activities/alternatives", response_model=ActivityAlternativesResponse)
+async def get_activity_alternatives(
+    request: Request,
+    trip_id: str,
+    alternatives_request: ActivityAlternativesRequest,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Generate alternative activities for a specific activity in a trip"""
+
+    try:
+        result = await trip_service.generate_activity_alternatives(
+            trip_id=trip_id,
+            user_id=user_id,
+            day=alternatives_request.day,
+            activity_index=alternatives_request.activity_index
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("error", "Failed to generate alternatives")
+            )
+
+        return ActivityAlternativesResponse(**result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating activity alternatives: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate activity alternatives"
+        )
+

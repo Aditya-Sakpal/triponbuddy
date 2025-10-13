@@ -51,24 +51,12 @@ export const ActivityCard = ({
   const [showDetailedDescription, setShowDetailedDescription] = useState(false);
 
   return (
-    <Card className="mb-4 border-none relative">
-      {/* Modify Button - Shown only in edit mode and not for arrival_departure activities */}
-      {isEditMode && activity.tag !== "arrival_departure" && (
-        <Button
-          variant="destructive"
-          size="icon"
-          className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full shadow-lg"
-          onClick={onModify}
-        >
-          <MinusCircle className="w-5 h-5" />
-        </Button>
-      )}
-      
+    <Card className="mb-4 border-none">
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start justify-between">
-              <div className="space-y-1 flex-1 pr-10">
+              <div className="space-y-1 flex-1">
                 {!hideTime && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground md:hidden">
                     <Clock className="w-4 h-4" />
@@ -87,9 +75,21 @@ export const ActivityCard = ({
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-sm font-medium text-green-600">
-                <IndianRupee className="w-4 h-4" />
-                <span>{sanitizePrice(activity.estimated_cost)}</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 text-sm font-medium text-green-600">
+                  <IndianRupee className="w-4 h-4" />
+                  <span>{sanitizePrice(activity.estimated_cost)}</span>
+                </div>
+                {isEditMode && activity.tag !== "arrival_departure" && (
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="h-8 w-8 rounded-full shadow-lg"
+                    onClick={onModify}
+                  >
+                    <MinusCircle className="w-5 h-5" />
+                  </Button>
+                )}
               </div>
             </div>
             

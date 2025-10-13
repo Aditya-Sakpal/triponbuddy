@@ -503,6 +503,112 @@ class AIService:
             logger.error(f"Error generating single activity: {str(e)}")
             raise Exception(f"Failed to generate activity: {str(e)}")
 
+    async def generate_alternative_activities(
+        self,
+        destination: str,
+        original_activity: Dict[str, Any],
+        time_slot: str,
+        duration: str,
+        preferences: Dict[str, Any] = None,
+        num_alternatives: int = 3
+    ) -> Dict[str, Any]:
+        """Generate multiple alternative activities with full details"""
+
+        preferences_text = ""
+        if preferences:
+            prefs = []
+            if preferences.get('adventure'):
+                prefs.append("adventure activities")
+            if preferences.get('culture'):
+                prefs.append("cultural experiences")
+            if preferences.get('relaxation'):
+                prefs.append("relaxation and wellness")
+            if preferences.get('classical'):
+                prefs.append("classical sightseeing")
+            if preferences.get('shopping'):
+                prefs.append("shopping experiences")
+            if preferences.get('food'):
+                prefs.append("food and cuisine")
+            preferences_text = f" with focus on: {', '.join(prefs)}" if prefs else ""
+
+        prompt = f"""
+        Generate {num_alternatives} alternative activities for a trip to {destination} that can replace the following activity:
+
+        Original Activity:
+        - Name: {original_activity.get('activity', '')}
+        - Location: {original_activity.get('location', '')}
+        - Description: {original_activity.get('description', '')}
+        - Time Slot: {time_slot}
+        - Duration: {duration}
+        - Tag: {original_activity.get('tag', 'sightseeing')}
+
+        Requirements:
+        - The alternatives should be in the same location/area (within {destination})
+        - They should fit in the same time slot ({time_slot}) and duration ({duration})
+        - They should offer different experiences while maintaining similar appeal
+        - Consider the original activity's tag ({original_activity.get('tag', 'sightseeing')}) to suggest similar types of activities
+        {preferences_text}
+
+        Please provide a JSON response with an array of {num_alternatives} alternative activities, each with the following structure:
+        {{
+            "alternatives": [
+                {{
+                    "time": "{time_slot}",
+                    "activity": "[Alternative activity name]",
+                    "location": "[Specific location in {destination}]",
+                    "description": "[Brief description in 1-2 sentences]",
+                    "detailed_description": "[Detailed description in 3-4 paragraphs covering history, significance, visitor experience, tips, and interesting facts about this activity/location]",
+                    "estimated_cost": "₹XXX",
+                    "duration": "{duration}",
+                    "image_search_query": "[Short query for this activity]",
+                    "booking_info": {{
+                        "required": true/false,
+                        "url": "[URL if applicable]",
+                        "price_range": "₹XXX-XXX"
+                    }},
+                    "tag": "[arrival_departure/dining/sightseeing/shopping/entertainment/relaxation/adventure/cultural]",
+                    "alternatives": []
+                }}
+            ]
+        }}
+
+        Important Guidelines:
+        1. All costs must be in Indian Rupees (₹)
+        2. Provide realistic booking URLs for major attractions
+        3. Generate a short, specific image search query (1-2 words)
+        4. Provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs)
+        5. Assign an appropriate tag based on the activity type
+        6. Make each alternative distinctly different from the original and from each other
+        7. The alternatives array within each activity should be empty []
+        """
+
+        try:
+            response = self.client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            response_data = self._parse_response(response.text)
+            
+            # Extract alternatives array from response
+            alternatives = response_data.get("alternatives", [])
+            
+            if not alternatives:
+                logger.warning("No alternatives generated, returning empty list")
+                return {
+                    "success": True,
+                    "alternatives": []
+                }
+
+            return {
+                "success": True,
+                "alternatives": alternatives
+            }
+
+        except Exception as e:
+            logger.error(f"Error generating alternative activities: {str(e)}")
+            raise Exception(f"Failed to generate alternatives: {str(e)}")
+
 
 # Global AI service instance
 ai_service = AIService()
+

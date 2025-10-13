@@ -202,6 +202,20 @@ class ActivityRemoveRequest(BaseModel):
     activity_index: int = Field(ge=0, description="Index of activity in the day's activities list")
 
 
+class ActivityAlternativesRequest(BaseModel):
+    """Request model for generating alternative activities"""
+    day: int = Field(ge=1, description="Day number")
+    activity_index: int = Field(ge=0, description="Index of activity in the day's activities list")
+
+
+class ActivityAlternativesResponse(BaseModel):
+    """Response model for alternative activities"""
+    success: bool = Field(default=True)
+    alternatives: List[Activity] = Field(description="List of alternative activities with full details")
+    original_activity: Activity = Field(description="The original activity being replaced")
+    message: Optional[str] = Field(default=None)
+
+
 class TripListResponse(BaseModel):
     """Response model for trip listing"""
     success: bool = Field(default=True)

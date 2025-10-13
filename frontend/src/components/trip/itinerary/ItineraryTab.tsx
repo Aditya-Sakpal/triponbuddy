@@ -92,7 +92,7 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
     setSelectedActivity(null);
   };
 
-  const handleSwitchActivity = (newActivityName: string) => {
+  const handleSwitchActivity = (newActivity: Activity) => {
     if (!selectedActivity) return;
     
     setPendingChanges(prev => [
@@ -102,7 +102,7 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
         day: selectedActivity.day,
         activityIndex: selectedActivity.index,
         activityName: selectedActivity.activity.activity,
-        newActivityName,
+        newActivity,
       }
     ]);
     setSelectedActivity(null);
@@ -126,12 +126,13 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
             change.activityIndex,
             user.id
           );
-        } else if (change.type === "replace" && change.newActivityName) {
+        } else if (change.type === "replace" && change.newActivity) {
+          // Use the new replaceActivity endpoint with the full activity
           await TripsApiService.replaceActivity(
             tripId,
             change.day,
             change.activityIndex,
-            change.newActivityName,
+            change.newActivity.activity, // Use the activity name from the new activity
             user.id
           );
         }
@@ -234,6 +235,9 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
           isOpen={!!selectedActivity}
           onClose={() => setSelectedActivity(null)}
           activity={selectedActivity.activity}
+          tripId={tripId}
+          day={selectedActivity.day}
+          activityIndex={selectedActivity.index}
           onRemove={handleRemoveActivity}
           onSwitch={handleSwitchActivity}
         />

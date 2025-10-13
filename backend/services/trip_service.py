@@ -446,6 +446,72 @@ class TripService:
             logger.error(f"Error removing activity: {str(e)}")
             raise
 
+    async def generate_activity_alternatives(
+        self,
+        trip_id: str,
+        user_id: str,
+        day: int,
+        activity_index: int
+    ) -> Dict[str, Any]:
+        """Generate alternative activities for a specific activity"""
+
+        try:
+            # Get the trip
+            trip_doc = await mongodb.find_one(
+                "trips",
+                {"trip_id": trip_id, "user_id": user_id}
+            )
+
+            if not trip_doc:
+                return {"success": False, "error": "Trip not found"}
+
+            # Get itinerary data
+            itinerary_data = trip_doc.get("itinerary_data", {})
+            daily_plans = itinerary_data.get("daily_plans", [])
+
+            # Find the day and activity
+            target_day = None
+            for plan in daily_plans:
+                if plan.get("day") == day:
+                    target_day = plan
+                    break
+
+            if not target_day or not target_day.get("activities"):
+                return {"success": False, "error": "Day or activities not found"}
+
+            if activity_index < 0 or activity_index >= len(target_day["activities"]):
+                return {"success": False, "error": "Invalid activity index"}
+
+            # Get the original activity details
+            original_activity = target_day["activities"][activity_index]
+            time_slot = original_activity.get("time", "10:00 AM")
+            duration = original_activity.get("duration", "2 hours")
+            destination = itinerary_data.get("destination", "")
+
+            # Generate alternative activities using AI
+            ai_response = await ai_service.generate_alternative_activities(
+                destination=destination,
+                original_activity=original_activity,
+                time_slot=time_slot,
+                duration=duration,
+                preferences=None  # Could pass trip preferences if stored
+            )
+
+            if not ai_response.get("success"):
+                return {"success": False, "error": "Failed to generate alternatives"}
+
+            return {
+                "success": True,
+                "alternatives": ai_response["alternatives"],
+                "original_activity": original_activity,
+                "message": "Alternatives generated successfully"
+            }
+
+        except Exception as e:
+            logger.error(f"Error generating activity alternatives: {str(e)}")
+            raise
+
 
 # Global trip service instance
 trip_service = TripService()
+
