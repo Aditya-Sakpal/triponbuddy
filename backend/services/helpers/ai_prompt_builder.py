@@ -65,13 +65,40 @@ class AIPromptBuilder:
             ],
             "accommodation": [
                 {{
-                    "name": "[Hotel Name]",
-                    "type": "[Type]",
-                    "price_range": "₹XXX-XXX/night",
-                    "rating": "X.X/5",
+                    "name": "[Hotel Name 1]",
+                    "type": "Budget",
+                    "price_range": "₹500-1500/night",
+                    "rating": "3.0-3.5/5",
                     "location": "[Location]",
                     "booking_url": "[URL]",
                     "amenities": ["Amenity 1", "Amenity 2"]
+                }},
+                {{
+                    "name": "[Hotel Name 2]",
+                    "type": "Mid-Range",
+                    "price_range": "₹1500-3500/night",
+                    "rating": "3.5-4.0/5",
+                    "location": "[Location]",
+                    "booking_url": "[URL]",
+                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3"]
+                }},
+                {{
+                    "name": "[Hotel Name 3]",
+                    "type": "Premium",
+                    "price_range": "₹3500-7000/night",
+                    "rating": "4.0-4.5/5",
+                    "location": "[Location]",
+                    "booking_url": "[URL]",
+                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3", "Amenity 4"]
+                }},
+                {{
+                    "name": "[Hotel Name 4]",
+                    "type": "Luxury",
+                    "price_range": "₹7000+/night",
+                    "rating": "4.5-5.0/5",
+                    "location": "[Location]",
+                    "booking_url": "[URL]",
+                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3", "Amenity 4", "Amenity 5"]
                 }}
             ],
             "transportation": {{
@@ -187,6 +214,12 @@ class AIPromptBuilder:
             - "adventure" for trekking, water sports, adventure activities
             - "cultural" for museums, galleries, cultural centers, heritage sites
         14. For each activity, provide 3-5 alternative activities that could replace it in the same time slot, keeping similar duration and theme. These should be simple activity names as strings.
+        15. IMPORTANT: Provide AT LEAST 10-15 accommodation options across different price ranges and categories:
+            - Budget (₹500-1500/night): 3-4 options
+            - Mid-Range (₹1500-3500/night): 3-4 options
+            - Premium (₹3500-7000/night): 2-3 options
+            - Luxury (₹7000+/night): 2-3 options
+            Include a variety of hotels, hostels, guesthouses, resorts, and homestays based on the destination.
         """
 
         return prompt
