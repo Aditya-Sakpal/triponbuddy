@@ -36,7 +36,7 @@ class AIService:
 
         try:
             response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-flash-latest',
                 contents=prompt
             )
             itinerary_data = self.response_parser.parse_json_response(response.text)
@@ -73,7 +73,7 @@ class AIService:
 
         try:
             response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-flash-latest',
                 contents=prompt
             )
             activity_data = self.response_parser.parse_json_response(response.text)
@@ -104,7 +104,7 @@ class AIService:
 
         try:
             response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-flash-latest',
                 contents=prompt
             )
             response_data = self.response_parser.parse_json_response(response.text)
