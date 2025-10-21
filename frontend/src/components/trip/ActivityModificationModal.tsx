@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Trash2, RefreshCw, Loader2 } from "lucide-react";
+import { Trash2, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,

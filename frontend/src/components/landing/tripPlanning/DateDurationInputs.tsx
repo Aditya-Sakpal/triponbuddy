@@ -22,15 +22,22 @@ export const DateDurationInputs = ({
           Start Date <span className="text-destructive">*</span>
         </Label>
         <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none z-10" />
           <Input
             id="start-date"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="pl-10"
+            className="pl-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+            style={{
+              colorScheme: 'light dark'
+            }}
             required
-            min={new Date().toISOString().split('T')[0]} // Prevent past dates
+            min={new Date().toISOString().split('T')[0]}
+            onFocus={(e) => {
+              // Show the calendar picker on focus
+              e.target.showPicker?.();
+            }}
           />
         </div>
       </div>
