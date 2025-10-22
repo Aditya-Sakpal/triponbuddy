@@ -31,6 +31,22 @@ export const TripItinerary = ({
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
 
+  // Extract budget - use trip.budget if available, otherwise parse from estimated_total_cost
+  const getBudgetDisplay = () => {
+    if (trip.budget) {
+      return `₹ ${Number(trip.budget).toLocaleString('en-IN')}`;
+    }
+    
+    // Fallback to estimated_total_cost from itinerary_data
+    if (itinerary?.estimated_total_cost) {
+      return itinerary.estimated_total_cost;
+    }
+    
+    return null;
+  };
+
+  const budgetDisplay = getBudgetDisplay();
+
   const tabs = [
     { value: "itinerary", label: "Itinerary" },
     { value: "accommodation", label: "Accommodation" },
@@ -140,6 +156,12 @@ export const TripItinerary = ({
                   <Calendar className="w-5 h-5" />
                   <span>{formatDateRange(trip.start_date, trip.duration_days)}</span>
                 </div>
+                {budgetDisplay && (
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">Budget:</span>
+                    <span>{budgetDisplay}</span>
+                  </div>
+                )}
               </div>
               
               {trip.tags && trip.tags.length > 0 && (
