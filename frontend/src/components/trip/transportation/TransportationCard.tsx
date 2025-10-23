@@ -28,9 +28,6 @@ export const TransportationCard = ({ transport }: { transport: TravelRoute }) =>
               <CardTitle className="text-base leading-tight">{formatTitleCase(transport.type)}</CardTitle>
             </div>
           </div>
-          <Badge variant="outline" className="group-hover:bg-white/10 transition-colors duration-300 text-xs px-2 py-0.5 text-white">
-            {transport.duration}
-          </Badge>
         </div>
       </CardHeader>
 

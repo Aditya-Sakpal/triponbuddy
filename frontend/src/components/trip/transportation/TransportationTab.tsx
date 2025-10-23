@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Transportation, TransportationHub, LocalTransportation } from "@/constants";
 import { TransportationCard } from "./TransportationCard";
 import { TransportationHubCard } from "./TransportationHubCard";
-import { LocalTransportationCard } from "./LocalTransportationCard";
+import { LocalTransportationPanel } from "./LocalTransportationPanel";
 
 interface TransportationTabProps {
   transportation: Transportation;
@@ -82,11 +82,7 @@ export const TransportationTab = ({
       {local_transportation.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Local Transportation at Destination</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {local_transportation.map((local, index) => (
-              <LocalTransportationCard key={index} localTransport={local} />
-            ))}
-          </div>
+          <LocalTransportationPanel localTransportation={local_transportation} />
         </div>
       )}
 
