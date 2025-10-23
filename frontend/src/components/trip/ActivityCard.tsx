@@ -95,9 +95,7 @@ export const ActivityCard = ({
             
             <p className="text-muted-foreground">{activity.description}</p>
 
-
-
-            <div className="aspect-[4/1] bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+            <div className="aspect-[3/2] md:aspect-[5/2] bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
               <img
                 src={imageUrl || `https://placehold.co/300x200?text=${encodeURIComponent(activity.image_search_query)}`}
                 alt={activity.activity}

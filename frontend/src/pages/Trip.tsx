@@ -10,9 +10,6 @@ const Trip = () => {
   const { tripId } = useParams<{ tripId: string }>();
   const { userId, isAuthenticated } = useAuthStore();
   
-  // Check if this is a demo trip
-  const isDemo = tripId?.startsWith('demo-trip-');
-  
   const { 
     data: tripResponse, 
     isLoading, 
@@ -20,27 +17,11 @@ const Trip = () => {
     refetch
   } = useTrip(tripId || "", userId || "");
 
-  // Skip API call for demo trips
-  const shouldFetchTrip = !isDemo && tripId && userId;
-  
   const { mutate: saveTrip, isPending: isSaving } = useSaveTrip();
   const { mutate: unsaveTrip, isPending: isUnsaving } = useUnsaveTrip();
 
-  // Handle demo data
-  let demoTrip = null;
-  if (isDemo) {
-    const demoData = sessionStorage.getItem('demo-trip');
-    if (demoData) {
-      try {
-        demoTrip = JSON.parse(demoData);
-      } catch (error) {
-        console.error('Failed to parse demo trip data:', error);
-      }
-    }
-  }
-
-  // Redirect if not authenticated and not demo
-  if (!isDemo && (!isAuthenticated || !userId)) {
+  // Redirect if not authenticated
+  if (!isAuthenticated || !userId) {
     return <Navigate to="/" replace />;
   }
 
@@ -50,7 +31,7 @@ const Trip = () => {
   }
 
   // Loading state
-  if (shouldFetchTrip && isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-96">
@@ -63,7 +44,7 @@ const Trip = () => {
   }
 
   // Error state
-  if (shouldFetchTrip && error) {
+  if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-96">
@@ -87,54 +68,27 @@ const Trip = () => {
   }
 
   // No trip data
-  const currentTrip = isDemo ? demoTrip : tripResponse?.trip;
-  if (!currentTrip) {
-    if (isDemo) {
-      return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <Card className="w-96">
-            <CardContent className="flex items-center justify-center py-12">
-              <div className="text-center space-y-4">
-                <h3 className="text-lg font-semibold text-destructive">Demo Trip Not Found</h3>
-                <p className="text-muted-foreground">
-                  The demo trip data is not available. Please try generating a new trip.
-                </p>
-                <button
-                  onClick={() => window.history.back()}
-                  className="text-primary hover:underline"
-                >
-                  Go Back
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
+  if (!tripResponse?.trip) {
     return <Navigate to="/profile" replace />;
   }
 
   const handleSaveTrip = (tripId: string) => {
-    if (!isDemo) {
-      saveTrip({ tripId, userId });
-    }
+    saveTrip({ tripId, userId });
   };
 
   const handleUnsaveTrip = (tripId: string) => {
-    if (!isDemo) {
-      unsaveTrip({ tripId, userId });
-    }
+    unsaveTrip({ tripId, userId });
   };
 
   const handleRefresh = async () => {
-    if (!isDemo && refetch) {
+    if (refetch) {
       await refetch();
     }
   };
 
   return (
     <TripItinerary
-      trip={currentTrip}
+      trip={tripResponse.trip}
       onSaveTrip={handleSaveTrip}
       onUnsaveTrip={handleUnsaveTrip}
       isLoading={isSaving || isUnsaving}

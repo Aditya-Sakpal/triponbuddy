@@ -69,7 +69,7 @@ export const TripActionButtons = ({
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
-            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
+            className="flex items-center gap-1 px-2 py-2 text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -77,7 +77,7 @@ export const TripActionButtons = ({
           <Button
             variant="outline"
             onClick={onEditTrip}
-            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
+            className="flex items-center gap-1 px-2 py-2 text-xs"
           >
             <Edit className="w-4 h-4" />
             Edit
@@ -85,7 +85,7 @@ export const TripActionButtons = ({
           <Button
             variant="outline"
             onClick={onShare}
-            className="flex flex-col items-center gap-1 px-2 py-2 text-xs"
+            className="flex items-center gap-1 px-2 py-2 text-xs"
           >
             <Share className="w-4 h-4" />
             Share

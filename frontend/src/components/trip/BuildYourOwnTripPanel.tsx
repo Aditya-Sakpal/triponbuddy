@@ -1,19 +1,9 @@
-import { useState } from "react";
-import { X, Trash2, RefreshCw, AlertCircle } from "lucide-react";
+import { Trash2, RefreshCw, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { Activity } from "@/constants";
-
-export interface PendingChange {
-  type: "remove" | "replace";
-  day: number;
-  activityIndex: number;
-  activityName: string;
-  newActivityName?: string;
-  newActivity?: Activity;
-}
+import type { PendingChange } from "./itinerary/types";
 
 interface BuildYourOwnTripPanelProps {
   pendingChanges: PendingChange[];
@@ -46,7 +36,7 @@ export const BuildYourOwnTripPanel = ({
             </CardDescription>
           </div>
           <Badge variant="secondary" className="text-sm">
-            {pendingChanges.length} {pendingChanges.length === 1 ? "change" : "changes"}
+            {pendingChanges.length} 
           </Badge>
         </div>
       </CardHeader>

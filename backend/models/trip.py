@@ -243,3 +243,43 @@ class TripResponse(BaseModel):
             datetime: lambda v: v.isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
+
+
+class RouteSegment(BaseModel):
+    """Model for a single segment of a route"""
+    step_number: int = Field(description="Step number in the route")
+    mode: str = Field(description="Mode of transport: auto, bus, metro, taxi, walk, etc.")
+    from_location: str = Field(description="Starting point of this segment")
+    to_location: str = Field(description="Ending point of this segment")
+    description: str = Field(description="Brief description of the segment")
+    landmarks: List[str] = Field(default_factory=list, description="Notable landmarks or spots along this segment")
+    estimated_time: str = Field(description="Estimated time for this segment")
+    estimated_cost: str = Field(description="Estimated cost for this segment in INR")
+    details: Optional[str] = Field(default=None, description="Additional details like metro line color, bus number, street names")
+
+
+class RoutePlan(BaseModel):
+    """Model for complete route plan"""
+    from_location: str = Field(description="Starting point")
+    to_location: str = Field(description="Destination")
+    total_distance: str = Field(description="Total distance")
+    total_time: str = Field(description="Total estimated time")
+    total_cost: str = Field(description="Total estimated cost in INR")
+    segments: List[RouteSegment] = Field(description="List of route segments")
+    tips: List[str] = Field(default_factory=list, description="Travel tips and suggestions")
+
+
+class RouteGenerationRequest(BaseModel):
+    """Request model for route generation"""
+    trip_id: str = Field(description="Trip ID")
+    user_id: str = Field(description="User ID from Clerk")
+    from_location: str = Field(description="Starting location (arrival hotel)")
+    to_locations: List[str] = Field(description="Ordered list of destination locations from itinerary")
+    destination_city: str = Field(description="Destination city for context")
+
+
+class RouteGenerationResponse(BaseModel):
+    """Response model for route generation"""
+    success: bool = Field(default=True)
+    route_plan: RoutePlan = Field(description="Generated route plan")
+    message: Optional[str] = Field(default=None)

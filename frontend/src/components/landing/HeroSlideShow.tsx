@@ -9,9 +9,7 @@ export const HeroSlideShow = () => {
     'https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1200&h=800&fit=crop',
     'https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=1200&h=800&fit=crop',
     'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1200&h=800&fit=crop',
-
     'https://images.unsplash.com/photo-1592555793101-4735dfe82341?w=1200&h=800&fit=crop',
-
     'https://images.unsplash.com/photo-1585135497273-1a86b09fe70e?w=1200&h=800&fit=crop',
     'https://images.unsplash.com/photo-1597735881932-d9664c9bbcea?w=1200&h=800&fit=crop',
     'https://images.unsplash.com/photo-1589983846997-04788035bc83?w=1200&h=800&fit=crop',
@@ -50,7 +48,6 @@ export const HeroSlideShow = () => {
           isFading ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
-          transform: 'scale(1.2)',
           transformOrigin: 'center center'
         }}
         alt="Travel Background"
@@ -61,7 +58,7 @@ export const HeroSlideShow = () => {
           isFading ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          transform: 'scale(1.2)',
+          transform: 'scale(1.1)',
           transformOrigin: 'center center'
         }}
         alt="Travel Background"

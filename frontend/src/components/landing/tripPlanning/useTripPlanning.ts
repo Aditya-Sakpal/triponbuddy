@@ -1,0 +1,205 @@
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
+import { useAuthStore } from "@/lib/stores";
+import type { TripPreferences, ImageData } from "@/constants";
+import { 
+  generateDemoTripData, 
+  buildTripPreferences, 
+  fetchModalImages 
+} from "./tripPlanningHelpers";
+
+export const useTripPlanning = () => {
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
+  const [destination, setDestination] = useState("");
+  const [startLocation, setStartLocation] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [durationDays, setDurationDays] = useState<number>(3);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [modalImages, setModalImages] = useState<ImageData[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  const { user, isSignedIn, isLoaded } = useUser();
+  const { setUser: setAuthUser } = useAuthStore();
+  
+  const generateTripMutation = useGenerateTrip();
+  const singleImageMutation = useSingleImage();
+  
+  // Sync Clerk authentication with auth store
+  useEffect(() => {
+    if (isLoaded && isSignedIn && user) {
+      setAuthUser(user.id);
+    }
+  }, [isLoaded, isSignedIn, user, setAuthUser]);
+  
+  // Handle successful trip generation
+  useEffect(() => {
+    if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
+      setIsGenerating(false);
+      setModalImages([]);
+      navigate(`/trip/${generateTripMutation.data.trip_id}`);
+    }
+  }, [
+    generateTripMutation.isSuccess, 
+    generateTripMutation.data, 
+    generateTripMutation.error, 
+    generateTripMutation.isPending, 
+    generateTripMutation.status,
+    navigate
+  ]);
+
+  // Handle trip generation errors
+  useEffect(() => {
+    if (generateTripMutation.isError) {
+      console.error('Trip generation failed:', generateTripMutation.error);
+      setIsGenerating(false);
+      setModalImages([]);
+      alert(`Failed to generate trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
+    }
+  }, [generateTripMutation.isError, generateTripMutation.error]);
+
+  // Auto-fill destination from URL params
+  useEffect(() => {
+    const destinationParam = searchParams.get('destination');
+    if (destinationParam) {
+      setDestination(destinationParam);
+    }
+  }, [searchParams]);
+
+  const getCurrentUserId = () => {
+    if (isLoaded && isSignedIn && user) {
+      return user.id;
+    }
+    return 'demo-user-' + Date.now();
+  };
+
+  const initiateTrip = (
+    userId: string,
+    dest: string,
+    startLoc: string,
+    date: string,
+    days: number,
+    preferences: TripPreferences
+  ) => {
+    const controller = new AbortController();
+    setAbortController(controller);
+
+    generateTripMutation.mutate({
+      request: {
+        user_id: userId,
+        destination: dest,
+        start_location: startLoc || undefined,
+        start_date: date,
+        duration_days: days,
+        preferences,
+        is_international: false,
+      },
+      signal: controller.signal,
+    });
+  };
+
+  const handleDemo = () => {
+    const { destination, startLocation, startDate } = generateDemoTripData();
+    
+    // Set demo values in form
+    setDestination(destination);
+    setStartLocation(startLocation);
+    setStartDate(startDate);
+    setDurationDays(3);
+    setSelectedPreferences(['Relaxation', 'Food']);
+    
+    // Trigger trip generation after a brief delay
+    setTimeout(() => {
+      const userId = getCurrentUserId();
+      setIsGenerating(true);
+      
+      fetchModalImages(
+        singleImageMutation,
+        destination,
+        setModalImages,
+        () => {
+          const demoPreferences: TripPreferences = {
+            adventure: false,
+            culture: false,
+            relaxation: true,
+            classical: false,
+            shopping: false,
+            food: true,
+          };
+          initiateTrip(userId, destination, startLocation, startDate, 3, demoPreferences);
+        }
+      );
+    }, 100);
+  };
+
+  const handlePlanTrip = () => {
+    const userId = getCurrentUserId();
+
+    if (!destination || !startDate || !durationDays || durationDays < 1) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsGenerating(true);
+
+    fetchModalImages(
+      singleImageMutation,
+      destination,
+      setModalImages,
+      () => {
+        const userPreferences = buildTripPreferences(selectedPreferences);
+        initiateTrip(userId, destination, startLocation, startDate, durationDays, userPreferences);
+      }
+    );
+  };
+
+  const handleCancelGeneration = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
+    generateTripMutation.reset();
+    setIsGenerating(false);
+    setModalImages([]);
+  };
+
+  const handleTogglePreference = (label: string) => {
+    if (selectedPreferences.includes(label)) {
+      setSelectedPreferences(selectedPreferences.filter(p => p !== label));
+    } else {
+      setSelectedPreferences([...selectedPreferences, label]);
+    }
+  };
+
+  return {
+    // State
+    selectedPreferences,
+    destination,
+    startLocation,
+    startDate,
+    durationDays,
+    modalImages,
+    isGenerating,
+    isSignedIn,
+    isLoaded,
+    
+    // Setters
+    setDestination,
+    setStartLocation,
+    setStartDate,
+    setDurationDays,
+    
+    // Actions
+    handleDemo,
+    handlePlanTrip,
+    handleCancelGeneration,
+    handleTogglePreference,
+    
+    // Computed
+    isPending: generateTripMutation.isPending,
+    isDisabled: !destination || !startDate || !durationDays,
+  };
+};

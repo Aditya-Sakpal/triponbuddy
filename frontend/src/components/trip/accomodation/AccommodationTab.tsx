@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Accommodation } from "@/constants";
 import { apiClient } from "@/lib/api-client";
 import { AccommodationCard } from "./AccommodationCard";
@@ -85,6 +86,14 @@ export const AccommodationTab = ({ accommodations }: AccommodationTabProps) => {
 
   const categories = categorizeAccommodations();
 
+  const categoryOptions = [
+    { value: "all", label: `All (${categories.all.length})` },
+    { value: "budget", label: `Budget (${categories.budget.length})` },
+    { value: "midRange", label: `Mid-Range (${categories.midRange.length})` },
+    { value: "premium", label: `Premium (${categories.premium.length})` },
+    { value: "luxury", label: `Luxury (${categories.luxury.length})` }
+  ];
+
   const renderAccommodationGrid = (accommodationList: Accommodation[]) => {
     if (accommodationList.length === 0) {
       return (
@@ -131,51 +140,81 @@ export const AccommodationTab = ({ accommodations }: AccommodationTabProps) => {
       )}
 
       {accommodations.length > 0 ? (
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">All ({categories.all.length})</TabsTrigger>
-            <TabsTrigger value="budget">Budget ({categories.budget.length})</TabsTrigger>
-            <TabsTrigger value="midRange">Mid-Range ({categories.midRange.length})</TabsTrigger>
-            <TabsTrigger value="premium">Premium ({categories.premium.length})</TabsTrigger>
-            <TabsTrigger value="luxury">Luxury ({categories.luxury.length})</TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          {/* Mobile: Dropdown Filter */}
+          <div className="md:hidden">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoryOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value="all" className="mt-6">
-            {renderAccommodationGrid(categories.all)}
-          </TabsContent>
+          {/* Desktop: Tabs */}
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full hidden md:block">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="all">All ({categories.all.length})</TabsTrigger>
+              <TabsTrigger value="budget">Budget ({categories.budget.length})</TabsTrigger>
+              <TabsTrigger value="midRange">Mid-Range ({categories.midRange.length})</TabsTrigger>
+              <TabsTrigger value="premium">Premium ({categories.premium.length})</TabsTrigger>
+              <TabsTrigger value="luxury">Luxury ({categories.luxury.length})</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <TabsContent value="budget" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Budget Accommodations</h3>
-              <p className="text-sm text-muted-foreground">Affordable options perfect for budget travelers (₹500-1500/night)</p>
+          {/* Content for all categories */}
+          {selectedCategory === "all" && (
+            <div className="mt-6">
+              {renderAccommodationGrid(categories.all)}
             </div>
-            {renderAccommodationGrid(categories.budget)}
-          </TabsContent>
+          )}
 
-          <TabsContent value="midRange" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Mid-Range Accommodations</h3>
-              <p className="text-sm text-muted-foreground">Comfortable stays with good amenities (₹1500-3500/night)</p>
+          {selectedCategory === "budget" && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Budget Accommodations</h3>
+                <p className="text-sm text-muted-foreground">Affordable options perfect for budget travelers (₹500-1500/night)</p>
+              </div>
+              {renderAccommodationGrid(categories.budget)}
             </div>
-            {renderAccommodationGrid(categories.midRange)}
-          </TabsContent>
+          )}
 
-          <TabsContent value="premium" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Premium Accommodations</h3>
-              <p className="text-sm text-muted-foreground">High-quality hotels with excellent facilities (₹3500-7000/night)</p>
+          {selectedCategory === "midRange" && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Mid-Range Accommodations</h3>
+                <p className="text-sm text-muted-foreground">Comfortable stays with good amenities (₹1500-3500/night)</p>
+              </div>
+              {renderAccommodationGrid(categories.midRange)}
             </div>
-            {renderAccommodationGrid(categories.premium)}
-          </TabsContent>
+          )}
 
-          <TabsContent value="luxury" className="mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Luxury Accommodations</h3>
-              <p className="text-sm text-muted-foreground">Premium experiences with world-class amenities (₹7000+/night)</p>
+          {selectedCategory === "premium" && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Premium Accommodations</h3>
+                <p className="text-sm text-muted-foreground">High-quality hotels with excellent facilities (₹3500-7000/night)</p>
+              </div>
+              {renderAccommodationGrid(categories.premium)}
             </div>
-            {renderAccommodationGrid(categories.luxury)}
-          </TabsContent>
-        </Tabs>
+          )}
+
+          {selectedCategory === "luxury" && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Luxury Accommodations</h3>
+                <p className="text-sm text-muted-foreground">Premium experiences with world-class amenities (₹7000+/night)</p>
+              </div>
+              {renderAccommodationGrid(categories.luxury)}
+            </div>
+          )}
+        </div>
       ) : (
         <Card>
           <CardContent className="flex items-center justify-center py-12">

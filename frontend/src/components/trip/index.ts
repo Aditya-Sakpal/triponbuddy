@@ -8,7 +8,7 @@ export { TravelTipsTab } from './itinerary/TravelTipsTab';
 export { NeighboringPlaces } from './itinerary/NeighboringPlaces';
 export { TransportationCard } from './transportation/TransportationCard';
 export { TransportationHubCard } from './transportation/TransportationHubCard';
-export { LocalTransportationCard } from './transportation/LocalTransportationCard';
+export { LocalTransportationPanel } from './transportation/LocalTransportationPanel';
 export { AccommodationCard } from './accomodation/AccommodationCard';
 export { ActivityCard } from './ActivityCard';
 export { ItineraryModal } from '../profile/tripsTab/ItineraryModal';
