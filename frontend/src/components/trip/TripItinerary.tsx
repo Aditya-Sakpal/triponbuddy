@@ -237,6 +237,9 @@ export const TripItinerary = ({
               transportation_hubs_start={itinerary?.transportation_hubs_start || []}
               transportation_hubs_destination={itinerary?.transportation_hubs_destination || []}
               local_transportation={itinerary?.local_transportation || []}
+              tripId={trip.trip_id}
+              userId={trip.user_id}
+              destinationCity={itinerary?.destination || trip.destination}
             />
           </TabsContent>
 

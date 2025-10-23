@@ -48,7 +48,6 @@ export const HeroSlideShow = () => {
           isFading ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
-          transform: 'scale(1.2)',
           transformOrigin: 'center center'
         }}
         alt="Travel Background"
@@ -59,7 +58,7 @@ export const HeroSlideShow = () => {
           isFading ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          transform: 'scale(1.2)',
+          transform: 'scale(1.1)',
           transformOrigin: 'center center'
         }}
         alt="Travel Background"
