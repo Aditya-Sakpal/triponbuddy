@@ -2,19 +2,18 @@ import { useState, useEffect, useMemo } from 'react';
 
 export const HeroSlideShow = () => {
   const images = useMemo(() => [
-    'https://plus.unsplash.com/premium_photo-1661919589683-f11880119fb7?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1592639296346-560c37a0f711?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1660145416818-b9a2b1a1f193?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1592555793101-4735dfe82341?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1585135497273-1a86b09fe70e?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1597735881932-d9664c9bbcea?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1589983846997-04788035bc83?w=1200&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1624554305378-0f440dd3a8c1?w=1200&h=800&fit=crop',
-    'https://plus.unsplash.com/premium_photo-1673240845266-2f2c432cf194?w=1200&h=800&fit=crop',
+    'https://images.unsplash.com/photo-1760943055882-1dc68e4f7440?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1760890154142-605d1f571ae0?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1592639296346-560c37a0f711?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1717329162563-2f93e83cc717?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1592555793101-4735dfe82341?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1585135497273-1a86b09fe70e?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1586618761884-a062d527523f?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1589983846997-04788035bc83?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1624554305378-0f440dd3a8c1?w=1200&h=400&fit=crop',
+    'https://plus.unsplash.com/premium_photo-1673240845266-2f2c432cf194?w=1200&h=400&fit=crop',
+    'https://images.unsplash.com/photo-1712319432079-06cca77ccb90?w=1200&h=400&fit=crop'
   ], []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
