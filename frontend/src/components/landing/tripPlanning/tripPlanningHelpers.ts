@@ -3,9 +3,14 @@ import type { TripPreferences, ImageData } from "@/constants";
 /**
  * Generates random demo trip data
  */
-export const generateDemoTripData = () => {
-  const sampleDestinations = ['Mumbai', 'Delhi', 'Bangalore', 'Jaipur', 'Goa'];
-  const sampleStartLocations = ['Delhi', 'Mumbai', 'Bangalore', 'Kolkata', 'Chennai'];
+export const generateDemoTripData = (isInternational: boolean = false) => {
+  const domesticDestinations = ['Mumbai', 'Delhi', 'Bangalore', 'Jaipur', 'Goa'];
+  const internationalDestinations = ['Paris', 'Tokyo', 'New York', 'Dubai', 'London', 'Singapore', 'Sydney'];
+  const domesticStartLocations = ['Delhi', 'Mumbai', 'Bangalore', 'Kolkata', 'Chennai'];
+  const internationalStartLocations = ['New Delhi', 'Mumbai', 'Bangalore', 'Delhi', 'Chennai'];
+  
+  const sampleDestinations = isInternational ? internationalDestinations : domesticDestinations;
+  const sampleStartLocations = isInternational ? internationalStartLocations : domesticStartLocations;
   
   const destination = sampleDestinations[Math.floor(Math.random() * sampleDestinations.length)];
   const startLocation = sampleStartLocations[Math.floor(Math.random() * sampleStartLocations.length)];

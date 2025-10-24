@@ -77,7 +77,6 @@ export const ActivityCard = ({
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 text-sm font-medium text-green-600">
-                  <IndianRupee className="w-4 h-4" />
                   <span>{sanitizePrice(activity.estimated_cost)}</span>
                 </div>
                 {isEditMode && activity.tag !== "arrival_departure" && (

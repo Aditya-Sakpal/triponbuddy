@@ -16,6 +16,7 @@ export const useTripPlanning = () => {
   const [startLocation, setStartLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
+  const [isInternational, setIsInternational] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -95,14 +96,14 @@ export const useTripPlanning = () => {
         start_date: date,
         duration_days: days,
         preferences,
-        is_international: false,
+        is_international: isInternational,
       },
       signal: controller.signal,
     });
   };
 
   const handleDemo = () => {
-    const { destination, startLocation, startDate } = generateDemoTripData();
+    const { destination, startLocation, startDate } = generateDemoTripData(isInternational);
     
     // Set demo values in form
     setDestination(destination);
@@ -181,6 +182,7 @@ export const useTripPlanning = () => {
     startLocation,
     startDate,
     durationDays,
+    isInternational,
     modalImages,
     isGenerating,
     isSignedIn,
@@ -191,6 +193,7 @@ export const useTripPlanning = () => {
     setStartLocation,
     setStartDate,
     setDurationDays,
+    setIsInternational,
     
     // Actions
     handleDemo,

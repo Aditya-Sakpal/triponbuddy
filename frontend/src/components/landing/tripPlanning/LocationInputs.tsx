@@ -8,6 +8,8 @@ interface LocationInputsProps {
   setStartLocation: (value: string) => void;
   destination: string;
   setDestination: (value: string) => void;
+  isInternational: boolean;
+  setIsInternational: (value: boolean) => void;
 }
 
 export const LocationInputs = ({
@@ -15,6 +17,8 @@ export const LocationInputs = ({
   setStartLocation,
   destination,
   setDestination,
+  isInternational,
+  setIsInternational,
 }: LocationInputsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -24,7 +28,11 @@ export const LocationInputs = ({
               Start Location <span className="text-muted-foreground">ⓘ</span>
             </Label>
             <div className="flex items-center space-x-2">
-              <Switch id="worldwide" />
+              <Switch 
+                id="worldwide" 
+                checked={isInternational}
+                onCheckedChange={setIsInternational}
+              />
               <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
             </div>
 
