@@ -44,22 +44,25 @@ export const HeroSlideShow = () => {
     <div className="absolute inset-0 overflow-hidden bg-white">
       <img
         src={displaySrc}
-        className={`absolute inset-0 w-full h-[60vh] md:h-[70vh] object-cover transition-opacity duration-1000 ${
+        className={`absolute inset-0 w-full h-[60vh] md:h-[90vh] transition-opacity duration-1000 ${
           isFading ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
-          transformOrigin: 'center center'
+          transformOrigin: 'center center',
+          objectFit: 'cover',
+          objectPosition: 'center',
         }}
         alt="Travel Background"
       />
       <img
         src={nextDisplaySrc}
-        className={`absolute inset-0 w-full h-[70vh] object-cover transition-opacity duration-1000 ${
+        className={`absolute inset-0 w-full h-[90vh] transition-opacity duration-1000 ${
           isFading ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          transform: 'scale(1.1)',
-          transformOrigin: 'center center'
+          transformOrigin: 'center center',
+          objectFit: 'cover',
+          objectPosition: 'center',
         }}
         alt="Travel Background"
       />

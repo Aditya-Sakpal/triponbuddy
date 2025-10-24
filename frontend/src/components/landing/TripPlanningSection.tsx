@@ -11,6 +11,7 @@ export const TripPlanningSection = () => {
     startLocation,
     startDate,
     durationDays,
+    isInternational,
     modalImages,
     isGenerating,
     isSignedIn,
@@ -21,6 +22,7 @@ export const TripPlanningSection = () => {
     setStartLocation,
     setStartDate,
     setDurationDays,
+    setIsInternational,
     
     // Actions
     handleDemo,
@@ -58,6 +60,8 @@ export const TripPlanningSection = () => {
                 setStartLocation={setStartLocation}
                 destination={destination}
                 setDestination={setDestination}
+                isInternational={isInternational}
+                setIsInternational={setIsInternational}
               />
 
               <DateDurationInputs

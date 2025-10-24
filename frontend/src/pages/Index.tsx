@@ -40,7 +40,7 @@ const Index = () => {
       </div>
       
       {/* Trip Planning Section - Overlapping the hero section */}
-      <div className="relative -mt-24 z-10">
+      <div className="relative -mt-16 z-10">
         <TripPlanningSection />
       </div> 
       
