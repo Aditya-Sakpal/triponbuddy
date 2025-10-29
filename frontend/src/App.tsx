@@ -27,6 +27,22 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Protected route wrapper that preserves the URL for redirect after sign-in
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  
+  return (
+    <>
+      <SignedIn>
+        {children}
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn redirectUrl={location.pathname + location.search} />
+      </SignedOut>
+    </>
+  );
+};
+
 const App = () => (
   <>
     <ClerkLoading>
@@ -51,27 +67,17 @@ const App = () => (
                 <Route
                   path="/profile"
                   element={
-                    <>
-                      <SignedIn>
-                        <Profile />
-                      </SignedIn>
-                      <SignedOut>
-                        <RedirectToSignIn />
-                      </SignedOut>
-                    </>
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
                   }
                 />
                 <Route
                   path="/trip/:tripId"
                   element={
-                    <>
-                      <SignedIn>
-                        <Trip />
-                      </SignedIn>
-                      <SignedOut>
-                        <RedirectToSignIn />
-                      </SignedOut>
-                    </>
+                    <ProtectedRoute>
+                      <Trip />
+                    </ProtectedRoute>
                   }
                 />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

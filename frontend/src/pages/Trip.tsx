@@ -1,6 +1,6 @@
 import { useParams, Navigate } from "react-router-dom";
 import { useTrip, useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
-import { useAuthStore } from "@/lib/stores";
+import { useUser } from "@clerk/clerk-react";
 import { TripItinerary } from "@/components/trip/TripItinerary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
@@ -8,7 +8,8 @@ import { LoadingState } from "@/components/shared/LoadingState";
 
 const Trip = () => {
   const { tripId } = useParams<{ tripId: string }>();
-  const { userId, isAuthenticated } = useAuthStore();
+  const { user, isLoaded } = useUser();
+  const userId = user?.id;
   
   const { 
     data: tripResponse, 
@@ -20,9 +21,17 @@ const Trip = () => {
   const { mutate: saveTrip, isPending: isSaving } = useSaveTrip();
   const { mutate: unsaveTrip, isPending: isUnsaving } = useUnsaveTrip();
 
-  // Redirect if not authenticated
-  if (!isAuthenticated || !userId) {
-    return <Navigate to="/" replace />;
+  // Wait for Clerk to load
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-96">
+          <CardContent className="py-12">
+            <LoadingState />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   // Handle invalid trip ID

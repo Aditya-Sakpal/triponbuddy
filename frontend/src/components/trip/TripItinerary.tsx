@@ -102,10 +102,20 @@ export const TripItinerary = ({
       } catch (error) {
         console.log("Error sharing:", error);
       }
-    } else {
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
       // Fallback to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // You could show a toast notification here
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        // You could show a toast notification here
+        alert('Link copied to clipboard!');
+      } catch (error) {
+        console.error("Error copying to clipboard:", error);
+        // Fallback: show the URL in a prompt so user can manually copy
+        prompt('Copy this link:', window.location.href);
+      }
+    } else {
+      // Final fallback: show URL in a prompt
+      prompt('Copy this link:', window.location.href);
     }
   };
 
