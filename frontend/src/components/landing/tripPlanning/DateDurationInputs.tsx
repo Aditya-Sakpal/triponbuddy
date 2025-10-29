@@ -23,15 +23,17 @@ export const DateDurationInputs = ({
         </Label>
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none z-10" />
+          {!startDate && (
+            <span className="absolute left-10 top-1/2 transform -translate-y-1/2 text-muted-foreground text-sm pointer-events-none z-10">
+              Select start date
+            </span>
+          )}
           <Input
             id="start-date"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="pl-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-            style={{
-              colorScheme: 'light dark'
-            }}
+            className={`pl-10 ${!startDate ? '[&::-webkit-datetime-edit-fields-wrapper]:opacity-0' : ''} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:opacity-0`}
             required
             min={new Date().toISOString().split('T')[0]}
             onFocus={(e) => {
