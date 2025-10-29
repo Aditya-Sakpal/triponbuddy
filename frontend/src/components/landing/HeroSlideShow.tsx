@@ -33,7 +33,7 @@ export const HeroSlideShow = () => {
         setDisplaySrc(images[nextIndex]);
         setCurrentIndex(nextIndex);
         setIsFading(false);
-      }, 1000); 
+      }, 2000); 
     }, 5000);
 
     return () => clearInterval(interval);
