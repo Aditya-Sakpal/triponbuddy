@@ -1,13 +1,32 @@
-import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { locations, seasons } from "@/content/destinationContent";
+import { useState } from "react";
 
-export const FilterSection = () => {
-    const [selectedLocation, setSelectedLocation] = useState("all");
-    const [selectedSeason, setSelectedSeason] = useState("all");
-    const [isWorldwide, setIsWorldwide] = useState(false);
+interface FilterSectionProps {
+  selectedLocation: string;
+  setSelectedLocation: (value: string) => void;
+  selectedSeason: string;
+  setSelectedSeason: (value: string) => void;
+  isWorldwide: boolean;
+  setIsWorldwide: (value: boolean) => void;
+}
+
+export const FilterSection = ({
+  selectedLocation,
+  setSelectedLocation,
+  selectedSeason,
+  setSelectedSeason,
+  isWorldwide,
+  setIsWorldwide
+}: FilterSectionProps) => {
+  const [open, setOpen] = useState(false);
     
   return (
     <section className="relative -mt-16 z-20">
@@ -16,18 +35,58 @@ export const FilterSection = () => {
             <div className="flex flex-col md:flex-row gap-6 items-center justify-center">
               <div className="space-y-2 w-full md:flex-1 md:max-w-xs">
                 <label className="text-sm font-medium text-muted-foreground">Location</label>
-                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Locations" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((location) => (
-                      <SelectItem key={location} value={location.toLowerCase().replace(/\s+/g, '-')}>
-                        {location}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={open} onOpenChange={setOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-full justify-between"
+                    >
+                      <span className="truncate">
+                        {selectedLocation
+                          ? locations.find((location) => location.toLowerCase().replace(/\s+/g, '-') === selectedLocation)
+                          : "All Locations"}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-full p-0" 
+                    align="start" 
+                    side="bottom" 
+                    sideOffset={4}
+                    avoidCollisions={false}
+                  >
+                    <Command>
+                      <CommandInput placeholder="Search locations..." />
+                      <CommandList>
+                        <CommandEmpty>No location found.</CommandEmpty>
+                        <CommandGroup>
+                          {locations.filter((location) => location !== "All Locations").map((location) => (
+                            <CommandItem
+                              key={location}
+                              value={location}
+                              onSelect={(currentValue) => {
+                                const normalizedValue = currentValue.toLowerCase().replace(/\s+/g, '-');
+                                setSelectedLocation(normalizedValue === selectedLocation ? "" : normalizedValue);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedLocation === location.toLowerCase().replace(/\s+/g, '-') ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {location}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="space-y-2 w-full md:flex-1 md:max-w-xs">
