@@ -1,25 +1,38 @@
 import { Facebook, Twitter, Instagram } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
 export const Footer = () => {
+  const navigate = useNavigate();
+
   const quickLinks = [
     { to: "/", label: "Home" },
     { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
-    { to: "/trips", label: "My Trips" },
+    { to: "/profile?tab=trips", label: "My Trips" },
     { to: "/contact", label: "Contact" },
     { to: "/privacy", label: "Privacy Policy" },
   ];
 
   const popularDestinations = [
-    { to: "/explore", label: "Mayapur" },
-    { to: "/explore", label: "Varanasi Ghats" },
-    { to: "/explore", label: "Golden Temple, Amritsar" },
-    { to: "/explore", label: "Kerala Backwaters" },
-    { to: "/explore", label: "Goa Beaches" },
+    { name: "Mayapur" },
+    { name: "Varanasi Ghats" },
+    { name: "Golden Temple, Amritsar" },
+    { name: "Kerala Backwaters" },
+    { name: "Goa Beaches" },
   ];
+
+  const handleDestinationClick = (destinationName: string) => {
+    const params = new URLSearchParams();
+    params.set('destination', destinationName);
+    navigate(`/?${params.toString()}`);
+    
+    // Scroll to top after a short delay to ensure navigation completes
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
 
   return (
     <footer className="bg-slate-800 text-white py-12 px-4 overflow-hidden">
@@ -74,10 +87,14 @@ export const Footer = () => {
             <h3 className="text-white font-semibold font-latin text-lg mb-4 underline">Popular Destinations</h3>
             <ul className="space-y-2">
               {popularDestinations.map((dest) => (
-                <li key={dest.label}>
-                  <Link to={dest.to} className="text-gray-300 hover:text-white transition-all duration-300 hover:translate-x-1 font-latin inline-block">
-                    {dest.label}
-                  </Link>
+                <li key={dest.name}>
+                  <button 
+                    type="button"
+                    onClick={() => handleDestinationClick(dest.name)}
+                    className="text-gray-300 hover:text-white transition-all duration-300 hover:translate-x-1 font-latin bg-transparent border-0 cursor-pointer text-left p-0 underline-offset-2 hover:underline"
+                  >
+                    {dest.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -91,7 +108,7 @@ export const Footer = () => {
           </p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="text-gray-400 hover:text-white text-sm font-latin transition-all duration-300 hover:translate-x-1 inline-block">Privacy Policy</Link>
-            <Link to="/terms" className="text-gray-400 hover:text-white text-sm font-latin transition-all duration-300 hover:translate-x-1 inline-block">Terms of Service</Link>
+            <Link to="/privacy" className="text-gray-400 hover:text-white text-sm font-latin transition-all duration-300 hover:translate-x-1 inline-block">Terms of Service</Link>
           </div>
         </div>
       </div>

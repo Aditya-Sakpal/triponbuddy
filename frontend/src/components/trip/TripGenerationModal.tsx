@@ -200,7 +200,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
                 />
               </svg>
               
-              <div className="relative z-10">
+              <div className="relative z-[10]">
                 <MapPin className="w-10 h-10 text-primary drop-shadow-lg" />
                 {/* Ripple effect */}
                 <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping"></div>

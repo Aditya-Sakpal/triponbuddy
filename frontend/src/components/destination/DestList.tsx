@@ -3,16 +3,37 @@ import { Badge } from "@/components/ui/badge";
 import { DestinationCard } from "@/components/shared/DestinationCard";
 import { destinationList, indianStates } from "@/content/destinationContent";
 
-export const DestList = () => {
+interface DestListProps {
+  selectedLocation: string;
+  selectedSeason: string;
+  isWorldwide: boolean;
+}
+
+export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: DestListProps) => {
     const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
     const [preloadingComplete, setPreloadingComplete] = useState(false);
-    const [isWorldwide, setIsWorldwide] = useState(false);
+
+  // Filter destinations based on location, season, and worldwide toggle
   const filteredDestinations = destinationList.filter(stateData => {
-    if (isWorldwide) {
-      return true; // Show all destinations
-    } else {
-      return indianStates.includes(stateData.state); // Show only Indian destinations
+    // First filter by worldwide toggle
+    if (!isWorldwide && !indianStates.includes(stateData.state)) {
+      return false;
     }
+
+    // Then filter by selected location
+    if (selectedLocation !== "all") {
+      const locationMatch = stateData.state.toLowerCase().replace(/\s+/g, '-') === selectedLocation;
+      if (!locationMatch) {
+        return false;
+      }
+    }
+
+    // TODO: Add season filtering logic here when needed
+    // if (selectedSeason !== "all") {
+    //   // Season filtering logic
+    // }
+
+    return true;
   });  // Preload all images on component mount with priority loading
   useEffect(() => {
     const preloadImages = async () => {
@@ -115,7 +136,8 @@ export const DestList = () => {
                         <div className="flex items-center justify-between">
                         <h3 className="text-3xl font-bold text-foreground">{stateData.state}</h3>
                         <Badge variant="secondary" className="bg-bula text-white text-xs text-center md:text-lg">
-                            {stateData.count} destinations
+                            <span className="md:hidden">{stateData.count}</span>
+                            <span className="hidden md:inline">{`${stateData.count} destinations`}</span>
                         </Badge>
                         </div>
                         
