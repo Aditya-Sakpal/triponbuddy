@@ -3,17 +3,18 @@
  * Form for creating new posts with optional images and trip sharing
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImagePlus, X, Loader2 } from "lucide-react";
 import { PostImage, SharedTrip } from "@/types/forum";
 import { useCreatePost } from "@/hooks/useForum";
 import { FORUM_CONSTANTS, FORUM_PLACEHOLDERS } from "@/constants/forum";
+import { API_BASE_URL } from "@/constants/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreatePostProps {
   onPostCreated?: () => void;
@@ -23,9 +24,11 @@ interface CreatePostProps {
 
 const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: CreatePostProps) => {
   const { user } = useUser();
+  const { toast } = useToast();
   const [content, setContent] = useState(initialContent || "");
   const [images, setImages] = useState<PostImage[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { createPost, isSubmitting } = useCreatePost(() => {
     setContent("");
@@ -33,15 +36,88 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
     onPostCreated?.();
   });
 
-  const handleAddImage = () => {
-    if (newImageUrl.trim()) {
-      setImages([...images, { url: newImageUrl.trim() }]);
-      setNewImageUrl("");
-    }
-  };
-
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+  };
+
+  /**
+   * Handle file upload to Cloudflare R2
+   */
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    // Validate file count
+    if (files.length + images.length > 10) {
+      toast({
+        title: "Too many images",
+        description: "You can upload a maximum of 10 images per post.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      
+      // Add all files to FormData
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      // Upload to backend
+      const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+
+      // Add successfully uploaded images
+      if (result.uploaded && result.uploaded.length > 0) {
+        const newImages: PostImage[] = result.uploaded.map((item: { url: string; filename: string }) => ({
+          url: item.url,
+          alt: item.filename,
+        }));
+        setImages([...images, ...newImages]);
+
+        toast({
+          title: "Images uploaded",
+          description: `${result.uploaded.length} image(s) uploaded successfully.`,
+        });
+      }
+
+      // Show errors for failed uploads
+      if (result.failed && result.failed.length > 0) {
+        const errorMessages = result.failed.map((item: { filename: string; error: string }) => 
+          `${item.filename}: ${item.error}`
+        ).join('\n');
+        
+        toast({
+          title: "Some uploads failed",
+          description: errorMessages,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload images. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,38 +157,35 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
               maxLength={FORUM_CONSTANTS.POST_CONTENT_MAX_LENGTH}
               className="resize-none"
             />
-            <p className="text-xs text-muted-foreground mt-1 text-right">
-              {content.length}/{FORUM_CONSTANTS.POST_CONTENT_MAX_LENGTH}
-            </p>
-          </div>
-
-          {/* Image Input */}
-          <div className="space-y-2">
-            <Label>Add Images (Optional)</Label>
-            <div className="flex gap-2">
-              <Input
-                type="url"
-                placeholder={FORUM_PLACEHOLDERS.IMAGE_URL}
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddImage();
-                  }
-                }}
-              />
+            <div className="flex items-center justify-between mt-4">
               <Button
                 type="button"
-                variant="outline"
                 size="icon"
-                onClick={handleAddImage}
-                disabled={!newImageUrl.trim()}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading || images.length >= 10}
+                title="Upload images"
               >
-                <ImagePlus className="h-4 w-4" />
+                {isUploading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <ImagePlus className="h-5 w-5" />
+                )}
               </Button>
+              <p className="text-xs text-muted-foreground">
+                {content.length}/{FORUM_CONSTANTS.POST_CONTENT_MAX_LENGTH}
+              </p>
             </div>
           </div>
+
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={(e) => handleFileUpload(e.target.files)}
+          />
 
           {/* Image Previews */}
           {images.length > 0 && (
@@ -121,7 +194,7 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
                 <div key={index} className="relative group">
                   <img
                     src={image.url}
-                    alt={`Preview ${index + 1}`}
+                    alt={image.alt || `Preview ${index + 1}`}
                     className="w-full h-32 object-cover rounded-md"
                   />
                   <Button
@@ -148,16 +221,22 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
           )}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={isSubmitting || !content.trim()}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Posting...
-              </>
-            ) : (
-              "Post to Community"
-            )}
-          </Button>
+          <div className="pt-2">
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting || isUploading || !content.trim()}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Posting...
+                </>
+              ) : (
+                "Post to Community"
+              )}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
@@ -165,3 +244,4 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
 };
 
 export default CreatePost;
+

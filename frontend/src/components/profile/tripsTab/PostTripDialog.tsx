@@ -1,6 +1,6 @@
 /**
- * Share Trip to Community Dialog
- * Allows users to share their trips to the forum
+ * post Trip to Community Dialog
+ * Allows users to post their trips to the forum
  */
 
 import { useState } from "react";
@@ -24,12 +24,12 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-interface ShareTripDialogProps {
+interface PostTripDialogProps {
   trip: TripDB;
   children: React.ReactNode;
 }
 
-export const ShareTripDialog = ({ trip, children }: ShareTripDialogProps) => {
+export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
   const { user } = useUser();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export const ShareTripDialog = ({ trip, children }: ShareTripDialogProps) => {
     if (!user) {
       toast({
         title: "Sign in required",
-        description: "Please sign in to share trips",
+        description: "Please sign in to post trips",
         variant: "destructive",
       });
       return;
@@ -123,7 +123,7 @@ export const ShareTripDialog = ({ trip, children }: ShareTripDialogProps) => {
       console.error("Error sharing trip:", error);
       toast({
         title: "Error",
-        description: "Failed to share trip. Please try again.",
+        description: "Failed to post trip. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -136,9 +136,9 @@ export const ShareTripDialog = ({ trip, children }: ShareTripDialogProps) => {
       <div onClick={() => setOpen(true)}>{children}</div>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Share Trip to Community</DialogTitle>
+          <DialogTitle>Post Trip to Community</DialogTitle>
           <DialogDescription>
-            Share your {trip.destination} trip with the TripOnBuddy community!
+            Post your {trip.destination} trip with the TripOnBuddy community!
           </DialogDescription>
         </DialogHeader>
 
@@ -193,7 +193,7 @@ export const ShareTripDialog = ({ trip, children }: ShareTripDialogProps) => {
             ) : (
               <>
                 <Share2 className="mr-2 h-4 w-4" />
-                Share to Community
+                Post to Community
               </>
             )}
           </Button>
