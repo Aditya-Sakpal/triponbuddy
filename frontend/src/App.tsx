@@ -12,6 +12,7 @@ import Seasonal from "./pages/Seasonal";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import Trip from "./pages/Trip";
+import Forum from "./pages/Forum";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/forum" element={<Forum />} />
                 <Route
                   path="/profile"
                   element={

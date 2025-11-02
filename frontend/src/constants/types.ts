@@ -162,6 +162,7 @@ export interface TripDB {
   travelers?: Traveler[];
   is_international: boolean;
   is_saved: boolean;
+  is_public?: boolean;
   destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
@@ -172,6 +173,7 @@ export interface TripDB {
 export interface TripUpdateRequest {
   title?: string;
   is_saved?: boolean;
+  is_public?: boolean;
   tags?: string[];
 }
 

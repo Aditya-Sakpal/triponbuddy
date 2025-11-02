@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, ExternalLink, Bookmark, BookmarkX, Trash2 } from "lucide-react";
+import { Eye, ExternalLink, Bookmark, BookmarkX, Trash2, Share2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
 import { TripDB } from "@/constants";
 import { useNavigate } from "react-router-dom";
 import { ItineraryModal } from "./ItineraryModal";
 import { DeleteTripDialog } from "../../trip/DeleteTripDialog";
+import { ShareTripDialog } from "./ShareTripDialog";
 
 interface TripCardActionsProps {
   trip: TripDB;
@@ -86,15 +87,27 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
           )}
         </Button>
 
+        <ShareTripDialog trip={trip}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            aria-label={`Share ${trip.title} to community`}
+          >
+            <Share2 className="w-4 h-4 mr-1" />
+            Share
+          </Button>
+        </ShareTripDialog>
+
         <DeleteTripDialog trip={trip}>
           <Button 
             variant="destructive" 
             size="sm" 
-            className="sm:px-3 sm:flex-none"
+            className="col-span-2"
             aria-label={`Delete ${trip.title}`}
           >
-            <Trash2 className="w-4 h-4 sm:mr-0 mr-1" />
-            <span className="sm:hidden">Delete</span>
+            <Trash2 className="w-4 h-4 mr-1" />
+            Delete
           </Button>
         </DeleteTripDialog>
       </div>

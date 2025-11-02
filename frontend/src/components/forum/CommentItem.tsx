@@ -1,0 +1,179 @@
+/**
+ * Comment Item Component
+ * Displays a single comment with nested replies
+ */
+
+import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Heart, Reply, Trash2 } from "lucide-react";
+import { Comment } from "@/types/forum";
+import CommentForm from "./CommentForm";
+import { formatDistanceToNow } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useCommentActions } from "@/hooks/useForum";
+import { getUserInitials, getCommentIndentation } from "@/utils/forumHelpers";
+import { FORUM_CONSTANTS } from "@/constants/forum";
+
+interface CommentItemProps {
+  comment: Comment;
+  postId: string;
+  onDelete?: () => void;
+  onReply?: () => void;
+  depth?: number;
+}
+
+const CommentItem = ({ comment, postId, onDelete, onReply, depth = 0 }: CommentItemProps) => {
+  const { user } = useUser();
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [likesCount, setLikesCount] = useState(comment.likes_count);
+  const [isLiked, setIsLiked] = useState(comment.is_liked_by_user);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const { deleteComment, toggleLike, isDeleting, isLiking } = useCommentActions(
+    comment.comment_id,
+    () => {
+      setShowDeleteDialog(false);
+      onDelete?.();
+    }
+  );
+
+  const handleDelete = async () => {
+    if (!user || user.id !== comment.user_id) return;
+    await deleteComment();
+  };
+
+  const handleLike = async () => {
+    const newIsLiked = await toggleLike();
+    if (newIsLiked !== null) {
+      setIsLiked(newIsLiked);
+      setLikesCount((prev) => (newIsLiked ? prev + 1 : prev - 1));
+    }
+  };
+
+  const handleReplySuccess = () => {
+    setShowReplyForm(false);
+    if (onReply) onReply();
+  };
+
+  const timeAgo = formatDistanceToNow(new Date(comment.created_at), { addSuffix: true });
+  const marginLeft = getCommentIndentation(depth);
+
+  return (
+    <div className={`space-y-2 ${depth > 0 ? `ml-${marginLeft} border-l-2 border-muted pl-4` : ""}`}>
+      <div className="flex items-start gap-3">
+        <Avatar className="h-8 w-8">
+          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+            {getUserInitials(comment.username)}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1 space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm">{comment.username}</span>
+            <span className="text-xs text-muted-foreground">{timeAgo}</span>
+            {user && user.id === comment.user_id && (
+              <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive ml-auto"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Comment</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete this comment? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+
+          <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLike}
+              disabled={isLiking}
+              className="h-7 px-2 gap-1"
+            >
+              <Heart
+                className={`h-3 w-3 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
+              />
+              <span className="text-xs">{likesCount}</span>
+            </Button>
+
+            {depth < FORUM_CONSTANTS.MAX_NESTING_DEPTH && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowReplyForm(!showReplyForm)}
+                className="h-7 px-2 gap-1"
+              >
+                <Reply className="h-3 w-3" />
+                <span className="text-xs">Reply</span>
+              </Button>
+            )}
+          </div>
+
+          {/* Reply Form */}
+          {showReplyForm && (
+            <CommentForm
+              postId={postId}
+              parentCommentId={comment.comment_id}
+              onCommentCreated={handleReplySuccess}
+              onCancel={() => setShowReplyForm(false)}
+            />
+          )}
+
+          {/* Nested Replies */}
+          {comment.replies && comment.replies.length > 0 && (
+            <div className="space-y-2 mt-3">
+              {comment.replies.map((reply) => (
+                <CommentItem
+                  key={reply.comment_id}
+                  comment={reply}
+                  postId={postId}
+                  onDelete={onReply}
+                  onReply={onReply}
+                  depth={depth + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CommentItem;

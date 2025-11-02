@@ -55,6 +55,7 @@ class MongoDB:
             await self.database.trips.create_index("trip_id", unique=True)
             await self.database.trips.create_index([("user_id", 1), ("created_at", -1)])
             await self.database.trips.create_index([("user_id", 1), ("is_saved", 1)])
+            await self.database.trips.create_index([("is_public", 1), ("created_at", -1)])
 
             # Feedback collection indexes
             await self.database.feedback.create_index([("user_id", 1), ("created_at", -1)])
@@ -64,6 +65,21 @@ class MongoDB:
             await self.database.subscriptions.create_index("order_id", unique=True)
             await self.database.subscriptions.create_index([("user_id", 1), ("status", 1)])
             await self.database.subscriptions.create_index([("user_id", 1), ("created_at", -1)])
+
+            # Forum posts collection indexes
+            await self.database.posts.create_index("post_id", unique=True)
+            await self.database.posts.create_index([("user_id", 1), ("created_at", -1)])
+            await self.database.posts.create_index([("created_at", -1)])
+
+            # Forum comments collection indexes
+            await self.database.comments.create_index("comment_id", unique=True)
+            await self.database.comments.create_index([("post_id", 1), ("created_at", 1)])
+            await self.database.comments.create_index([("parent_comment_id", 1)])
+            await self.database.comments.create_index([("user_id", 1), ("created_at", -1)])
+
+            # Forum likes collection indexes
+            await self.database.likes.create_index([("user_id", 1), ("target_id", 1), ("target_type", 1)], unique=True)
+            await self.database.likes.create_index([("target_id", 1), ("target_type", 1)])
 
             logger.info("Database indexes created successfully")
 
@@ -114,8 +130,11 @@ class MongoDB:
 
     async def insert_one(self, collection_name: str, document: Dict[str, Any]) -> str:
         """Insert one document into a collection."""
-        document["created_at"] = datetime.now(timezone.utc)
-        document["updated_at"] = datetime.now(timezone.utc)
+        # Only set timestamps if they don't already exist
+        if "created_at" not in document:
+            document["created_at"] = datetime.now(timezone.utc)
+        if "updated_at" not in document:
+            document["updated_at"] = datetime.now(timezone.utc)
 
         collection = self.get_collection(collection_name)
         result = await collection.insert_one(document)
@@ -128,10 +147,19 @@ class MongoDB:
         update: Dict[str, Any]
     ) -> bool:
         """Update one document in a collection."""
-        update["$set"]["updated_at"] = datetime.now(timezone.utc)
+        # Create a copy to avoid modifying the original
+        update_copy = update.copy()
+        
+        # Add updated_at timestamp to $set operator
+        if "$set" not in update_copy:
+            update_copy["$set"] = {}
+        update_copy["$set"]["updated_at"] = datetime.now(timezone.utc)
 
         collection = self.get_collection(collection_name)
-        result = await collection.update_one(filter, update)
+        result = await collection.update_one(filter, update_copy)
+        
+        logger.info(f"Update {collection_name} with filter {filter}: matched={result.matched_count}, modified={result.modified_count}, update={update_copy}")
+        
         return result.modified_count > 0
 
     async def delete_one(self, collection_name: str, filter: Dict[str, Any]) -> bool:

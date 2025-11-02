@@ -3,6 +3,7 @@ export const navLinks = [
     { to: "/explore", label: "Destinations" },
     { to: "/seasonal", label: "Seasonal" },
     { to: "/pricing", label: "Pricing" },
+    { to: "/forum", label: "Community" },
     { to: "/profile?tab=trips", label: "My Trips" },
     { to: "/contact", label: "Contact" },
   ];
