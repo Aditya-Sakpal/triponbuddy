@@ -41,6 +41,23 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, env="DEBUG")
     log_level: str = Field(default="INFO", env="LOG_LEVEL")
 
+    # Razorpay Configuration
+    razorpay_key_id: str = Field(default="", env="RAZORPAY_KEY_ID")
+    razorpay_key_secret: str = Field(default="", env="RAZORPAY_KEY_SECRET")
+    razorpay_webhook_secret: str = Field(default="", env="RAZORPAY_WEBHOOK_SECRET")
+    razorpay_app_name: str = Field(default="TripOnBuddy Backend", env="RAZORPAY_APP_NAME")
+    razorpay_app_version: str = Field(default="1.0.0", env="RAZORPAY_APP_VERSION")
+
+    # Cloudflare R2 Configuration
+    r2_access_key_id: str = Field(..., env="R2_ACCESS_KEY_ID")
+    r2_secret_access_key: str = Field(..., env="R2_SECRET_ACCESS_KEY")
+    r2_account_id: str = Field(..., env="R2_ACCOUNT_ID")
+    r2_bucket: str = Field(..., env="R2_BUCKET")
+    r2_public_url: str = Field(..., env="R2_PUBLIC_URL")  # e.g., https://pub-xxxx.r2.dev
+    
+    # Upload Configuration
+    max_upload_size_mb: int = Field(default=10, env="MAX_UPLOAD_SIZE_MB")  # Max file size in MB
+
     class Config:
         env_file = ".env"
         case_sensitive = False

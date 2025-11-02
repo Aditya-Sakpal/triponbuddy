@@ -10,7 +10,6 @@ interface TripCardProps {
 }
 
 export const TripCard = ({ trip }: TripCardProps) => {
-  console.log('TripCard - destination_image:', trip.destination_image);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
   
@@ -28,9 +27,6 @@ export const TripCard = ({ trip }: TripCardProps) => {
                 onError={(e) => {
                   console.error('Image failed to load:', trip.destination_image);
                   e.currentTarget.style.display = 'none';
-                }}
-                onLoad={() => {
-                  console.log('Image loaded successfully:', trip.destination_image);
                 }}
               />
             </div>

@@ -8,6 +8,18 @@ from pydantic import BaseModel, Field, model_validator
 from uuid import uuid4
 
 
+class Traveler(BaseModel):
+    """Traveler model with age and gender"""
+    age: int = Field(ge=1, le=120, description="Age of traveler")
+    gender: str = Field(description="Gender of traveler (male, female, other)")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+
+
 class Activity(BaseModel):
     """Activity model for daily plans"""
     time: str = Field(description="Time in HH:MM AM/PM format")
@@ -137,6 +149,7 @@ class TripGenerationRequest(BaseModel):
     start_date: date = Field(description="Trip start date")
     duration_days: int = Field(ge=1, le=30, description="Trip duration")
     budget: Optional[float] = Field(default=None, ge=0, description="Budget in INR")
+    travelers: Optional[List[Traveler]] = Field(default=None, description="List of travelers with age and gender")
     preferences: Optional[TripPreferences] = Field(default=None, description="User preferences")
     is_international: bool = Field(default=False, description="International trip flag")
 
@@ -167,8 +180,10 @@ class TripDB(BaseModel):
     end_date: Optional[str] = Field(default=None, description="End date as ISO string")
     duration_days: int = Field(description="Duration in days")
     budget: Optional[float] = Field(default=None, description="Budget in INR")
+    travelers: Optional[List[Traveler]] = Field(default=None, description="List of travelers with age and gender")
     is_international: bool = Field(default=False, description="International flag")
     is_saved: bool = Field(default=False, description="Saved status")
+    is_public: bool = Field(default=False, description="Public visibility for sharing in community")
     destination_image: Optional[str] = Field(default=None, description="Destination image URL")
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
@@ -186,6 +201,7 @@ class TripUpdateRequest(BaseModel):
     """Request model for updating trip"""
     title: Optional[str] = None
     is_saved: Optional[bool] = None
+    is_public: Optional[bool] = None
     tags: Optional[List[str]] = None
 
 

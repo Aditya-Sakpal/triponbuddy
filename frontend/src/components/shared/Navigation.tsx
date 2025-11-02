@@ -16,7 +16,7 @@ export const Navigation = () => {
 
   return (
     <nav className="fixed -top-4 left-0 right-0 z-[70] bg-white shadow-md h-20">
-      <div className="container mx-auto px-6 md:px-24 bg-white md:bg-transparent">
+      <div className="container mx-auto px-6 bg-white md:bg-transparent">
         <div className="flex items-center justify-center my-2 md:my-0">
           {/* Left side: Logo */}
           <div className="flex items-center">

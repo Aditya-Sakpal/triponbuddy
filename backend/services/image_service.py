@@ -3,7 +3,7 @@ Image scraping service for destination images
 """
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import aiohttp
 from config import settings
 from utils.cache import cache_result
@@ -184,10 +184,6 @@ class ImageService:
             logger.error(f"Error fetching images: {str(e)}")
             return []
 
-    def clear_cache(self):
-        """Clear the image cache"""
-        # This would need to be implemented based on cache implementation
-        pass
 
 
 # Global image service instance

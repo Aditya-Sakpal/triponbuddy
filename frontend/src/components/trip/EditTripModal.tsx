@@ -9,7 +9,9 @@ import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingB
 import { useState, useEffect, useMemo } from "react";
 import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
-import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
+import { TravelerInput } from "@/components/landing/tripPlanning/TravelerInput";
+import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
+import type { TripDB, TripPreferences, Itinerary, ImageData, Traveler } from "@/constants";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -26,6 +28,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
+  const [travelers, setTravelers] = useState<Traveler[]>([]);
+  const [budget, setBudget] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -50,6 +54,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       setStartDate(trip.start_date || "");
       setDurationDays(trip.duration_days || 3);
       setIsInternational(trip.is_international || false);
+      setBudget(trip.budget);
+      setTravelers(trip.travelers || []);
       
       // Extract preferences from trip data
       const itinerary = trip.itinerary_data as unknown as Itinerary;
@@ -108,15 +114,9 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   };
 
   const handleUpdateTrip = () => {
-    console.log('Update trip clicked', { 
-      trip: trip.trip_id,
-      destination, 
-      startDate, 
-      durationDays 
-    });
+
 
     if (!destination || !startDate || !durationDays) {
-      console.log('Missing required fields');
       alert('Please fill in all required fields');
       return;
     }
@@ -131,16 +131,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       food: selectedPreferences.includes('Food'),
     };
 
-    console.log('Regenerating trip with:', {
-      user_id: trip.user_id,
-      destination,
-      start_location: startLocation || undefined,
-      start_date: startDate,
-      duration_days: durationDays,
-      preferences: userPreferences,
-      is_international: isInternational,
-    });
-
     // Create a new AbortController for this request
     const controller = new AbortController();
     setAbortController(controller);
@@ -152,6 +142,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         start_location: startLocation || undefined,
         start_date: startDate,
         duration_days: durationDays,
+        budget: budget,
+        travelers: travelers.length > 0 ? travelers : undefined,
         preferences: userPreferences,
         is_international: isInternational,
       },
@@ -192,12 +184,17 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     }
     if (originalPrefs.length === 0) originalPrefs.push('Relaxation');
 
+    const travelersChanged = JSON.stringify(travelers) !== JSON.stringify(trip.travelers || []);
+    const budgetChanged = budget !== trip.budget;
+
     return (
       destination !== (trip.destination || "") ||
       startLocation !== (trip.start_location || "") ||
       startDate !== (trip.start_date || "") ||
       durationDays !== (trip.duration_days || 3) ||
       isInternational !== (trip.is_international || false) ||
+      travelersChanged ||
+      budgetChanged ||
       JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
     );
   };
@@ -228,7 +225,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <Label htmlFor="edit-start-location" className="text-sm font-medium">
-                    Start Location <span className="text-muted-foreground">ⓘ</span>
+                    Start Location 
                   </Label>
                   <LocationAutocomplete
                     id="edit-start-location"
@@ -302,10 +299,22 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                 </div>
               </div>
 
+              {/* Travelers Section */}
+              <TravelerInput
+                travelers={travelers}
+                setTravelers={setTravelers}
+              />
+
+              {/* Budget Section */}
+              <BudgetInput
+                budget={budget}
+                setBudget={setBudget}
+              />
+
               {/* Travel Preferences */}
               <div>
                 <Label className="text-sm font-medium mb-4 block">
-                  Travel Preferences <span className="text-muted-foreground">ⓘ</span>
+                  Travel Preferences 
                 </Label>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   {preferenceOptions.map((pref, index) => {

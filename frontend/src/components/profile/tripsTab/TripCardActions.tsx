@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, ExternalLink, Bookmark, BookmarkX, Trash2 } from "lucide-react";
+import { Eye, ExternalLink, Bookmark, BookmarkX, Trash2, Share2, BookOpen } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
 import { TripDB } from "@/constants";
 import { useNavigate } from "react-router-dom";
 import { ItineraryModal } from "./ItineraryModal";
 import { DeleteTripDialog } from "../../trip/DeleteTripDialog";
+import { PostTripDialog } from "./PostTripDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface TripCardActionsProps {
   trip: TripDB;
@@ -15,6 +17,7 @@ interface TripCardActionsProps {
 export const TripCardActions = ({ trip }: TripCardActionsProps) => {
   const { user } = useUser();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const saveTrip = useSaveTrip();
   const unsaveTrip = useUnsaveTrip();
@@ -37,6 +40,7 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
     navigate(`/trip/${trip.trip_id}`);
   };
 
+
   return (
     <>
       <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t">
@@ -57,7 +61,7 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
           className="flex-1"
           aria-label={`View full itinerary for ${trip.title}`}
         >
-          <ExternalLink className="w-4 h-4 mr-1" />
+          <BookOpen className="w-4 h-4 mr-1" />
           Full View
         </Button>
 
@@ -86,15 +90,26 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
           )}
         </Button>
 
+        <PostTripDialog trip={trip}>
+          <Button
+            size="sm"
+            className="flex-1 w-full"
+            aria-label={`Post ${trip.title} to community`}
+          >
+            <ExternalLink className="w-4 h-4 mr-1" />
+            Post
+          </Button>
+        </PostTripDialog>
+
         <DeleteTripDialog trip={trip}>
           <Button 
             variant="destructive" 
             size="sm" 
-            className="sm:px-3 sm:flex-none"
+            className="flex-1 col-span-2"
             aria-label={`Delete ${trip.title}`}
           >
-            <Trash2 className="w-4 h-4 sm:mr-0 mr-1" />
-            <span className="sm:hidden">Delete</span>
+            <Trash2 className="w-4 h-4 mr-1" />
+            Delete
           </Button>
         </DeleteTripDialog>
       </div>

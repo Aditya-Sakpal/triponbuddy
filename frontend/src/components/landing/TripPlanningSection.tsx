@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import { LocationInputs, DateDurationInputs, TravelPreferences, ActionButtons } from "./tripPlanning";
+import { LocationInputs, DateDurationInputs, TravelPreferences, TravelerInput, BudgetInput, ActionButtons } from "./tripPlanning";
 import { useTripPlanning } from "./tripPlanning/useTripPlanning";
 
 export const TripPlanningSection = () => {
@@ -16,6 +16,8 @@ export const TripPlanningSection = () => {
     isGenerating,
     isSignedIn,
     isLoaded,
+    travelers,
+    budget,
     
     // Setters
     setDestination,
@@ -23,6 +25,8 @@ export const TripPlanningSection = () => {
     setStartDate,
     setDurationDays,
     setIsInternational,
+    setTravelers,
+    setBudget,
     
     // Actions
     handleDemo,
@@ -69,6 +73,16 @@ export const TripPlanningSection = () => {
                 setStartDate={setStartDate}
                 durationDays={durationDays}
                 setDurationDays={setDurationDays}
+              />
+
+              <TravelerInput
+                travelers={travelers}
+                setTravelers={setTravelers}
+              />
+
+              <BudgetInput
+                budget={budget}
+                setBudget={setBudget}
               />
 
               <TravelPreferences

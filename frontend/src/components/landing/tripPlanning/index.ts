@@ -2,5 +2,7 @@ export { LocationInputs } from "./LocationInputs";
 export { ActionButtons } from "./ActionButtons";
 export { DateDurationInputs } from "./DateDurationInputs";    
 export { TravelPreferences } from "./TravelPreferences";
+export { TravelerInput } from "./TravelerInput";
+export { BudgetInput } from "./BudgetInput";
 export { useTripPlanning } from "./useTripPlanning";
 export * from "./tripPlanningHelpers";

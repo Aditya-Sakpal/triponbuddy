@@ -18,7 +18,6 @@ class ApiClient {
     this.client.interceptors.request.use(
       (config) => {
         // Add user_id as query parameter if available
-        // This would typically come from your auth context
         const userId = this.getCurrentUserId();
         if (userId && config.method === 'get') {
           config.params = { ...config.params, user_id: userId };
@@ -31,16 +30,16 @@ class ApiClient {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        console.log('🔍 API Response Raw:', response.data);
+        // console.log('🔍 API Response Raw:', response.data);
         
         // Check if response has the ApiResponse wrapper format
         if (response.data && typeof response.data === 'object' && 'success' in response.data) {
-          console.log('📦 API Response has wrapper format');
+          // console.log('📦 API Response has wrapper format');
           if (response.data.success) {
             // For trip generation, return the whole response since it contains trip_id at root level
             // For other endpoints, return the data field if it exists, otherwise return the whole response
             const result = response.data.data || response.data;
-            console.log('✅ API Success, returning:', result);
+            // console.log('✅ API Success, returning:', result);
             // Update the response data and return the response object
             response.data = result;
             return response;
@@ -51,12 +50,12 @@ class ApiClient {
               message: 'API request failed',
               details: response.data
             };
-            console.log('❌ API Error:', error);
+            // console.log('❌ API Error:', error);
             throw new Error(error.message || 'API request failed');
           }
         }
         // If no wrapper, return response directly (for endpoints that don't use wrapper)
-        console.log('🔄 API Response no wrapper, returning response directly');
+        // console.log('🔄 API Response no wrapper, returning response directly');
         return response;
       },
       (error) => {

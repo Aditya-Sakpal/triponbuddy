@@ -2,7 +2,7 @@
 Feedback-related Pydantic models
 """
 
-from typing import Optional, List, Dict
+from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, EmailStr
 from enum import Enum
