@@ -33,6 +33,7 @@ class TripDataBuilder:
             "start_date": TripDataBuilder._format_date(request_data.get("start_date")),
             "duration_days": request_data.get("duration_days"),
             "budget": request_data.get("budget"),
+            "travelers": request_data.get("travelers"),
             "is_international": request_data.get("is_international"),
             "is_saved": False,
             "destination_image": destination_image,

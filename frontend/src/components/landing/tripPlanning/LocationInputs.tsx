@@ -25,7 +25,7 @@ export const LocationInputs = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
             <Label htmlFor="start-location" className="text-sm font-medium">
-              Start Location <span className="text-muted-foreground">ⓘ</span>
+              Start Location 
             </Label>
             <div className="flex items-center space-x-2">
               <Switch 

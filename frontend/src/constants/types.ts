@@ -124,6 +124,11 @@ export interface TripPreferences {
   food?: boolean;
 }
 
+export interface Traveler {
+  age: number;
+  gender: string; // 'male', 'female', 'other'
+}
+
 export interface TripGenerationRequest {
   user_id: string;
   destination: string;
@@ -131,6 +136,7 @@ export interface TripGenerationRequest {
   start_date: string; // ISO date string
   duration_days: number;
   budget?: number;
+  travelers?: Traveler[];
   preferences?: TripPreferences;
   is_international?: boolean;
 }
@@ -153,6 +159,7 @@ export interface TripDB {
   end_date?: string;
   duration_days: number;
   budget?: number;
+  travelers?: Traveler[];
   is_international: boolean;
   is_saved: boolean;
   destination_image?: string;

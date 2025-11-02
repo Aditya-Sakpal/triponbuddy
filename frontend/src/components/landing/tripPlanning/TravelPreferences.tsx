@@ -22,7 +22,7 @@ export const TravelPreferences = ({
   return (
     <div className="mb-8">
       <Label className="text-sm font-medium mb-4 block">
-        Travel Preferences <span className="text-muted-foreground">ⓘ</span>
+        Travel Preferences 
       </Label>
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {preferenceOptions.map((pref, index) => {

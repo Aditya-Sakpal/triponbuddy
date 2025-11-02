@@ -14,8 +14,17 @@ class AIPromptBuilder:
         """Build the AI prompt for itinerary generation"""
 
         preferences_text = AIPromptBuilder._build_preferences_text(request.preferences)
-        budget_text = f" with budget around ₹{request.budget}" if request.budget else ""
-
+        budget_text = f" with budget around ₹{request.budget:,.0f}" if request.budget else ""
+        
+        # Build travelers information
+        travelers_text = ""
+        if request.travelers and len(request.travelers) > 0:
+            travelers_count = len(request.travelers)
+            travelers_details = []
+            for traveler in request.travelers:
+                travelers_details.append(f"{traveler.age}-year-old {traveler.gender}")
+            travelers_text = f"\n        - Number of Travelers: {travelers_count} ({', '.join(travelers_details)})"
+        
         prompt = f"""
         Generate a comprehensive {request.duration_days}-day travel itinerary for {request.destination} starting from {request.start_date}.
 
@@ -26,7 +35,7 @@ class AIPromptBuilder:
         - Starting Location: {request.start_location or 'Not specified'}
         - International Trip: {request.is_international}
         - Preferences: {preferences_text}
-        - Budget: {budget_text}
+        - Budget: {budget_text}{travelers_text}
 
         Please provide a detailed JSON response with the following structure:
         {{
@@ -199,12 +208,14 @@ class AIPromptBuilder:
         5. Include travel tips and best time to visit
         6. Suggest neighboring places within 50-150km
         7. Ensure activities align with user preferences{budget_text}
-        8. Provide exactly 3 transportation routes: one flight, one train, and one local transport option
-        9. Include transportation hubs for both starting location and destination
-        10. Provide comprehensive local transportation options for the destination
-        11. Include realistic costs and practical details for all transportation options
-        12. For each activity, provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs with rich information about history, significance, visitor experience, tips, and interesting facts)
-        13. For each activity, assign an appropriate tag based on the activity type:
+        8. Consider the number and demographics of travelers when suggesting activities, accommodation, and transportation
+        9. If budget is specified, ensure all recommendations fit within the budget constraints
+        10. Provide exactly 3 transportation routes: one flight, one train, and one local transport option
+        11. Include transportation hubs for both starting location and destination
+        12. Provide comprehensive local transportation options for the destination
+        13. Include realistic costs and practical details for all transportation options
+        14. For each activity, provide both a brief description (1-2 sentences) and a detailed_description (3-4 paragraphs with rich information about history, significance, visitor experience, tips, and interesting facts)
+        15. For each activity, assign an appropriate tag based on the activity type:
             - "arrival_departure" for airports, railway stations, check-in/check-out activities
             - "dining" for restaurants, cafes, food courts, breakfast/lunch/dinner activities
             - "sightseeing" for tourist attractions, monuments, viewpoints, landmarks
@@ -213,8 +224,8 @@ class AIPromptBuilder:
             - "relaxation" for spas, beaches, parks, leisure activities
             - "adventure" for trekking, water sports, adventure activities
             - "cultural" for museums, galleries, cultural centers, heritage sites
-        14. For each activity, provide 3-5 alternative activities that could replace it in the same time slot, keeping similar duration and theme. These should be simple activity names as strings.
-        15. IMPORTANT: Provide AT LEAST 10-15 accommodation options across different price ranges and categories:
+        16. For each activity, provide 3-5 alternative activities that could replace it in the same time slot, keeping similar duration and theme. These should be simple activity names as strings.
+        17. IMPORTANT: Provide AT LEAST 10-15 accommodation options across different price ranges and categories:
             - Budget (₹500-1500/night): 3-4 options
             - Mid-Range (₹1500-3500/night): 3-4 options
             - Premium (₹3500-7000/night): 2-3 options
