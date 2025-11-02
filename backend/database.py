@@ -60,6 +60,11 @@ class MongoDB:
             await self.database.feedback.create_index([("user_id", 1), ("created_at", -1)])
             await self.database.feedback.create_index("feedback_type")
 
+            # Subscription collection indexes for paywall
+            await self.database.subscriptions.create_index("order_id", unique=True)
+            await self.database.subscriptions.create_index([("user_id", 1), ("status", 1)])
+            await self.database.subscriptions.create_index([("user_id", 1), ("created_at", -1)])
+
             logger.info("Database indexes created successfully")
 
         except Exception as e:

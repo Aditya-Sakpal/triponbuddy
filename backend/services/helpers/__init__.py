@@ -30,6 +30,16 @@ from services.helpers.unsplash_helper import (
     UnsplashImageVerifier,
     UnsplashRequestBuilder
 )
+from services.helpers.payment_helper import (
+    PRICING_PLANS,
+    BadRequestError,
+    SignatureVerificationError,
+    ensure_razorpay_prerequisites,
+    get_razorpay_client,
+    call_in_thread,
+    plan_copy,
+    razorpay
+)
 
 __all__ = [
     # AI helpers
@@ -59,4 +69,14 @@ __all__ = [
     'UnsplashAttributionBuilder',
     'UnsplashImageVerifier',
     'UnsplashRequestBuilder',
+
+    # Payments helpers
+    'PRICING_PLANS',
+    'BadRequestError',
+    'SignatureVerificationError',
+    'ensure_razorpay_prerequisites',
+    'get_razorpay_client',
+    'call_in_thread',
+    'plan_copy',
+    'razorpay',
 ]

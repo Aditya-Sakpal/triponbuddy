@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Trip from "./pages/Trip";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/seasonal" element={<Seasonal />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route
                   path="/profile"
                   element={
