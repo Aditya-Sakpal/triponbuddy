@@ -1,6 +1,3 @@
-"""
-Image scraping service for destination images
-"""
 import asyncio
 import logging
 from typing import List, Dict, Any
@@ -22,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 class ImageService:
-    """Service for scraping and managing destination images"""
 
     def __init__(self):
         self.headers = {
@@ -40,10 +36,7 @@ class ImageService:
 
     @cache_result(ttl=3600)  # Cache for 1 hour
     async def fetch_bulk_images(self, locations: List[str], max_images: int = 5) -> Dict[str, List[str]]:
-        """
-        Fetch images for multiple locations concurrently.
-        Uses Unsplash as primary source, falls back to Bing scraping.
-        """
+
 
         if len(locations) > 20:
             raise ValueError("Maximum 20 locations allowed per request")
@@ -121,10 +114,7 @@ class ImageService:
             )
 
     async def _fetch_location_images(self, location: str, max_images: int) -> List[str]:
-        """
-        Fetch images for a single location.
-        Priority: Unsplash API (primary) -> Bing scraping (fallback)
-        """
+
         images = []
 
         # Try Unsplash first (primary method)

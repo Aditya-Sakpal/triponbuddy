@@ -1,7 +1,3 @@
-"""
-Route generation service for creating transportation route plans
-"""
-
 import logging
 from typing import Dict, Any
 from google import genai
@@ -11,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class RouteService:
-    """Service for generating transportation route plans using AI"""
 
     def __init__(self):
         self.client = genai.Client(api_key=settings.google_gemini_api_key)
@@ -59,7 +54,6 @@ class RouteService:
         to_locations: list,
         destination_city: str
     ) -> str:
-        """Build the AI prompt for route generation"""
         
         # Build the destinations string
         if len(to_locations) == 1:

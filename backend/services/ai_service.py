@@ -1,7 +1,3 @@
-"""
-AI service for Google Gemini integration
-"""
-
 import logging
 from typing import Dict, Any
 from google import genai
@@ -19,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class AIService:
-    """Service for AI-powered trip generation using Google Gemini"""
 
     def __init__(self):
         self.client = genai.Client(api_key=settings.google_gemini_api_key)
@@ -30,7 +25,6 @@ class AIService:
 
     @cache_result(ttl=3600)  # Cache for 1 hour
     async def generate_itinerary(self, request: TripGenerationRequest) -> Dict[str, Any]:
-        """Generate a comprehensive travel itinerary using AI"""
 
         prompt = self.prompt_builder.build_itinerary_prompt(request)
 
@@ -65,7 +59,6 @@ class AIService:
         duration: str,
         preferences: Dict[str, Any] = None
     ) -> Dict[str, Any]:
-        """Generate a single replacement activity with full details"""
 
         prompt = self.prompt_builder.build_single_activity_prompt(
             destination, activity_name, time_slot, duration, preferences
@@ -96,7 +89,6 @@ class AIService:
         preferences: Dict[str, Any] = None,
         num_alternatives: int = 3
     ) -> Dict[str, Any]:
-        """Generate multiple alternative activities with full details"""
 
         prompt = self.prompt_builder.build_alternative_activities_prompt(
             destination, original_activity, time_slot, duration, preferences, num_alternatives

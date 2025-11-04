@@ -23,8 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-pnpm-lock.yaml
-
 __pycache__/
 *.py[oc]
 build/

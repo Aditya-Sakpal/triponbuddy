@@ -3,22 +3,28 @@
  * Social feed for travel posts with infinite scroll
  */
 
-import { useState } from "react";
-import { CreatePost, PostCard, CommentThread, ForumHeroSection } from "@/components/forum";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { CreatePost, PostCard, ForumHeroSection } from "@/components/forum";
 import { Button } from "@/components/ui/button";
 import { Loader2, MessageSquare } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { usePosts } from "@/hooks/useForum";
 import { FORUM_MESSAGES } from "@/constants/forum";
 
 const Forum = () => {
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedPostId = searchParams.get("post");
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, refresh, refreshPost } = usePosts();
+
+  // Scroll to post if URL has post parameter
+  useEffect(() => {
+    if (selectedPostId && posts.length > 0) {
+      const postElement = document.getElementById(`post-${selectedPostId}`);
+      if (postElement) {
+        postElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [selectedPostId, posts]);
 
   const handlePostCreated = () => {
     refresh();
@@ -26,10 +32,6 @@ const Forum = () => {
 
   const handlePostDeleted = () => {
     refresh();
-  };
-
-  const handleCommentClick = (postId: string) => {
-    setSelectedPostId(postId);
   };
 
   const handleCommentAdded = (postId: string) => {
@@ -66,13 +68,14 @@ const Forum = () => {
           )}
 
           {posts.map((post) => (
-            <PostCard
-              key={post.post_id}
-              post={post}
-              onDelete={handlePostDeleted}
-              onCommentClick={handleCommentClick}
-              onCommentAdded={handleCommentAdded}
-            />
+            <div key={post.post_id} id={`post-${post.post_id}`}>
+              <PostCard
+                post={post}
+                onDelete={handlePostDeleted}
+                onCommentAdded={handleCommentAdded}
+                initialShowComments={selectedPostId === post.post_id}
+              />
+            </div>
           ))}
 
           {/* Load More Button */}
@@ -98,21 +101,6 @@ const Forum = () => {
           </div>
         </div>
       </div>
-
-      {/* Comments Dialog */}
-      <Dialog open={!!selectedPostId} onOpenChange={() => setSelectedPostId(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Comments</DialogTitle>
-          </DialogHeader>
-          {selectedPostId && (
-            <CommentThread
-              postId={selectedPostId}
-              onCommentAdded={() => handleCommentAdded(selectedPostId)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

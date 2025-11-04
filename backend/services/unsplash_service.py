@@ -1,7 +1,3 @@
-"""
-Unsplash API service for high-quality destination images
-"""
-
 import asyncio
 import logging
 from typing import List, Optional
@@ -18,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class UnsplashService:
-    """Service for fetching images from Unsplash API"""
 
     def __init__(self):
         self.api_url = settings.unsplash_api_url
@@ -32,7 +27,6 @@ class UnsplashService:
         self.request_builder = UnsplashRequestBuilder()
 
     def is_enabled(self) -> bool:
-        """Check if Unsplash service is configured and enabled"""
         return bool(self.access_key and self.access_key.strip())
 
     async def search(

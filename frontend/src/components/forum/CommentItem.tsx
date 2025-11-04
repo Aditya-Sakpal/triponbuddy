@@ -1,30 +1,13 @@
-/**
- * Comment Item Component
- * Displays a single comment with nested replies
- */
-
 import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, Reply, Trash2 } from "lucide-react";
+import { Reply } from "lucide-react";
 import { Comment } from "@/types/forum";
 import CommentForm from "./CommentForm";
-import { formatDistanceToNow } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useCommentActions } from "@/hooks/useForum";
-import { getUserInitials, getCommentIndentation } from "@/utils/forumHelpers";
-import { FORUM_CONSTANTS } from "@/constants/forum";
+import { getRelativeTime, canReply, getCommentIndentation } from "./helpers";
+import {UserAvatar, DeleteConfirmationDialog, LikeButton} from "./ui";
+
 
 interface CommentItemProps {
   comment: Comment;
@@ -67,72 +50,46 @@ const CommentItem = ({ comment, postId, onDelete, onReply, depth = 0 }: CommentI
     if (onReply) onReply();
   };
 
-  const timeAgo = formatDistanceToNow(new Date(comment.created_at), { addSuffix: true });
+  const timeAgo = getRelativeTime(comment.created_at);
   const marginLeft = getCommentIndentation(depth);
+  const isOwner = user && user.id === comment.user_id;
+  const canAddReply = canReply(depth);
 
   return (
     <div className={`space-y-2 ${depth > 0 ? `ml-${marginLeft} border-l-2 border-muted pl-4` : ""}`}>
       <div className="flex items-start gap-3">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-            {getUserInitials(comment.username)}
-          </AvatarFallback>
-        </Avatar>
+        <UserAvatar username={comment.username} size="sm" />
 
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-sm">{comment.username}</span>
             <span className="text-xs text-muted-foreground">{timeAgo}</span>
-            {user && user.id === comment.user_id && (
-              <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-destructive hover:text-destructive ml-auto"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Comment</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this comment? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      {isDeleting ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            {isOwner && (
+              <DeleteConfirmationDialog
+                title="Delete Comment"
+                description="Are you sure you want to delete this comment? This action cannot be undone."
+                onConfirm={handleDelete}
+                isDeleting={isDeleting}
+                open={showDeleteDialog}
+                onOpenChange={setShowDeleteDialog}
+                triggerSize="sm"
+                triggerClassName="h-6 w-6 text-destructive hover:text-destructive ml-auto"
+              />
             )}
           </div>
 
           <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
+            <LikeButton
+              isLiked={isLiked}
+              likesCount={likesCount}
+              onLike={handleLike}
               disabled={isLiking}
-              className="h-7 px-2 gap-1"
-            >
-              <Heart
-                className={`h-3 w-3 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
-              />
-              <span className="text-xs">{likesCount}</span>
-            </Button>
+              size="sm"
+            />
 
-            {depth < FORUM_CONSTANTS.MAX_NESTING_DEPTH && (
+            {canAddReply && (
               <Button
                 variant="ghost"
                 size="sm"
