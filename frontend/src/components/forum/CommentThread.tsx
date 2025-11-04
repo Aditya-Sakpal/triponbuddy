@@ -3,7 +3,6 @@
  * Displays all comments for a post with nested replies
  */
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
@@ -26,48 +25,45 @@ const CommentThread = ({ postId, onCommentAdded }: CommentThreadProps) => {
   };
 
   return (
-    <Card>
+    <div className="space-y-6">
+      {/* Comment Form */}
+      <CommentForm postId={postId} onCommentCreated={handleCommentCreated} />
 
-      <CardContent className="space-y-6">
-        {/* Comment Form */}
-        <CommentForm postId={postId} onCommentCreated={handleCommentCreated} />
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      )}
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        )}
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-8 text-destructive">
+          {error}
+        </div>
+      )}
 
-        {/* Error State */}
-        {error && (
-          <div className="text-center py-8 text-destructive">
-            {error}
-          </div>
-        )}
+      {/* Comments List */}
+      {!isLoading && !error && comments.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          {FORUM_MESSAGES.EMPTY_STATE.NO_COMMENTS}
+        </div>
+      )}
 
-        {/* Comments List */}
-        {!isLoading && !error && comments.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            {FORUM_MESSAGES.EMPTY_STATE.NO_COMMENTS}
-          </div>
-        )}
-
-        {!isLoading && !error && comments.length > 0 && (
-          <div className="space-y-4">
-            {comments.map((comment) => (
-              <CommentItem
-                key={comment.comment_id}
-                comment={comment}
-                postId={postId}
-                onDelete={refresh}
-                onReply={refresh}
-              />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {!isLoading && !error && comments.length > 0 && (
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <CommentItem
+              key={comment.comment_id}
+              comment={comment}
+              postId={postId}
+              onDelete={refresh}
+              onReply={refresh}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

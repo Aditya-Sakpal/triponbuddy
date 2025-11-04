@@ -1,7 +1,3 @@
-"""
-Trip management service
-"""
-
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
@@ -11,7 +7,6 @@ from models.trip import TripGenerationRequest, TripUpdateRequest
 from services.ai_service import ai_service
 from services.image_service import image_service
 from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
-from utils.validators import validate_trip_title
 from services.helpers.trip_data_helper import (
     TripDataBuilder,
     TripItineraryHelper,
@@ -22,8 +17,13 @@ from services.helpers.trip_data_helper import (
 logger = logging.getLogger(__name__)
 
 
+def validate_trip_title(title: str) -> bool:
+    if not title or len(title.strip()) == 0:
+        return False
+    return len(title) <= 200
+
+
 class TripService:
-    """Service for managing trips"""
 
     def __init__(self):
         self.data_builder = TripDataBuilder()
@@ -32,7 +32,6 @@ class TripService:
         self.response_builder = TripResponseBuilder()
 
     async def generate_trip(self, request: TripGenerationRequest) -> Dict[str, Any]:
-        """Generate a new trip using AI"""
 
         try:
             # Generate itinerary using AI
@@ -86,7 +85,6 @@ class TripService:
         page: int = 1,
         limit: int = 20
     ) -> Dict[str, Any]:
-        """Get user's trips with pagination"""
 
         try:
             logger.info(f"Getting trips for user: {user_id}")
@@ -128,7 +126,6 @@ class TripService:
             raise
 
     async def get_trip(self, trip_id: str, user_id: str) -> Optional[Dict[str, Any]]:
-        """Get a specific trip"""
 
         try:
             trip_doc = await mongodb.find_one(
@@ -167,7 +164,6 @@ class TripService:
         user_id: str,
         updates: TripUpdateRequest
     ) -> bool:
-        """Update a trip"""
 
         try:
             # Validate updates
@@ -218,7 +214,6 @@ class TripService:
             raise
 
     async def save_trip(self, trip_id: str, user_id: str) -> bool:
-        """Mark trip as saved"""
 
         try:
             success = await mongodb.update_one(
@@ -237,7 +232,6 @@ class TripService:
             raise
 
     async def unsave_trip(self, trip_id: str, user_id: str) -> bool:
-        """Remove trip from saved"""
 
         try:
             success = await mongodb.update_one(
@@ -256,7 +250,6 @@ class TripService:
             raise
 
     async def _update_user_trip_count(self, user_id: str):
-        """Update user's trip count"""
 
         try:
             # Count total trips
@@ -292,11 +285,6 @@ class TripService:
         activity_index: int,
         new_activity_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """
-        Replace an activity in a trip with pre-generated activity data.
-        The activity data should come from the alternatives already generated.
-        No AI call is made here - just a simple data replacement.
-        """
 
         try:
             # Get the trip
@@ -357,7 +345,6 @@ class TripService:
         day: int,
         activity_index: int
     ) -> Dict[str, Any]:
-        """Remove an activity from a trip"""
 
         try:
             # Get the trip
@@ -421,7 +408,6 @@ class TripService:
         day: int,
         activity_index: int
     ) -> Dict[str, Any]:
-        """Generate alternative activities for a specific activity"""
 
         try:
             # Get the trip

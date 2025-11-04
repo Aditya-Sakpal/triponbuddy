@@ -1,30 +1,14 @@
-/**
- * Post Card Component
- * Displays a single post with likes, comments, and actions
- */
-
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Trash2 } from "lucide-react";
 import { Post } from "@/types/forum";
 import ForumTripCard from "./ForumTripCard";
-import { formatDistanceToNow } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import CommentThread from "./CommentThread";
 import { usePostActions } from "@/hooks/useForum";
-import { getUserInitials } from "@/utils/forumHelpers";
+import { useToast } from "@/hooks/use-toast";
+import { getRelativeTime, sharePost } from "./helpers";
+import {UserAvatar, DeleteConfirmationDialog, ImageGrid, ActionStats } from "./ui";
+
 
 interface PostCardProps {
   post: Post;
@@ -32,14 +16,24 @@ interface PostCardProps {
   onLike?: (postId: string, isLiked: boolean) => void;
   onCommentClick?: (postId: string) => void;
   onCommentAdded?: (postId: string) => void;
+  initialShowComments?: boolean;
 }
 
-const PostCard = ({ post, onDelete, onLike, onCommentClick }: PostCardProps) => {
+const PostCard = ({ 
+  post, 
+  onDelete, 
+  onLike, 
+  onCommentClick, 
+  onCommentAdded,
+  initialShowComments = false 
+}: PostCardProps) => {
   const { user } = useUser();
+  const { toast } = useToast();
   const [likesCount, setLikesCount] = useState(post.likes_count);
   const [isLiked, setIsLiked] = useState(post.is_liked_by_user);
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showComments, setShowComments] = useState(initialShowComments);
 
   const { deletePost, toggleLike, isDeleting, isLiking } = usePostActions(
     post.post_id,
@@ -52,6 +46,10 @@ const PostCard = ({ post, onDelete, onLike, onCommentClick }: PostCardProps) => 
   useEffect(() => {
     setCommentsCount(post.comments_count);
   }, [post.comments_count]);
+
+  useEffect(() => {
+    setShowComments(initialShowComments);
+  }, [initialShowComments]);
 
   const handleDelete = async () => {
     if (!user || user.id !== post.user_id) return;
@@ -67,54 +65,59 @@ const PostCard = ({ post, onDelete, onLike, onCommentClick }: PostCardProps) => 
     }
   };
 
-  const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true });
+  const handleCommentClick = () => {
+    setShowComments(!showComments);
+    if (onCommentClick) onCommentClick(post.post_id);
+  };
+
+  const handleCommentAdded = () => {
+    setCommentsCount((prev) => prev + 1);
+    if (onCommentAdded) onCommentAdded(post.post_id);
+  };
+
+  const handleShare = async () => {
+    await sharePost(
+      post.post_id,
+      () => {
+        toast({
+          title: "Link copied!",
+          description: "Post link has been copied to your clipboard.",
+        });
+      },
+      (url) => {
+        toast({
+          title: "Copy this link",
+          description: url,
+          duration: 10000,
+        });
+      }
+    );
+  };
+
+  const timeAgo = getRelativeTime(post.created_at);
+  const isOwner = user && user.id === post.user_id;
 
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {getUserInitials(post.username)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar username={post.username} />
             <div>
               <p className="font-semibold">{post.username}</p>
               <p className="text-xs text-muted-foreground">{timeAgo}</p>
             </div>
           </div>
           
-          {user && user.id === post.user_id && (
-            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Post</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete this post? This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="bg-destructive hover:bg-destructive/90"
-                  >
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          {isOwner && (
+            <DeleteConfirmationDialog
+              title="Delete Post"
+              description="Are you sure you want to delete this post? This action cannot be undone."
+              onConfirm={handleDelete}
+              isDeleting={isDeleting}
+              open={showDeleteDialog}
+              onOpenChange={setShowDeleteDialog}
+            />
           )}
         </div>
       </CardHeader>
@@ -125,16 +128,7 @@ const PostCard = ({ post, onDelete, onLike, onCommentClick }: PostCardProps) => 
 
         {/* Post Images */}
         {post.images && post.images.length > 0 && (
-          <div className="grid grid-cols-2 gap-2">
-            {post.images.map((image, index) => (
-              <img
-                key={index}
-                src={image.url}
-                alt={image.alt || `Post image ${index + 1}`}
-                className="w-full h-64 object-cover rounded-md"
-              />
-            ))}
-          </div>
+          <ImageGrid images={post.images} />
         )}
 
         {/* Shared Trip */}
@@ -143,33 +137,26 @@ const PostCard = ({ post, onDelete, onLike, onCommentClick }: PostCardProps) => 
         )}
       </CardContent>
 
-      <CardFooter className="flex items-center justify-between border-t pt-4">
-        <div className="flex items-center gap-4">
-          {/* Like Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLike}
-            disabled={isLiking}
-            className="gap-2"
-          >
-            <Heart
-              className={`h-5 w-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
-            />
-            <span className="font-medium">{likesCount}</span>
-          </Button>
+      <CardFooter className="flex flex-col items-stretch border-t pt-4">
+        <ActionStats
+          likesCount={likesCount}
+          isLiked={isLiked}
+          onLike={handleLike}
+          isLiking={isLiking}
+          commentsCount={commentsCount}
+          onCommentClick={handleCommentClick}
+          onShare={handleShare}
+        />
 
-          {/* Comment Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onCommentClick && onCommentClick(post.post_id)}
-            className="gap-2"
-          >
-            <MessageCircle className="h-5 w-5" />
-            <span className="font-medium">{commentsCount}</span>
-          </Button>
-        </div>
+        {/* Comments Section - Twitter-style inline display */}
+        {showComments && (
+          <div className="mt-4 pt-4 border-t">
+            <CommentThread
+              postId={post.post_id}
+              onCommentAdded={handleCommentAdded}
+            />
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

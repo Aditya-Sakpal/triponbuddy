@@ -1,7 +1,3 @@
-"""
-Service layer for Razorpay-powered subscriptions.
-"""
-
 import json
 import logging
 from datetime import datetime, timezone
@@ -38,7 +34,6 @@ logger = logging.getLogger(__name__)
 
 
 class RazorpayPaymentService:
-    """Encapsulates Razorpay order lifecycle and subscription persistence."""
 
     def __init__(self, client: Any) -> None:
         self._client = client
@@ -136,7 +131,6 @@ class RazorpayPaymentService:
         )
 
     async def get_latest_subscription(self, user_id: str) -> SubscriptionStatusResponse:
-        """Retrieve the most recent PAID subscription record for a user."""
 
         # First, check if user has any paid subscription
         paid_subscriptions = await mongodb.find_many(
@@ -184,7 +178,6 @@ class RazorpayPaymentService:
         )
 
     async def handle_webhook(self, body: bytes, signature: Optional[str]) -> None:
-        """Validate and persist Razorpay webhook notifications."""
 
         if not settings.razorpay_webhook_secret:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Webhook secret not configured.")
@@ -363,7 +356,6 @@ class RazorpayPaymentService:
 
 
 def get_payment_service() -> RazorpayPaymentService:
-    """FastAPI dependency provider for the payment service."""
 
     try:
         client = get_razorpay_client()

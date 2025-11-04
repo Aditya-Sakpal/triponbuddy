@@ -5,13 +5,31 @@ Handles business logic for posts, comments, likes, and trip sharing
 
 import logging
 from typing import List, Optional, Dict, Any, Tuple
-from datetime import datetime, timezone
 
 from database import mongodb
 from models.forum import (
     Post, PostResponse, CreatePostRequest,
     Comment, CommentResponse, CreateCommentRequest,
     Like
+)
+from services.helpers.forum_helper import (
+    check_user_liked_target,
+    build_comment_tree,
+    enrich_comments_with_likes
+)
+from utils.forum_utils import (
+    verify_post_ownership,
+    verify_comment_ownership,
+    verify_post_exists,
+    verify_comment_exists,
+    increment_post_comment_count,
+    decrement_post_comment_count,
+    increment_comment_reply_count,
+    decrement_comment_reply_count,
+    increment_like_count,
+    decrement_like_count,
+    delete_post_cascade,
+    delete_comment_cascade
 )
 
 logger = logging.getLogger(__name__)
@@ -88,17 +106,11 @@ class ForumService:
         # Convert to response models with like status
         post_responses = []
         for post_data in posts:
-            is_liked = False
-            if current_user_id:
-                like = await mongodb.find_one(
-                    "likes",
-                    {
-                        "user_id": current_user_id,
-                        "target_id": post_data["post_id"],
-                        "target_type": "post"
-                    }
-                )
-                is_liked = like is not None
+            is_liked = await check_user_liked_target(
+                current_user_id,
+                post_data["post_id"],
+                "post"
+            ) if current_user_id else False
             
             post_response = PostResponse(
                 **post_data,
@@ -128,17 +140,11 @@ class ForumService:
         if not post_data:
             return None
         
-        is_liked = False
-        if current_user_id:
-            like = await mongodb.find_one(
-                "likes",
-                {
-                    "user_id": current_user_id,
-                    "target_id": post_id,
-                    "target_type": "post"
-                }
-            )
-            is_liked = like is not None
+        is_liked = await check_user_liked_target(
+            current_user_id,
+            post_id,
+            "post"
+        ) if current_user_id else False
         
         return PostResponse(**post_data, is_liked_by_user=is_liked)
 
@@ -155,8 +161,7 @@ class ForumService:
             True if deleted, False otherwise
         """
         # Verify ownership
-        post = await mongodb.find_one("posts", {"post_id": post_id})
-        if not post or post["user_id"] != user_id:
+        if not await verify_post_ownership(post_id, user_id):
             return False
         
         # Delete post
@@ -164,8 +169,7 @@ class ForumService:
         
         if deleted:
             # Delete all comments and likes associated with the post
-            await mongodb.delete_many("comments", {"post_id": post_id})
-            await mongodb.delete_many("likes", {"target_id": post_id, "target_type": "post"})
+            await delete_post_cascade(post_id)
             logger.info(f"Deleted post {post_id} and associated data")
         
         return deleted
@@ -190,17 +194,12 @@ class ForumService:
             Created comment object or None if post doesn't exist
         """
         # Verify post exists
-        post = await mongodb.find_one("posts", {"post_id": post_id})
-        if not post:
+        if not await verify_post_exists(post_id):
             return None
         
         # If replying to a comment, verify parent exists
         if comment_data.parent_comment_id:
-            parent = await mongodb.find_one(
-                "comments",
-                {"comment_id": comment_data.parent_comment_id}
-            )
-            if not parent:
+            if not await verify_comment_exists(comment_data.parent_comment_id):
                 return None
         
         comment = Comment(
@@ -217,25 +216,11 @@ class ForumService:
         
         # Only increment post's comment count for top-level comments (not replies)
         if not comment_data.parent_comment_id:
-            logger.info(f">>> INCREMENTING comment count for post_id={post_id}")
-            update_result = await mongodb.update_one(
-                "posts",
-                {"post_id": post_id},
-                {"$inc": {"comments_count": 1}}
-            )
-            logger.info(f">>> INCREMENT result: {update_result}")
-            
-            # Verify the update
-            updated_post = await mongodb.find_one("posts", {"post_id": post_id})
-            logger.info(f">>> Post after increment: comments_count={updated_post.get('comments_count') if updated_post else 'NOT FOUND'}")
+            await increment_post_comment_count(post_id)
         
         # If this is a reply, update parent comment's reply count
         if comment_data.parent_comment_id:
-            await mongodb.update_one(
-                "comments",
-                {"comment_id": comment_data.parent_comment_id},
-                {"$inc": {"replies_count": 1}}
-            )
+            await increment_comment_reply_count(comment_data.parent_comment_id)
         
         logger.info(f"Created comment {comment.comment_id} on post {post_id}")
         return comment
@@ -262,42 +247,12 @@ class ForumService:
             sort=[("created_at", 1)]
         )
         
-        # Build a map of comment_id -> comment
-        comment_map: Dict[str, CommentResponse] = {}
-        
-        for comment_data in all_comments:
-            is_liked = False
-            if current_user_id:
-                like = await mongodb.find_one(
-                    "likes",
-                    {
-                        "user_id": current_user_id,
-                        "target_id": comment_data["comment_id"],
-                        "target_type": "comment"
-                    }
-                )
-                is_liked = like is not None
-            
-            comment_response = CommentResponse(
-                **comment_data,
-                is_liked_by_user=is_liked,
-                replies=[]
-            )
-            comment_map[comment_response.comment_id] = comment_response
-        
         # Build the tree structure
-        top_level_comments: List[CommentResponse] = []
+        top_level_comments = build_comment_tree(all_comments, current_user_id)
         
-        for comment in comment_map.values():
-            if comment.parent_comment_id is None:
-                top_level_comments.append(comment)
-            else:
-                # Add as a reply to parent
-                parent = comment_map.get(comment.parent_comment_id)
-                if parent:
-                    if parent.replies is None:
-                        parent.replies = []
-                    parent.replies.append(comment)
+        # Enrich with like status if user is logged in
+        if current_user_id:
+            await enrich_comments_with_likes(top_level_comments, current_user_id)
         
         return top_level_comments
 
@@ -314,10 +269,11 @@ class ForumService:
             True if deleted, False otherwise
         """
         # Verify ownership
-        comment = await mongodb.find_one("comments", {"comment_id": comment_id})
-        if not comment or comment["user_id"] != user_id:
+        if not await verify_comment_ownership(comment_id, user_id):
             return False
         
+        # Get comment details before deletion
+        comment = await mongodb.find_one("comments", {"comment_id": comment_id})
         post_id = comment["post_id"]
         parent_comment_id = comment.get("parent_comment_id")
         
@@ -325,27 +281,16 @@ class ForumService:
         deleted = await mongodb.delete_one("comments", {"comment_id": comment_id})
         
         if deleted:
-            # Delete all replies to this comment
-            await mongodb.delete_many("comments", {"parent_comment_id": comment_id})
-            
-            # Delete likes on this comment
-            await mongodb.delete_many("likes", {"target_id": comment_id, "target_type": "comment"})
+            # Delete all replies and likes
+            await delete_comment_cascade(comment_id)
             
             # Only decrement post's comment count if this was a top-level comment
             if not parent_comment_id:
-                await mongodb.update_one(
-                    "posts",
-                    {"post_id": post_id},
-                    {"$inc": {"comments_count": -1}}
-                )
+                await decrement_post_comment_count(post_id)
             
             # Update parent comment's reply count if this was a reply
             if parent_comment_id:
-                await mongodb.update_one(
-                    "comments",
-                    {"comment_id": parent_comment_id},
-                    {"$inc": {"replies_count": -1}}
-                )
+                await decrement_comment_reply_count(parent_comment_id)
             
             logger.info(f"Deleted comment {comment_id}")
         
@@ -378,9 +323,6 @@ class ForumService:
             }
         )
         
-        collection_name = "posts" if target_type == "post" else "comments"
-        id_field = "post_id" if target_type == "post" else "comment_id"
-        
         if existing_like:
             # Unlike - remove the like
             await mongodb.delete_one(
@@ -393,11 +335,7 @@ class ForumService:
             )
             
             # Decrement like count
-            await mongodb.update_one(
-                collection_name,
-                {id_field: target_id},
-                {"$inc": {"likes_count": -1}}
-            )
+            await decrement_like_count(target_id, target_type)
             
             logger.info(f"User {user_id} unliked {target_type} {target_id}")
             return False
@@ -412,11 +350,7 @@ class ForumService:
             await mongodb.insert_one("likes", like.model_dump())
             
             # Increment like count
-            await mongodb.update_one(
-                collection_name,
-                {id_field: target_id},
-                {"$inc": {"likes_count": 1}}
-            )
+            await increment_like_count(target_id, target_type)
             
             logger.info(f"User {user_id} liked {target_type} {target_id}")
             return True

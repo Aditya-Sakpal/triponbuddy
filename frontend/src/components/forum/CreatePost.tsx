@@ -1,20 +1,15 @@
-/**
- * Create Post Component
- * Form for creating new posts with optional images and trip sharing
- */
-
 import { useState, useRef } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { PostImage, SharedTrip } from "@/types/forum";
 import { useCreatePost } from "@/hooks/useForum";
 import { FORUM_CONSTANTS, FORUM_PLACEHOLDERS } from "@/constants/forum";
-import { API_BASE_URL } from "@/constants/api";
 import { useToast } from "@/hooks/use-toast";
+import { uploadImages, validatePostContent } from "./helpers";
+import {ImageGrid} from "./ui";
 
 interface CreatePostProps {
   onPostCreated?: () => void;
@@ -46,82 +41,46 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    // Validate file count
-    if (files.length + images.length > 10) {
-      toast({
-        title: "Too many images",
-        description: "You can upload a maximum of 10 images per post.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsUploading(true);
 
-    try {
-      const formData = new FormData();
-      
-      // Add all files to FormData
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-      }
+    const result = await uploadImages(files, images.length);
 
-      // Upload to backend
-      const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const result = await response.json();
-
-      // Add successfully uploaded images
-      if (result.uploaded && result.uploaded.length > 0) {
-        const newImages: PostImage[] = result.uploaded.map((item: { url: string; filename: string }) => ({
-          url: item.url,
-          alt: item.filename,
-        }));
-        setImages([...images, ...newImages]);
-
-        toast({
-          title: "Images uploaded",
-          description: `${result.uploaded.length} image(s) uploaded successfully.`,
-        });
-      }
-
-      // Show errors for failed uploads
-      if (result.failed && result.failed.length > 0) {
-        const errorMessages = result.failed.map((item: { filename: string; error: string }) => 
-          `${item.filename}: ${item.error}`
-        ).join('\n');
-        
-        toast({
-          title: "Some uploads failed",
-          description: errorMessages,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
+    if (result.images.length > 0) {
+      setImages([...images, ...result.images]);
       toast({
-        title: "Upload failed",
-        description: "Failed to upload images. Please try again.",
+        title: "Images uploaded",
+        description: `${result.images.length} image(s) uploaded successfully.`,
+      });
+    }
+
+    if (result.errors.length > 0) {
+      toast({
+        title: result.success ? "Some uploads failed" : "Upload failed",
+        description: result.errors.join("\n"),
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    }
+
+    setIsUploading(false);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validation = validatePostContent(content);
+    if (!validation.isValid) {
+      toast({
+        title: "Validation Error",
+        description: validation.error,
+        variant: "destructive",
+      });
+      return;
+    }
 
     await createPost({
       content: content.trim(),
@@ -129,6 +88,9 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
       shared_trip: initialSharedTrip || undefined,
     });
   };
+
+  const canUploadMoreImages = images.length < 10;
+  const isFormValid = content.trim().length > 0;
 
   if (!user) {
     return (
@@ -162,7 +124,7 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
                 type="button"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading || images.length >= 10}
+                disabled={isUploading || !canUploadMoreImages}
                 title="Upload images"
               >
                 {isUploading ? (
@@ -189,26 +151,11 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
 
           {/* Image Previews */}
           {images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {images.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={image.url}
-                    alt={image.alt || `Preview ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-md"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+            <ImageGrid 
+              images={images} 
+              onRemove={handleRemoveImage} 
+              editable 
+            />
           )}
 
           {/* Shared Trip Preview */}
@@ -225,7 +172,7 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isSubmitting || isUploading || !content.trim()}
+              disabled={isSubmitting || isUploading || !isFormValid}
             >
               {isSubmitting ? (
                 <>
