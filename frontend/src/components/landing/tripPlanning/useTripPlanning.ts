@@ -19,6 +19,7 @@ export const useTripPlanning = () => {
   const [isInternational, setIsInternational] = useState(false);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [maxPassengers, setMaxPassengers] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -97,10 +98,11 @@ export const useTripPlanning = () => {
         start_location: startLoc || undefined,
         start_date: date,
         duration_days: days,
-        budget: budget,
-        travelers: travelers.length > 0 ? travelers : undefined,
+        budget: budget || undefined,
+        travelers: travelers.length > 0 ? travelers : [],  // Send empty array instead of undefined
         preferences,
         is_international: isInternational,
+        max_passengers: maxPassengers || undefined,  // Keep as number or undefined
       },
       signal: controller.signal,
     });
@@ -193,6 +195,7 @@ export const useTripPlanning = () => {
     isLoaded,
     travelers,
     budget,
+    maxPassengers,
     
     // Setters
     setDestination,
@@ -202,6 +205,7 @@ export const useTripPlanning = () => {
     setIsInternational,
     setTravelers,
     setBudget,
+    setMaxPassengers,
     
     // Actions
     handleDemo,

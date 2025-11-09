@@ -21,6 +21,14 @@ import type {
 // Trips API Service
 export class TripsApiService {
   static async generateTrip(request: TripGenerationRequest, signal?: AbortSignal): Promise<TripGenerationResponse> {
+    console.log('🚀 Sending trip generation request:', {
+      destination: request.destination,
+      max_passengers: request.max_passengers,
+      travelers: request.travelers,
+      start_date: request.start_date,
+      duration_days: request.duration_days,
+      budget: request.budget,
+    });
     return apiClient.post<TripGenerationResponse>('/api/trips/generate', request, undefined, signal);
   }
 

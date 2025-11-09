@@ -4,7 +4,7 @@ Trip data helpers for building and managing trip records
 
 import logging
 from typing import Dict, Any
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -24,21 +24,58 @@ class TripDataBuilder:
         
         itinerary = ai_response["itinerary"]
         
+        # Calculate end_date from start_date + duration_days
+        start_date_str = TripDataBuilder._format_date(request_data.get("start_date"))
+        duration_days = request_data.get("duration_days", 1)
+        
+        try:
+            # Parse start_date and add duration to get end_date
+            # Extract just the date part if it's a datetime string
+            if 'T' in start_date_str:
+                date_part = start_date_str.split('T')[0]
+            else:
+                date_part = start_date_str
+            
+            start_date_obj = datetime.fromisoformat(date_part)
+            end_date_obj = start_date_obj + timedelta(days=duration_days - 1)
+            # Format as YYYY-MM-DD only (no time component)
+            end_date = end_date_obj.strftime('%Y-%m-%d')
+        except Exception as e:
+            logger.warning(f"Failed to calculate end_date: {e}, using start_date")
+            end_date = start_date_str
+        
+        # Extract travelers and max_passengers with proper defaults
+        travelers = request_data.get("travelers")
+        max_passengers = request_data.get("max_passengers")
+        
+        logger.info(f"RAW request_data: {request_data}")
+        logger.info(f"Building trip data - travelers from request: {travelers} (type: {type(travelers)}), "
+                   f"max_passengers: {max_passengers} (type: {type(max_passengers)})")
+        
+        # Ensure travelers is a list, not None
+        if travelers is None:
+            logger.warning("travelers is None, setting to empty list")
+            travelers = []
+        
         trip_data = {
             "trip_id": str(uuid4()),
             "user_id": user_id,
             "title": itinerary["title"],
             "destination": request_data.get("destination"),
             "start_location": request_data.get("start_location"),
-            "start_date": TripDataBuilder._format_date(request_data.get("start_date")),
-            "duration_days": request_data.get("duration_days"),
+            "start_date": start_date_str,
+            "end_date": end_date,
+            "duration_days": duration_days,
             "budget": request_data.get("budget"),
-            "travelers": request_data.get("travelers"),
+            "travelers": travelers,
             "is_international": request_data.get("is_international"),
             "is_saved": False,
+            "is_public": False,
             "destination_image": destination_image,
             "itinerary_data": itinerary,
             "tags": [],
+            "max_passengers": max_passengers,
+            "joined_users": [],
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)
         }
@@ -54,8 +91,14 @@ class TripDataBuilder:
             update_doc["title"] = updates.title
         if updates.is_saved is not None:
             update_doc["is_saved"] = updates.is_saved
+        if updates.is_public is not None:
+            update_doc["is_public"] = updates.is_public
         if updates.tags is not None:
             update_doc["tags"] = updates.tags
+        if updates.max_passengers is not None:
+            update_doc["max_passengers"] = updates.max_passengers
+        if updates.travelers is not None:
+            update_doc["travelers"] = updates.travelers
             
         return update_doc
 

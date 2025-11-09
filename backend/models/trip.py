@@ -4,7 +4,7 @@ Trip-related Pydantic models
 
 from typing import List, Optional, Dict, Any
 from datetime import date, datetime
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 from uuid import uuid4
 
 
@@ -152,6 +152,7 @@ class TripGenerationRequest(BaseModel):
     travelers: Optional[List[Traveler]] = Field(default=None, description="List of travelers with age and gender")
     preferences: Optional[TripPreferences] = Field(default=None, description="User preferences")
     is_international: bool = Field(default=False, description="International trip flag")
+    max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
 
 
 class TripGenerationResponse(BaseModel):
@@ -170,6 +171,14 @@ class TripGenerationResponse(BaseModel):
 
 class TripDB(BaseModel):
     """Trip database model"""
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+    )
+    
     id: Optional[str] = Field(default=None, description="MongoDB ObjectId")
     trip_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique trip ID")
     user_id: str = Field(description="User ID from Clerk")
@@ -187,14 +196,10 @@ class TripDB(BaseModel):
     destination_image: Optional[str] = Field(default=None, description="Destination image URL")
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
+    max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
+    joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     updated_at: datetime = Field(default_factory=datetime.utcnow, description="Update timestamp")
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
-            date: lambda v: v.isoformat() if v else None
-        }
 
 
 class TripUpdateRequest(BaseModel):
@@ -203,6 +208,8 @@ class TripUpdateRequest(BaseModel):
     is_saved: Optional[bool] = None
     is_public: Optional[bool] = None
     tags: Optional[List[str]] = None
+    max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
+    travelers: Optional[List[Traveler]] = None
 
 
 class ActivityReplaceRequest(BaseModel):
@@ -299,3 +306,80 @@ class RouteGenerationResponse(BaseModel):
     success: bool = Field(default=True)
     route_plan: RoutePlan = Field(description="Generated route plan")
     message: Optional[str] = Field(default=None)
+
+
+class JoinRequest(BaseModel):
+    """Join request for a trip"""
+    request_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique request ID")
+    trip_id: str = Field(description="Trip ID to join")
+    trip_owner_id: str = Field(description="User ID of trip owner")
+    requester_id: str = Field(description="User ID of requester")
+    requester_name: Optional[str] = Field(default=None, description="Name of requester")
+    requester_age: int = Field(ge=1, le=120, description="Age of requester")
+    requester_gender: str = Field(description="Gender of requester")
+    status: str = Field(default="pending", description="Status: pending, accepted, rejected")
+    trip_title: str = Field(description="Title of the trip")
+    trip_destination: str = Field(description="Destination of the trip")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Request creation timestamp")
+    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Request update timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+
+
+class JoinRequestCreate(BaseModel):
+    """Request model for creating a join request"""
+    trip_id: str = Field(description="Trip ID to join")
+    age: int = Field(ge=1, le=120, description="Age of requester")
+    gender: str = Field(description="Gender of requester")
+
+
+class JoinRequestResponse(BaseModel):
+    """Response model for join request operations"""
+    success: bool = Field(default=True)
+    message: Optional[str] = None
+    request: Optional[JoinRequest] = None
+
+
+class JoinRequestAction(BaseModel):
+    """Request model for accepting/rejecting a join request"""
+    request_id: str = Field(description="Join request ID")
+    action: str = Field(description="Action: accept or reject")
+
+
+class Notification(BaseModel):
+    """Notification model"""
+    notification_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique notification ID")
+    user_id: str = Field(description="User ID who receives the notification")
+    type: str = Field(description="Notification type: join_request, join_accepted")
+    title: str = Field(description="Notification title")
+    message: str = Field(description="Notification message")
+    related_trip_id: Optional[str] = Field(default=None, description="Related trip ID")
+    related_request_id: Optional[str] = Field(default=None, description="Related join request ID")
+    requester_id: Optional[str] = Field(default=None, description="User ID of requester (for join requests)")
+    requester_name: Optional[str] = Field(default=None, description="Name of requester")
+    is_read: bool = Field(default=False, description="Read status")
+    request_status: Optional[str] = Field(default=None, description="Status of related join request: pending, accepted, rejected")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+
+
+class NotificationListResponse(BaseModel):
+    """Response model for notifications list"""
+    success: bool = Field(default=True)
+    notifications: List[Notification] = Field(description="List of notifications")
+    unread_count: int = Field(default=0, description="Count of unread notifications")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }

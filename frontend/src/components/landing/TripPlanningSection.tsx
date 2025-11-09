@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import { LocationInputs, DateDurationInputs, TravelPreferences, TravelerInput, BudgetInput, ActionButtons } from "./tripPlanning";
+import { LocationInputs, DateDurationInputs, TravelPreferences, TravelerInput, BudgetMaxPassengersInput, ActionButtons } from "./tripPlanning";
 import { useTripPlanning } from "./tripPlanning/useTripPlanning";
 
 export const TripPlanningSection = () => {
@@ -18,6 +18,7 @@ export const TripPlanningSection = () => {
     isLoaded,
     travelers,
     budget,
+    maxPassengers,
     
     // Setters
     setDestination,
@@ -27,6 +28,7 @@ export const TripPlanningSection = () => {
     setIsInternational,
     setTravelers,
     setBudget,
+    setMaxPassengers,
     
     // Actions
     handleDemo,
@@ -80,9 +82,12 @@ export const TripPlanningSection = () => {
                 setTravelers={setTravelers}
               />
 
-              <BudgetInput
+              <BudgetMaxPassengersInput
                 budget={budget}
                 setBudget={setBudget}
+                maxPassengers={maxPassengers}
+                setMaxPassengers={setMaxPassengers}
+                currentTravelers={travelers.length}
               />
 
               <TravelPreferences

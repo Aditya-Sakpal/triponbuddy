@@ -5,6 +5,7 @@ import { LuX, LuMenu } from "react-icons/lu";
 import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 import { AuthButtons } from "./AuthButtons";
 import { MobileMenu } from "./MobileMenu";
+import { NotificationBell } from "./NotificationBell";
 import { navLinks } from "@/constants/nav";
 
 export const Navigation = () => {
@@ -49,9 +50,10 @@ export const Navigation = () => {
             </div>
           </div>
 
-          {/* Right side: Auth buttons and mobile menu button */}
+          {/* Right side: Notifications, Auth buttons and mobile menu button */}
           <div className="flex items-center space-x-2">
-            <div className="hidden sm:flex">
+            <div className="hidden sm:flex items-center space-x-2">
+              <NotificationBell />
               <div className="flex space-x-4">
                 <AuthButtons />
               </div>

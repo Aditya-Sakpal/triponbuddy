@@ -50,12 +50,7 @@ export const TravelerInput = ({ travelers, setTravelers }: TravelerInputProps) =
       </div>
 
       <div className="space-y-3">
-        {travelers.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No travelers added yet. Click "Add Traveler" to get started.
-          </p>
-        )}
-        
+      
         {travelers.map((traveler, index) => (
           <Card key={index} className="p-4">
             <div className="flex items-center gap-4">

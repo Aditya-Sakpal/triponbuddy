@@ -4,5 +4,7 @@ export { DateDurationInputs } from "./DateDurationInputs";
 export { TravelPreferences } from "./TravelPreferences";
 export { TravelerInput } from "./TravelerInput";
 export { BudgetInput } from "./BudgetInput";
+export { MaxPassengersInput } from "./MaxPassengersInput";
+export { BudgetMaxPassengersInput } from "./BudgetMaxPassengersInput";
 export { useTripPlanning } from "./useTripPlanning";
 export * from "./tripPlanningHelpers";

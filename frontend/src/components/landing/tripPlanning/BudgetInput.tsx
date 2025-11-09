@@ -40,9 +40,7 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
           className="pl-8 h-12"
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        Set a budget to get recommendations that fit your financial constraints
-      </p>
+
     </div>
   );
 };

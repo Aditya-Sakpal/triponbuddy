@@ -3,6 +3,7 @@ AI response parsing and validation helpers
 """
 
 import json
+import re
 import logging
 from typing import Dict, Any, List
 
@@ -27,12 +28,19 @@ class AIResponseParser:
 
             cleaned_text = cleaned_text.strip()
 
+            # Remove trailing commas before closing brackets/braces (common AI error)
+            # Remove trailing comma before closing brace
+            cleaned_text = re.sub(r',(\s*})', r'\1', cleaned_text)
+            # Remove trailing comma before closing bracket
+            cleaned_text = re.sub(r',(\s*\])', r'\1', cleaned_text)
+
             # Parse JSON
             return json.loads(cleaned_text)
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse AI response: {e}")
-            logger.error(f"Response text: {response_text}")
+            logger.error(f"Response text (first 500 chars): {response_text[:500]}")
+            logger.error(f"Response text (last 500 chars): {response_text[-500:]}")
             raise Exception("Invalid response format from AI service")
 
 
