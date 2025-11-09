@@ -5,6 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import { EditModeHeader } from "./components/EditModeHeader";
 import { ItineraryHeader } from "./components/ItineraryHeader";
 import { DayPlanList } from "./components/DayPlanList";
+import { RoutePlanPanel } from "./RoutePlanPanel";
 import { useItineraryImages } from "./hooks/useItineraryImages";
 import { useActivityModification } from "./hooks/useActivityModification";
 import { usePendingChanges } from "./hooks/usePendingChanges";
@@ -71,6 +72,15 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
           onClearChanges={clearChanges}
           onApplyChanges={applyChanges}
           isApplying={isApplyingChanges}
+        />
+      )}
+
+      {/* Route Plan Panel */}
+      {user?.id && (
+        <RoutePlanPanel
+          tripId={tripId}
+          userId={user.id}
+          destinationCity={itinerary.destination}
         />
       )}
 

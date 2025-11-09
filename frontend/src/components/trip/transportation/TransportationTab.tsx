@@ -3,7 +3,6 @@ import type { Transportation, TransportationHub, LocalTransportation } from "@/c
 import { TransportationCard } from "./TransportationCard";
 import { TransportationHubCard } from "./TransportationHubCard";
 import { LocalTransportationPanel } from "./LocalTransportationPanel";
-import { RouteBuilder } from "./RouteBuilder";
 
 interface TransportationTabProps {
   transportation: Transportation;
@@ -20,9 +19,6 @@ export const TransportationTab = ({
   transportation_hubs_start,
   transportation_hubs_destination,
   local_transportation,
-  tripId,
-  userId,
-  destinationCity
 }: TransportationTabProps) => {
   return (
     <div className="space-y-6">
@@ -34,9 +30,6 @@ export const TransportationTab = ({
           </CardDescription>
         </CardHeader>
       </Card>
-
-      {/* Route Builder */}
-      <RouteBuilder tripId={tripId} userId={userId} destinationCity={destinationCity} />
 
       {/* Travel Routes */}
       <div className="space-y-4">
