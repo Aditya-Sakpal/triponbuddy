@@ -57,11 +57,17 @@ class TripDataBuilder:
             logger.warning("travelers is None, setting to empty list")
             travelers = []
         
+        # Get destinations array, fallback to single destination for backward compatibility
+        destinations = request_data.get("destinations", [])
+        if not destinations and request_data.get("destination"):
+            destinations = [request_data.get("destination")]
+        
         trip_data = {
             "trip_id": str(uuid4()),
             "user_id": user_id,
             "title": itinerary["title"],
-            "destination": request_data.get("destination"),
+            "destinations": destinations,
+            "destination": destinations[-1] if destinations else request_data.get("destination"),
             "start_location": request_data.get("start_location"),
             "start_date": start_date_str,
             "end_date": end_date,

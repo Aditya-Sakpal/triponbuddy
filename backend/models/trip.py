@@ -110,7 +110,8 @@ class NeighboringPlace(BaseModel):
 class Itinerary(BaseModel):
     """Complete itinerary model"""
     title: str = Field(description="Trip title")
-    destination: str = Field(description="Main destination")
+    destinations: List[str] = Field(min_length=1, description="Ordered list of destinations")
+    destination: str = Field(description="Final destination (last item in destinations)")
     duration_days: int = Field(ge=1, le=30, description="Duration in days")
     start_date: str = Field(description="Start date as ISO string")
     estimated_total_cost: str = Field(description="Total cost in INR")
@@ -144,7 +145,7 @@ class TripPreferences(BaseModel):
 class TripGenerationRequest(BaseModel):
     """Request model for trip generation"""
     user_id: str = Field(description="User ID from Clerk")
-    destination: str = Field(description="Destination city/country")
+    destinations: List[str] = Field(min_length=1, description="Ordered list of destinations (last one is final destination)")
     start_location: Optional[str] = Field(default=None, description="Starting location")
     start_date: date = Field(description="Trip start date")
     duration_days: int = Field(ge=1, le=30, description="Trip duration")
@@ -153,6 +154,25 @@ class TripGenerationRequest(BaseModel):
     preferences: Optional[TripPreferences] = Field(default=None, description="User preferences")
     is_international: bool = Field(default=False, description="International trip flag")
     max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
+    
+    # For backward compatibility - deprecated
+    destination: Optional[str] = Field(default=None, description="DEPRECATED: Use destinations array instead")
+    
+    @model_validator(mode='after')
+    def validate_destinations(self):
+        """Ensure destinations is populated, handling backward compatibility"""
+        if not self.destinations or len(self.destinations) == 0:
+            if self.destination:
+                # Backward compatibility: convert single destination to array
+                self.destinations = [self.destination]
+            else:
+                raise ValueError("At least one destination is required")
+        
+        # Set destination to last item for backward compatibility
+        if not self.destination:
+            self.destination = self.destinations[-1]
+        
+        return self
 
 
 class TripGenerationResponse(BaseModel):
@@ -183,7 +203,8 @@ class TripDB(BaseModel):
     trip_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique trip ID")
     user_id: str = Field(description="User ID from Clerk")
     title: str = Field(description="Trip title")
-    destination: str = Field(description="Destination")
+    destinations: List[str] = Field(default_factory=list, description="Ordered list of destinations")
+    destination: str = Field(description="Final destination (last item in destinations array)")
     start_location: Optional[str] = Field(default=None, description="Starting location")
     start_date: str = Field(description="Start date as ISO string")
     end_date: Optional[str] = Field(default=None, description="End date as ISO string")

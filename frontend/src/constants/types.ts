@@ -100,6 +100,7 @@ export interface NeighboringPlace {
 
 export interface Itinerary {
   title: string;
+  destinations: string[];
   destination: string;
   duration_days: number;
   start_date: string;
@@ -131,7 +132,7 @@ export interface Traveler {
 
 export interface TripGenerationRequest {
   user_id: string;
-  destination: string;
+  destinations: string[];
   start_location?: string;
   start_date: string; // ISO date string
   duration_days: number;
@@ -140,6 +141,8 @@ export interface TripGenerationRequest {
   preferences?: TripPreferences;
   is_international?: boolean;
   max_passengers?: number;
+  // For backward compatibility - will be removed in future
+  destination?: string;
 }
 
 export interface TripGenerationResponse {
@@ -154,6 +157,7 @@ export interface TripDB {
   trip_id: string;
   user_id: string;
   title: string;
+  destinations: string[];
   destination: string;
   start_location?: string;
   start_date: string;
