@@ -8,6 +8,7 @@ interface TripActionButtonsProps {
   onSaveToggle: () => void;
   isLoading?: boolean;
   isSaved?: boolean;
+  canEdit?: boolean;
 }
 
 export const TripActionButtons = ({
@@ -15,7 +16,8 @@ export const TripActionButtons = ({
   onShare,
   onSaveToggle,
   isLoading = false,
-  isSaved = false
+  isSaved = false,
+  canEdit = true
 }: TripActionButtonsProps) => {
   const navigate = useNavigate();
 
@@ -32,14 +34,16 @@ export const TripActionButtons = ({
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-          <Button
-            variant="outline"
-            onClick={onEditTrip}
-            className="bg-white/10 border-bula text-bula hover:bg-bula/20"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Trip
-          </Button>
+          {canEdit && (
+            <Button
+              variant="outline"
+              onClick={onEditTrip}
+              className="bg-white/10 border-bula text-bula hover:bg-bula/20"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Trip
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={onShare}
@@ -65,7 +69,7 @@ export const TripActionButtons = ({
 
       {/* Mobile Action Buttons */}
       <div className="max-w-7xl mx-auto px-4 py-4 md:hidden">
-        <div className="grid grid-cols-3 gap-2 mb-2">
+        <div className={`grid gap-2 mb-2 ${canEdit ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
@@ -74,14 +78,16 @@ export const TripActionButtons = ({
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
-          <Button
-            variant="outline"
-            onClick={onEditTrip}
-            className="flex items-center gap-1 px-2 py-2 text-xs"
-          >
-            <Edit className="w-4 h-4" />
-            Edit
-          </Button>
+          {canEdit && (
+            <Button
+              variant="outline"
+              onClick={onEditTrip}
+              className="flex items-center gap-1 px-2 py-2 text-xs"
+            >
+              <Edit className="w-4 h-4" />
+              Edit
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={onShare}

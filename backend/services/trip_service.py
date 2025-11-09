@@ -303,6 +303,47 @@ class TripService:
             logger.error(f"Error unsaving trip: {str(e)}")
             raise
 
+    async def make_trip_public(self, trip_id: str, user_id: str) -> bool:
+        """Make a trip public for sharing"""
+
+        try:
+            success = await mongodb.update_one(
+                "trips",
+                {"trip_id": trip_id, "user_id": user_id},
+                {"$set": {"is_public": True}}
+            )
+
+            logger.info(f"Trip {trip_id} set to public: {success}")
+            return success
+
+        except Exception as e:
+            logger.error(f"Error making trip public: {str(e)}")
+            raise
+
+    async def can_user_edit_trip(self, trip_id: str, user_id: str) -> bool:
+        """Check if user can edit a trip (must be owner or joined member)"""
+
+        try:
+            trip_doc = await mongodb.find_one("trips", {"trip_id": trip_id})
+            
+            if not trip_doc:
+                return False
+            
+            # Check if user is the owner
+            if trip_doc["user_id"] == user_id:
+                return True
+            
+            # Check if user is a joined member
+            joined_users = trip_doc.get("joined_users", [])
+            if user_id in joined_users:
+                return True
+            
+            return False
+
+        except Exception as e:
+            logger.error(f"Error checking edit permission: {str(e)}")
+            raise
+
     async def _update_user_trip_count(self, user_id: str):
 
         try:

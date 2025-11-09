@@ -99,9 +99,11 @@ export const JoinTripDialog = ({
       );
 
       const data = await response.json();
+      
+      console.log("Join request response:", { status: response.status, data });
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to send join request");
+        throw new Error(data.detail || data.message || "Failed to send join request");
       }
 
       toast({

@@ -51,6 +51,34 @@ export const NotificationBell = () => {
     }
   }, [user]);
 
+  // Mark all as read when panel opens
+  const markAllAsRead = useCallback(async () => {
+    if (!user) return;
+
+    const unreadNotifications = notifications.filter((n) => !n.is_read);
+    if (unreadNotifications.length === 0) return;
+
+    try {
+      // Mark all unread notifications as read
+      await Promise.all(
+        unreadNotifications.map((n) =>
+          fetch(
+            `${API_BASE_URL}/api/join-requests/notifications/${n.notification_id}/read?user_id=${user.id}`,
+            { method: "POST" }
+          )
+        )
+      );
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, is_read: true }))
+      );
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+    }
+  }, [user, notifications]);
+
   // Fetch on mount and periodically
   useEffect(() => {
     if (isSignedIn) {
@@ -61,29 +89,6 @@ export const NotificationBell = () => {
       return () => clearInterval(interval);
     }
   }, [isSignedIn, fetchNotifications]);
-
-  // Mark notification as read
-  const markAsRead = async (notificationId: string) => {
-    if (!user) return;
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/join-requests/notifications/${notificationId}/read?user_id=${user.id}`,
-        { method: "POST" }
-      );
-
-      if (response.ok) {
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.notification_id === notificationId ? { ...n, is_read: true } : n
-          )
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
 
   // Track handled requests to hide buttons
   const [handledRequests, setHandledRequests] = useState<Set<string>>(new Set());
@@ -136,6 +141,13 @@ export const NotificationBell = () => {
     }
   };
 
+  // Mark all as read when panel opens
+  useEffect(() => {
+    if (isOpen && notifications.length > 0) {
+      markAllAsRead();
+    }
+  }, [isOpen, notifications.length, markAllAsRead]);
+
   if (!isSignedIn) return null;
 
   return (
@@ -177,16 +189,7 @@ export const NotificationBell = () => {
           ) : (
             notifications.map((notification, index) => (
               <div key={notification.notification_id}>
-                <div
-                  className={`p-4 hover:bg-accent/50 transition-colors cursor-pointer ${
-                    !notification.is_read ? "bg-accent/30" : ""
-                  }`}
-                  onClick={() => {
-                    if (!notification.is_read) {
-                      markAsRead(notification.notification_id);
-                    }
-                  }}
-                >
+                <div className="p-4 hover:bg-accent/50 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
                       {notification.type === "join_request" ? (
@@ -259,10 +262,6 @@ export const NotificationBell = () => {
                           </div>
                         )}
                     </div>
-
-                    {!notification.is_read && (
-                      <div className="h-2 w-2 rounded-full bg-blue-600 mt-2" />
-                    )}
                   </div>
                 </div>
                 {index < notifications.length - 1 && <div className="border-b" />}
@@ -270,24 +269,6 @@ export const NotificationBell = () => {
             ))
           )}
         </div>
-
-        {notifications.length > 0 && (
-          <div className="p-2 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                // Mark all as read
-                notifications
-                  .filter((n) => !n.is_read)
-                  .forEach((n) => markAsRead(n.notification_id));
-              }}
-            >
-              Mark all as read
-            </Button>
-          </div>
-        )}
       </PopoverContent>
     </Popover>
   );

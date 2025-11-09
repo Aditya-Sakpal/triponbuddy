@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar } from "lucide-react";
+import { Calendar, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel} from "@/components/trip";
 import { apiClient } from "@/lib/api-client";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
+import { getCalculatedBudget } from "@/utils/tripUtils";
 
 interface TripItineraryProps {
   trip: TripDB;
@@ -13,6 +15,7 @@ interface TripItineraryProps {
   onUnsaveTrip?: (tripId: string) => void;
   isLoading?: boolean;
   onRefresh?: () => void;
+  currentUserId?: string;
 }
 
 export const TripItinerary = ({ 
@@ -20,7 +23,8 @@ export const TripItinerary = ({
   onSaveTrip, 
   onUnsaveTrip, 
   isLoading = false,
-  onRefresh
+  onRefresh,
+  currentUserId
 }: TripItineraryProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("itinerary");
@@ -28,24 +32,13 @@ export const TripItinerary = ({
   const [editModalInitialDestination, setEditModalInitialDestination] = useState<string | undefined>(undefined);
   const [destinationImages, setDestinationImages] = useState<ImageData[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+  const [checkingPermission, setCheckingPermission] = useState(true);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
 
-  // Extract budget - use trip.budget if available, otherwise parse from estimated_total_cost
-  const getBudgetDisplay = () => {
-    if (trip.budget) {
-      return `₹ ${Number(trip.budget).toLocaleString('en-IN')}`;
-    }
-    
-    // Fallback to estimated_total_cost from itinerary_data
-    if (itinerary?.estimated_total_cost) {
-      return itinerary.estimated_total_cost;
-    }
-    
-    return null;
-  };
-
-  const budgetDisplay = getBudgetDisplay();
+  // Calculate the actual budget from activities (single source of truth)
+  const budgetDisplay = getCalculatedBudget(trip);
 
   const tabs = [
     { value: "itinerary", label: "Itinerary" },
@@ -53,6 +46,36 @@ export const TripItinerary = ({
     { value: "transportation", label: "Transportation" },
     { value: "travel-tips", label: "Travel Tips" },
   ];
+
+  // Check edit permissions
+  useEffect(() => {
+    const checkEditPermission = async () => {
+      if (!currentUserId) {
+        setCanEdit(false);
+        setCheckingPermission(false);
+        return;
+      }
+
+      setCheckingPermission(true);
+      try {
+        const response = await apiClient.get<{ success: boolean; can_edit: boolean }>(
+          `/api/trips/${trip.trip_id}/can-edit`,
+          { user_id: currentUserId }
+        );
+        
+        if (response.success) {
+          setCanEdit(response.can_edit);
+        }
+      } catch (error) {
+        console.error('Failed to check edit permission:', error);
+        setCanEdit(false);
+      } finally {
+        setCheckingPermission(false);
+      }
+    };
+
+    checkEditPermission();
+  }, [trip.trip_id, currentUserId]);
 
   useEffect(() => {
     const fetchDestinationImages = async () => {
@@ -92,30 +115,47 @@ export const TripItinerary = ({
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: trip.title,
-          text: `Check out my trip to ${trip.destination}!`,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.log("Error sharing:", error);
+    try {
+      // First, make the trip public
+      const response = await apiClient.put<{ success: boolean; message: string }>(
+        `/api/trips/${trip.trip_id}/share`,
+        {},
+        { user_id: trip.user_id }
+      );
+      
+      if (!response.success) {
+        throw new Error('Failed to make trip public');
       }
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
-      // Fallback to clipboard
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        // You could show a toast notification here
-        alert('Link copied to clipboard!');
-      } catch (error) {
-        console.error("Error copying to clipboard:", error);
-        // Fallback: show the URL in a prompt so user can manually copy
+      
+      // Then share the link
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: trip.title,
+            text: `Check out my trip to ${trip.destination}!`,
+            url: window.location.href,
+          });
+        } catch (error) {
+          console.log("Error sharing:", error);
+        }
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Fallback to clipboard
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          // You could show a toast notification here
+          alert('Link copied to clipboard!');
+        } catch (error) {
+          console.error("Error copying to clipboard:", error);
+          // Fallback: show the URL in a prompt so user can manually copy
+          prompt('Copy this link:', window.location.href);
+        }
+      } else {
+        // Final fallback: show URL in a prompt
         prompt('Copy this link:', window.location.href);
       }
-    } else {
-      // Final fallback: show URL in a prompt
-      prompt('Copy this link:', window.location.href);
+    } catch (error) {
+      console.error("Error sharing trip:", error);
+      alert('Failed to share trip. Please try again.');
     }
   };
 
@@ -167,10 +207,23 @@ export const TripItinerary = ({
                   <span>{formatDateRange(trip.start_date, trip.duration_days)}</span>
                 </div>
                 {budgetDisplay && (
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Budget:</span>
-                    <span>{budgetDisplay}</span>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2 cursor-help">
+                          <span className="font-semibold">Budget:</span>
+                          <span>{budgetDisplay}</span>
+                          <Info className="h-4 w-4 text-gray-600" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs">
+                          This is the sum of estimated costs for all activities in the itinerary. 
+                          Actual costs may be higher and can vary based on choices and unforeseen expenses.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
               
@@ -191,8 +244,9 @@ export const TripItinerary = ({
                 onEditTrip={handleEditTrip}
                 onShare={handleShare}
                 onSaveToggle={handleSaveToggle}
-                isLoading={isLoading}
+                isLoading={isLoading || checkingPermission}
                 isSaved={trip.is_saved}
+                canEdit={canEdit}
               />
             </div>
           </div>
@@ -211,8 +265,9 @@ export const TripItinerary = ({
             onEditTrip={handleEditTrip}
             onShare={handleShare}
             onSaveToggle={handleSaveToggle}
-            isLoading={isLoading}
+            isLoading={isLoading || checkingPermission}
             isSaved={trip.is_saved}
+            canEdit={canEdit}
           />
       </div>
       

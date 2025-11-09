@@ -3,7 +3,7 @@ Join Requests and Notifications API router
 """
 
 import logging
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Body
 
 from models.trip import (
     JoinRequestCreate,
@@ -23,10 +23,12 @@ async def create_join_request(
     request: Request,
     user_id: str = Query(..., description="User ID from Clerk"),
     user_name: str = Query(..., description="User name"),
-    join_request: JoinRequestCreate = None
+    join_request: JoinRequestCreate = Body(...)
 ):
     """Create a join request for a trip"""
     try:
+        logger.info(f"Received join request: user_id={user_id}, user_name={user_name}, data={join_request.model_dump()}")
+        
         result = await join_request_service.create_join_request(
             trip_id=join_request.trip_id,
             requester_id=user_id,
@@ -35,6 +37,7 @@ async def create_join_request(
         )
         
         if not result["success"]:
+            logger.warning(f"Join request failed: {result['message']}")
             raise HTTPException(status_code=400, detail=result["message"])
         
         return JoinRequestResponse(**result)
@@ -42,10 +45,10 @@ async def create_join_request(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error creating join request: {str(e)}")
+        logger.error(f"Error creating join request: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail="Failed to create join request"
+            detail=f"Failed to create join request: {str(e)}"
         )
 
 
@@ -53,7 +56,7 @@ async def create_join_request(
 async def handle_join_request(
     request: Request,
     user_id: str = Query(..., description="User ID from Clerk (trip owner)"),
-    action_request: JoinRequestAction = None
+    action_request: JoinRequestAction = Body(...)
 ):
     """Accept or reject a join request"""
     try:

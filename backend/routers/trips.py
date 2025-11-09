@@ -104,6 +104,30 @@ async def get_trip(
         )
 
 
+@router.get("/{trip_id}/can-edit", response_model=dict)
+async def can_edit_trip(
+    request: Request,
+    trip_id: str,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Check if user can edit a trip (must be owner or joined member)"""
+
+    try:
+        can_edit = await trip_service.can_user_edit_trip(trip_id, user_id)
+
+        return {
+            "success": True,
+            "can_edit": can_edit
+        }
+
+    except Exception as e:
+        logger.error(f"Error checking edit permission: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to check edit permission"
+        )
+
+
 @router.put("/{trip_id}", response_model=dict)
 async def update_trip(
     request: Request,
@@ -218,6 +242,35 @@ async def unsave_trip(
         raise HTTPException(
             status_code=500,
             detail="Failed to unsave trip"
+        )
+
+
+@router.put("/{trip_id}/share", response_model=dict)
+async def share_trip(
+    request: Request,
+    trip_id: str,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Make trip public for sharing"""
+
+    try:
+        success = await trip_service.make_trip_public(trip_id, user_id)
+
+        if not success:
+            raise HTTPException(status_code=404, detail="Trip not found")
+
+        return {
+            "success": True,
+            "message": "Trip is now public"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing trip: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to share trip"
         )
 
 

@@ -102,6 +102,7 @@ const Trip = () => {
       onUnsaveTrip={handleUnsaveTrip}
       isLoading={isSaving || isUnsaving}
       onRefresh={handleRefresh}
+      currentUserId={userId}
     />
   );
 };

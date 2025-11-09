@@ -1,16 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock, BookmarkCheck } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Calendar, MapPin, Clock, BookmarkCheck, Info } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
 import { TripCardActions } from "@/components/trip";
-import { formatDate, sanitizePrice } from "@/utils/tripUtils";
+import { formatDate, getCalculatedBudget } from "@/utils/tripUtils";
 
 interface TripCardProps {
   trip: TripDB;
 }
 
 export const TripCard = ({ trip }: TripCardProps) => {
-  
   const itinerary = trip.itinerary_data as unknown as Itinerary;
   
   return (
@@ -87,13 +87,26 @@ export const TripCard = ({ trip }: TripCardProps) => {
             </div>
           )}
 
-          {itinerary?.estimated_total_cost && (
-            <div className="mb-3">
-              <Badge variant="secondary" className="text-xs">
-                Total Cost: {sanitizePrice(itinerary.estimated_total_cost)}
-              </Badge>
-            </div>
-          )}
+          <div className="mb-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 w-fit">
+                    <Badge variant="secondary" className="text-xs">
+                      Total Cost: {getCalculatedBudget(trip)}
+                    </Badge>
+                    <Info className="h-3 w-3 text-gray-500" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">
+                    This is the sum of estimated costs for all activities in the itinerary. 
+                    Actual costs may be higher and can vary based on choices and unforeseen expenses.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
 
           <div className="text-xs text-gray-400 mb-3">
             Created {formatDate(trip.created_at)}

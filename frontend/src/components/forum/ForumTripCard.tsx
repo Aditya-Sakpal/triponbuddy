@@ -75,6 +75,11 @@ const ForumTripCard = ({ trip, username }: ForumTripCardProps) => {
       return false;
     }
     
+    // Check if user has already joined
+    if (fullTripData.joined_users && fullTripData.joined_users.includes(user.id)) {
+      return false;
+    }
+    
     const currentTravelers = (fullTripData.travelers || []).length;
     const joinedUsers = (fullTripData.joined_users || []).length;
     const currentPassengers = 1 + currentTravelers + joinedUsers; // +1 for owner
