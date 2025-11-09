@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { MapPin, Clock, IndianRupee, ArrowRight, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { NeighboringPlace } from "@/constants";
 import { apiClient } from "@/lib/api-client";
 

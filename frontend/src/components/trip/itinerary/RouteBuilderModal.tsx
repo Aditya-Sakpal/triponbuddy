@@ -26,7 +26,7 @@ import { Route, Loader2, X } from "lucide-react";
 import { RouteDestination, RoutePlan } from "@/constants";
 import { TripsApiService } from "@/lib/api-services";
 import { useToast } from "@/hooks/use-toast";
-import { RouteVisualization } from "../transportation/RouteVisualization";
+import { RouteVisualization } from "./RouteVisualization";
 import { DestinationNode, FloatingEdge } from "./components";
 import type { DestinationNodeData } from "./components";
 
