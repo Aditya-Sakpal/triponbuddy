@@ -26,7 +26,7 @@ import { Route, Loader2, X } from "lucide-react";
 import { RouteDestination, RoutePlan } from "@/constants";
 import { TripsApiService } from "@/lib/api-services";
 import { useToast } from "@/hooks/use-toast";
-import { RouteVisualization } from "../transportation/RouteVisualization";
+import { RouteVisualization } from "./RouteVisualization";
 import { DestinationNode, FloatingEdge } from "./components";
 import type { DestinationNodeData } from "./components";
 
@@ -251,29 +251,29 @@ export const RouteBuilderModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-[90vw] lg:max-w-[85vw] max-h-[95vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Route className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Route className="h-4 w-4 sm:h-5 sm:w-5" />
             Plan Your Route
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             Click on destinations to add them to your route in sequence. The connections will
             automatically form between selected destinations.
           </DialogDescription>
         </DialogHeader>
 
         {!isDataReady ? (
-          <div className="py-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Loading destinations...</p>
+          <div className="py-8 sm:py-12 text-center">
+            <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground text-sm sm:text-base">Loading destinations...</p>
           </div>
         ) : !generatedRoute ? (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Action buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
               <Button
-                className="flex-1"
+                className="w-full py-6 sm:py-3"
                 size="lg"
                 onClick={handleGenerateRoute}
                 disabled={selectedDestinations.length === 0 || isGenerating}
@@ -281,32 +281,40 @@ export const RouteBuilderModal = ({
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Route...
+                    <span className="text-sm sm:text-base">Generating Route...</span>
                   </>
                 ) : (
                   <>
                     <Route className="mr-2 h-4 w-4" />
-                    Generate Route Plan ({selectedDestinations.length} stops)
+                    <span className="text-sm sm:text-base">Generate Route Plan ({selectedDestinations.length} stops)</span>
                   </>
                 )}
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                onClick={handleReset}
-                disabled={selectedDestinations.length === 0}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Clear
-              </Button>
-              <Button variant="outline" size="lg" onClick={handleClose}>
-                Cancel
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="flex-1 py-6 sm:py-3"
+                  onClick={handleReset}
+                  disabled={selectedDestinations.length === 0}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  <span className="text-sm sm:text-base">Clear</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="flex-1 py-6 sm:py-3"
+                  onClick={handleClose}
+                >
+                  <span className="text-sm sm:text-base">Cancel</span>
+                </Button>
+              </div>
             </div>
 
             {/* React Flow Map */}
             <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-gradient-to-br from-blue-50 via-white to-green-50">
-              <div style={{ height: "500px" }}>
+              <div className="h-[300px] sm:h-[400px] lg:h-[500px]">
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
@@ -332,22 +340,31 @@ export const RouteBuilderModal = ({
                         : "#9ca3af"
                     }
                     maskColor="rgba(255, 255, 255, 0.8)"
+                    className="hidden sm:block"
                   />
                 </ReactFlow>
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <RouteVisualization
               routePlan={generatedRoute}
               selectedDestinations={[startingLocation, ...selectedDestinations]}
             />
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={handleReset}>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1 w-full text-sm sm:text-base" 
+                onClick={handleReset}
+              >
                 Plan Another Route
               </Button>
-              <Button variant="default" onClick={handleClose}>
+              <Button 
+                variant="default"
+                className="w-full sm:w-auto text-sm sm:text-base"
+                onClick={handleClose}
+              >
                 Done
               </Button>
             </div>
