@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CreatePost, PostCard, ForumHeroSection } from "@/components/forum";
+import { CreatePost, PostCard, ForumHeroSection, FloatingActionButton } from "@/components/forum";
 import { Button } from "@/components/ui/button";
 import { Loader2, MessageSquare } from "lucide-react";
 import { usePosts } from "@/hooks/useForum";
@@ -15,6 +15,7 @@ const Forum = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedPostId = searchParams.get("post");
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, refresh, refreshPost } = usePosts();
+  const [showCreatePost, setShowCreatePost] = useState(false);
 
   // Scroll to post if URL has post parameter
   useEffect(() => {
@@ -28,6 +29,7 @@ const Forum = () => {
 
   const handlePostCreated = () => {
     refresh();
+    setShowCreatePost(false); // Hide panel after posting
   };
 
   const handlePostDeleted = () => {
@@ -38,6 +40,17 @@ const Forum = () => {
     refreshPost(postId);
   };
 
+  const handleWritePost = () => {
+    setShowCreatePost(true);
+    // Scroll to create post panel smoothly
+    setTimeout(() => {
+      const createPostElement = document.getElementById("create-post-panel");
+      if (createPostElement) {
+        createPostElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -46,8 +59,12 @@ const Forum = () => {
       {/* Main Content */}
       <div className="min-h-screen bg-gray-200 py-8">
         <div className="container mx-auto max-w-3xl px-4 space-y-6">
-          {/* Create Post */}
-          <CreatePost onPostCreated={handlePostCreated} />
+          {/* Create Post - Conditionally Rendered */}
+          {showCreatePost && (
+            <div id="create-post-panel">
+              <CreatePost onPostCreated={handlePostCreated} />
+            </div>
+          )}
 
           {/* Posts Feed */}
           <div className="space-y-6">
@@ -101,6 +118,9 @@ const Forum = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton onWritePost={handleWritePost} />
     </>
   );
 };

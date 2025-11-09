@@ -122,7 +122,7 @@ class Itinerary(BaseModel):
     transportation_hubs_start: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at starting location")
     transportation_hubs_destination: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at destination")
     local_transportation: List[LocalTransportation] = Field(default_factory=list, description="Local transportation options at destination")
-    neighboring_places: List[NeighboringPlace] = Field(default_factory=list, description="Nearby places")
+    neighboring_places: List[NeighboringPlace] = Field(default_factory=list, min_length=5, description="Nearby places (minimum 5)")
 
     class Config:
         json_encoders = {

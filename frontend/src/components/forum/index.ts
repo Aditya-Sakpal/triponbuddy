@@ -9,3 +9,4 @@ export { default as CommentForm } from "./CommentForm";
 export { default as CommentItem } from "./CommentItem";
 export { default as ForumTripCard } from "./ForumTripCard";
 export { ForumHeroSection } from "./ForumHeroSection";
+export { FloatingActionButton } from "./FloatingActionButton";

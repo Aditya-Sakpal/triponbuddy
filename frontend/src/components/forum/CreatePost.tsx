@@ -104,11 +104,8 @@ const CreatePost = ({ onPostCreated, initialSharedTrip, initialContent }: Create
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Create a Post</CardTitle>
-      </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {/* Post Content */}
           <div>
             <Textarea

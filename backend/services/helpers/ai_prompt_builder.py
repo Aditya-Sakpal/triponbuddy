@@ -189,7 +189,43 @@ class AIPromptBuilder:
             ],
             "neighboring_places": [
                 {{
-                    "name": "[Place Name]",
+                    "name": "[Place Name 1]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 2]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 3]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 4]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 5]",
                     "distance": "[Distance]",
                     "description": "[Description]",
                     "time_to_reach": "[Time]",
@@ -206,7 +242,7 @@ class AIPromptBuilder:
         3. Provide booking URLs for major attractions
         4. Generate short, specific image search queries (1-2 words)
         5. Include travel tips and best time to visit
-        6. Suggest neighboring places within 50-150km
+        6. IMPORTANT: Suggest AT LEAST 5 neighboring places within 50-150km from the destination, each with unique attractions and experiences
         7. Ensure activities align with user preferences{budget_text}
         8. Consider the number and demographics of travelers when suggesting activities, accommodation, and transportation
         9. If budget is specified, ensure all recommendations fit within the budget constraints
