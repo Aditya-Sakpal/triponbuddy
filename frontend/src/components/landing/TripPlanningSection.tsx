@@ -1,13 +1,17 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import { LocationInputs, DateDurationInputs, TravelPreferences, TravelerInput, BudgetInput, ActionButtons } from "./tripPlanning";
+import { DateDurationInputs, TravelPreferences, TravelerInput, BudgetMaxPassengersInput, ActionButtons, DestinationList } from "./tripPlanning";
 import { useTripPlanning } from "./tripPlanning/useTripPlanning";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { MapPin } from "lucide-react";
 
 export const TripPlanningSection = () => {
   const {
     // State
     selectedPreferences,
-    destination,
+    destinations,
     startLocation,
     startDate,
     durationDays,
@@ -18,15 +22,17 @@ export const TripPlanningSection = () => {
     isLoaded,
     travelers,
     budget,
+    maxPassengers,
     
     // Setters
-    setDestination,
+    setDestinations,
     setStartLocation,
     setStartDate,
     setDurationDays,
     setIsInternational,
     setTravelers,
     setBudget,
+    setMaxPassengers,
     
     // Actions
     handleDemo,
@@ -44,7 +50,7 @@ export const TripPlanningSection = () => {
       <TripGenerationModal 
         isOpen={isGenerating || isPending} 
         onClose={() => {}}
-        destination={destination}
+        destination={destinations[destinations.length - 1] || ""}
         onCancel={handleCancelGeneration}
         preloadedImages={modalImages}
       />
@@ -59,14 +65,38 @@ export const TripPlanningSection = () => {
             </CardHeader>
             
             <CardContent className="px-8 pb-8">
-              <LocationInputs
-                startLocation={startLocation}
-                setStartLocation={setStartLocation}
-                destination={destination}
-                setDestination={setDestination}
-                isInternational={isInternational}
-                setIsInternational={setIsInternational}
-              />
+              {/* Start Location and International Toggle */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="start-location" className="text-sm font-medium">
+                      Start Location 
+                    </Label>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="worldwide" 
+                        checked={isInternational}
+                        onCheckedChange={setIsInternational}
+                      />
+                      <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
+                    </div>
+                  </div>
+                  <LocationAutocomplete
+                    id="start-location"
+                    value={startLocation}
+                    onChange={setStartLocation}
+                    placeholder="Enter your starting point"
+                    icon={<MapPin className="w-4 h-4" />}
+                  />
+                </div>
+                
+                {/* Destination List with Drag & Drop */}
+                <DestinationList
+                  destinations={destinations}
+                  onChange={setDestinations}
+                  isInternational={isInternational}
+                />
+              </div>
 
               <DateDurationInputs
                 startDate={startDate}
@@ -80,9 +110,12 @@ export const TripPlanningSection = () => {
                 setTravelers={setTravelers}
               />
 
-              <BudgetInput
+              <BudgetMaxPassengersInput
                 budget={budget}
                 setBudget={setBudget}
+                maxPassengers={maxPassengers}
+                setMaxPassengers={setMaxPassengers}
+                currentTravelers={travelers.length}
               />
 
               <TravelPreferences

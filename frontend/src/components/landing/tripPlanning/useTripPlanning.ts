@@ -12,13 +12,14 @@ import {
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
-  const [destination, setDestination] = useState("");
+  const [destinations, setDestinations] = useState<string[]>([]);
   const [startLocation, setStartLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [maxPassengers, setMaxPassengers] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -68,7 +69,7 @@ export const useTripPlanning = () => {
   useEffect(() => {
     const destinationParam = searchParams.get('destination');
     if (destinationParam) {
-      setDestination(destinationParam);
+      setDestinations([destinationParam]);
     }
   }, [searchParams]);
 
@@ -81,7 +82,7 @@ export const useTripPlanning = () => {
 
   const initiateTrip = (
     userId: string,
-    dest: string,
+    dests: string[],
     startLoc: string,
     date: string,
     days: number,
@@ -93,14 +94,15 @@ export const useTripPlanning = () => {
     generateTripMutation.mutate({
       request: {
         user_id: userId,
-        destination: dest,
+        destinations: dests,
         start_location: startLoc || undefined,
         start_date: date,
         duration_days: days,
-        budget: budget,
-        travelers: travelers.length > 0 ? travelers : undefined,
+        budget: budget || undefined,
+        travelers: travelers.length > 0 ? travelers : [],  // Send empty array instead of undefined
         preferences,
         is_international: isInternational,
+        max_passengers: maxPassengers || undefined,  // Keep as number or undefined
       },
       signal: controller.signal,
     });
@@ -110,7 +112,7 @@ export const useTripPlanning = () => {
     const { destination, startLocation, startDate } = generateDemoTripData(isInternational);
     
     // Set demo values in form
-    setDestination(destination);
+    setDestinations([destination]);
     setStartLocation(startLocation);
     setStartDate(startDate);
     setDurationDays(3);
@@ -134,7 +136,7 @@ export const useTripPlanning = () => {
             shopping: false,
             food: true,
           };
-          initiateTrip(userId, destination, startLocation, startDate, 3, demoPreferences);
+          initiateTrip(userId, [destination], startLocation, startDate, 3, demoPreferences);
         }
       );
     }, 100);
@@ -143,20 +145,23 @@ export const useTripPlanning = () => {
   const handlePlanTrip = () => {
     const userId = getCurrentUserId();
 
-    if (!destination || !startDate || !durationDays || durationDays < 1) {
+    if (!destinations || destinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
       alert('Please fill in all required fields');
       return;
     }
 
     setIsGenerating(true);
 
+    // Use the final destination for modal images
+    const finalDestination = destinations[destinations.length - 1];
+
     fetchModalImages(
       singleImageMutation,
-      destination,
+      finalDestination,
       setModalImages,
       () => {
         const userPreferences = buildTripPreferences(selectedPreferences);
-        initiateTrip(userId, destination, startLocation, startDate, durationDays, userPreferences);
+        initiateTrip(userId, destinations, startLocation, startDate, durationDays, userPreferences);
       }
     );
   };
@@ -182,7 +187,7 @@ export const useTripPlanning = () => {
   return {
     // State
     selectedPreferences,
-    destination,
+    destinations,
     startLocation,
     startDate,
     durationDays,
@@ -193,15 +198,17 @@ export const useTripPlanning = () => {
     isLoaded,
     travelers,
     budget,
+    maxPassengers,
     
     // Setters
-    setDestination,
+    setDestinations,
     setStartLocation,
     setStartDate,
     setDurationDays,
     setIsInternational,
     setTravelers,
     setBudget,
+    setMaxPassengers,
     
     // Actions
     handleDemo,
@@ -211,6 +218,6 @@ export const useTripPlanning = () => {
     
     // Computed
     isPending: generateTripMutation.isPending,
-    isDisabled: !destination || !startDate || !durationDays,
+    isDisabled: !destinations || destinations.length === 0 || !startDate || !durationDays,
   };
 };

@@ -2,10 +2,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation, Info } from "lucide-react";
 import { TripDB, Itinerary, DailyPlan, Activity, Accommodation, TravelRoute, NeighboringPlace, TransportationHub, LocalTransportation } from "@/constants";
 import { useMemo } from "react";
-import { formatTitleCase } from "@/utils/tripUtils";
+import { formatTitleCase, getCalculatedBudget } from "@/utils/tripUtils";
 
 interface ItineraryModalProps {
   trip: TripDB | null;
@@ -130,14 +131,28 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
                     <p className="text-lg">{formatDate(trip.end_date)}</p>
                   </div>
                 )}
-                {itinerary.estimated_total_cost && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Estimated Cost</p>
-                    <p className="text-lg font-semibold text-green-600">
-                      {formatCurrency(itinerary.estimated_total_cost)}
-                    </p>
-                  </div>
-                )}
+                <div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <p className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                            Estimated Cost
+                            <Info className="h-3 w-3" />
+                          </p>
+                          <p className="text-lg font-semibold text-green-600">
+                            {getCalculatedBudget(trip)}
+                          </p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs">
+                          Sum of estimated activity costs. Actual costs may be higher.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 {itinerary.best_time_to_visit && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Best Time to Visit</p>

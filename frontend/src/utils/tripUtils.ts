@@ -1,3 +1,5 @@
+import type { Itinerary, TripDB, DailyPlan, Activity } from "@/constants";
+
 export const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -26,4 +28,66 @@ export const sanitizePrice = (priceString: string): string => {
   // Match pattern: ₹ followed by numbers and commas, optionally with +, possibly a range
   const match = priceString.match(/₹[\d,]+\+?(?:\s*-\s*₹[\d,]+\+?)?/);
   return match ? match[0].trim() : priceString;
+};
+
+/**
+ * Parses a price string and extracts the maximum numeric value
+ * Handles formats like: "₹500", "₹1,000", "₹500 - ₹1,000", "₹1,000+"
+ * Returns the higher end of a range or the single value
+ */
+const parsePrice = (priceString: string): number => {
+  if (!priceString) return 0;
+
+  // Remove ₹ symbol and any text after (like descriptions in parentheses)
+  const cleanedPrice = priceString.replace(/₹/g, '').split('(')[0].trim();
+
+  // Handle ranges (e.g., "500 - 1,000" or "500-1000")
+  if (cleanedPrice.includes('-')) {
+    const parts = cleanedPrice.split('-').map(p => p.trim().replace(/,/g, '').replace(/\+/g, ''));
+    // Return the higher end of the range
+    return Math.max(...parts.map(p => parseFloat(p) || 0));
+  }
+
+  // Handle single values (e.g., "1,000" or "1000+")
+  const numericValue = cleanedPrice.replace(/,/g, '').replace(/\+/g, '');
+  return parseFloat(numericValue) || 0;
+};
+
+/**
+ * Calculates the total estimated cost from all activities in an itinerary
+ * @param itinerary - The trip itinerary containing daily plans with activities
+ * @returns The sum of all activity estimated costs as a formatted string
+ */
+export const calculateTotalCostFromActivities = (itinerary: Itinerary | Record<string, unknown>): string => {
+  if (!itinerary || !('daily_plans' in itinerary)) {
+    return '₹0';
+  }
+
+  let totalCost = 0;
+
+  // Sum up all activity costs from all daily plans
+  (itinerary as Itinerary).daily_plans.forEach((dailyPlan: DailyPlan) => {
+    if (dailyPlan.activities && Array.isArray(dailyPlan.activities)) {
+      dailyPlan.activities.forEach((activity: Activity) => {
+        if (activity.estimated_cost) {
+          totalCost += parsePrice(activity.estimated_cost);
+        }
+      });
+    }
+  });
+
+  // Format the total cost with Indian rupee symbol and comma separators
+  return `₹${totalCost.toLocaleString('en-IN')}`;
+};
+
+/**
+ * Gets the calculated budget display string from itinerary activities
+ * This is the single source of truth for budget display across the app
+ */
+export const getCalculatedBudget = (trip: TripDB | { itinerary_data?: Record<string, unknown> }): string => {
+  if (!trip || !trip.itinerary_data) {
+    return '₹0';
+  }
+
+  return calculateTotalCostFromActivities(trip.itinerary_data);
 };

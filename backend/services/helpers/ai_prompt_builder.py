@@ -25,22 +25,42 @@ class AIPromptBuilder:
                 travelers_details.append(f"{traveler.age}-year-old {traveler.gender}")
             travelers_text = f"\n        - Number of Travelers: {travelers_count} ({', '.join(travelers_details)})"
         
+        # Build destinations text
+        destinations_text = " -> ".join(request.destinations)
+        final_destination = request.destinations[-1]
+        
+        # Build multi-destination instructions
+        multi_dest_instructions = ""
+        if len(request.destinations) > 1:
+            multi_dest_instructions = f"""
+        
+        IMPORTANT MULTI-DESTINATION TRIP:
+        This is a multi-destination trip visiting {len(request.destinations)} locations in order: {destinations_text}
+        - Plan the itinerary to cover all destinations in the specified order
+        - Allocate appropriate time at each destination based on the total {request.duration_days} days
+        - Include transportation between destinations in the daily plans
+        - The final destination is {final_destination}
+        - Ensure smooth transitions between destinations with realistic travel times
+        - Include activities and accommodations relevant to each destination along the route"""
+        
         prompt = f"""
-        Generate a comprehensive {request.duration_days}-day travel itinerary for {request.destination} starting from {request.start_date}.
+        Generate a comprehensive {request.duration_days}-day travel itinerary covering multiple destinations: {destinations_text} starting from {request.start_date}.
 
         Trip Details:
-        - Destination: {request.destination}
+        - Destinations (in order): {destinations_text}
+        - Final Destination: {final_destination}
         - Duration: {request.duration_days} days
         - Start Date: {request.start_date}
         - Starting Location: {request.start_location or 'Not specified'}
         - International Trip: {request.is_international}
         - Preferences: {preferences_text}
-        - Budget: {budget_text}{travelers_text}
+        - Budget: {budget_text}{travelers_text}{multi_dest_instructions}
 
         Please provide a detailed JSON response with the following structure:
         {{
-            "title": "Trip to [Destination]",
-            "destination": "[Destination]",
+            "title": "Trip to {destinations_text}",
+            "destinations": {request.destinations},
+            "destination": "{final_destination}",
             "duration_days": {request.duration_days},
             "start_date": "{request.start_date}",
             "estimated_total_cost": "₹XXXXX",
@@ -189,7 +209,43 @@ class AIPromptBuilder:
             ],
             "neighboring_places": [
                 {{
-                    "name": "[Place Name]",
+                    "name": "[Place Name 1]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 2]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 3]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 4]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }},
+                {{
+                    "name": "[Place Name 5]",
                     "distance": "[Distance]",
                     "description": "[Description]",
                     "time_to_reach": "[Time]",
@@ -206,7 +262,7 @@ class AIPromptBuilder:
         3. Provide booking URLs for major attractions
         4. Generate short, specific image search queries (1-2 words)
         5. Include travel tips and best time to visit
-        6. Suggest neighboring places within 50-150km
+        6. IMPORTANT: Suggest AT LEAST 5 neighboring places within 50-150km from the destination, each with unique attractions and experiences
         7. Ensure activities align with user preferences{budget_text}
         8. Consider the number and demographics of travelers when suggesting activities, accommodation, and transportation
         9. If budget is specified, ensure all recommendations fit within the budget constraints

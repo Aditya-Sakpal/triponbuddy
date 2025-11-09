@@ -10,7 +10,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { TravelerInput } from "@/components/landing/tripPlanning/TravelerInput";
-import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
+import { BudgetMaxPassengersInput } from "@/components/landing/tripPlanning/BudgetMaxPassengersInput";
+import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
 import type { TripDB, TripPreferences, Itinerary, ImageData, Traveler } from "@/constants";
 
 interface EditTripModalProps {
@@ -23,13 +24,14 @@ interface EditTripModalProps {
 
 export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDestination }: EditTripModalProps) => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
-  const [destination, setDestination] = useState("");
+  const [destinations, setDestinations] = useState<string[]>([]);
   const [startLocation, setStartLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [maxPassengers, setMaxPassengers] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -49,13 +51,19 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   // Initialize form with trip data when modal opens
   useEffect(() => {
     if (isOpen && trip) {
-      setDestination(initialDestination || trip.destination || "");
+      // Initialize destinations array
+      const tripDestinations = trip.destinations && trip.destinations.length > 0 
+        ? trip.destinations 
+        : (initialDestination || trip.destination ? [initialDestination || trip.destination] : []);
+      setDestinations(tripDestinations);
+      
       setStartLocation(trip.start_location || "");
       setStartDate(trip.start_date || "");
       setDurationDays(trip.duration_days || 3);
       setIsInternational(trip.is_international || false);
       setBudget(trip.budget);
       setTravelers(trip.travelers || []);
+      setMaxPassengers(trip.max_passengers);
       
       // Extract preferences from trip data
       const itinerary = trip.itinerary_data as unknown as Itinerary;
@@ -116,7 +124,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const handleUpdateTrip = () => {
 
 
-    if (!destination || !startDate || !durationDays) {
+    if (!destinations || destinations.length === 0 || !startDate || !durationDays) {
       alert('Please fill in all required fields');
       return;
     }
@@ -138,7 +146,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     generateTripMutation.mutate({
       request: {
         user_id: trip.user_id,
-        destination,
+        destinations: destinations,
         start_location: startLocation || undefined,
         start_date: startDate,
         duration_days: durationDays,
@@ -146,6 +154,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         travelers: travelers.length > 0 ? travelers : undefined,
         preferences: userPreferences,
         is_international: isInternational,
+        max_passengers: maxPassengers,
       },
       signal: controller.signal,
     });
@@ -186,15 +195,23 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
 
     const travelersChanged = JSON.stringify(travelers) !== JSON.stringify(trip.travelers || []);
     const budgetChanged = budget !== trip.budget;
+    const maxPassengersChanged = maxPassengers !== trip.max_passengers;
+    
+    // Check destinations array
+    const originalDestinations = trip.destinations && trip.destinations.length > 0 
+      ? trip.destinations 
+      : (trip.destination ? [trip.destination] : []);
+    const destinationsChanged = JSON.stringify(destinations.sort()) !== JSON.stringify(originalDestinations.sort());
 
     return (
-      destination !== (trip.destination || "") ||
+      destinationsChanged ||
       startLocation !== (trip.start_location || "") ||
       startDate !== (trip.start_date || "") ||
       durationDays !== (trip.duration_days || 3) ||
       isInternational !== (trip.is_international || false) ||
       travelersChanged ||
       budgetChanged ||
+      maxPassengersChanged ||
       JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
     );
   };
@@ -204,7 +221,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       <TripGenerationModal 
         isOpen={isGenerating || generateTripMutation.isPending} 
         onClose={() => {}} // Can't close while generating
-        destination={destination}
+        destination={destinations[destinations.length - 1] || ""}
         onCancel={handleCancelGeneration}
         preloadedImages={modalImages}
       />
@@ -224,22 +241,9 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
               {/* Location Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <Label htmlFor="edit-start-location" className="text-sm font-medium">
-                    Start Location 
-                  </Label>
-                  <LocationAutocomplete
-                    id="edit-start-location"
-                    value={startLocation}
-                    onChange={setStartLocation}
-                    placeholder="Enter your starting point"
-                    icon={<MapPin className="w-4 h-4" />}
-                  />
-                </div>
-                
-                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">
-                      Destination <span className="text-destructive">*</span>
+                    <Label htmlFor="edit-start-location" className="text-sm font-medium">
+                      Start Location 
                     </Label>
                     <div className="flex items-center space-x-2">
                       <Switch 
@@ -251,13 +255,20 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                     </div>
                   </div>
                   <LocationAutocomplete
-                    value={destination}
-                    onChange={setDestination}
-                    placeholder="Where do you want to go?"
-                    icon={<MapPin className="w-4 h-4 text-primary" />}
-                    required
+                    id="edit-start-location"
+                    value={startLocation}
+                    onChange={setStartLocation}
+                    placeholder="Enter your starting point"
+                    icon={<MapPin className="w-4 h-4" />}
                   />
                 </div>
+                
+                {/* Destination List with Drag & Drop */}
+                <DestinationList
+                  destinations={destinations}
+                  onChange={setDestinations}
+                  isInternational={isInternational}
+                />
               </div>
 
               {/* Date and Duration Section */}
@@ -305,10 +316,13 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                 setTravelers={setTravelers}
               />
 
-              {/* Budget Section */}
-              <BudgetInput
+              {/* Budget and Max Passengers Section */}
+              <BudgetMaxPassengersInput
                 budget={budget}
                 setBudget={setBudget}
+                maxPassengers={maxPassengers}
+                setMaxPassengers={setMaxPassengers}
+                currentTravelers={travelers.length}
               />
 
               {/* Travel Preferences */}
@@ -355,7 +369,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                   onClick={handleUpdateTrip}
                   disabled={
                     generateTripMutation.isPending || 
-                    !destination || 
+                    !destinations || 
+                    destinations.length === 0 ||
                     !startDate || 
                     !durationDays ||
                     !hasChanges()

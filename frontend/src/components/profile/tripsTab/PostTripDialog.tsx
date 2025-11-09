@@ -16,11 +16,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, Share2 } from "lucide-react";
+import { Loader2, Share2, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TripDB } from "@/constants";
 import { SharedTrip } from "@/types/forum";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { getCalculatedBudget } from "@/utils/tripUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -81,7 +83,7 @@ export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
       const sharedTripData: SharedTrip = {
         trip_id: trip.trip_id,
         destination: trip.destination,
-        total_cost: String(trip.itinerary_data?.estimated_total_cost || "N/A"),
+        total_cost: getCalculatedBudget(trip),
         cover_image_url: trip.destination_image,
         start_date: trip.start_date,
         end_date: trip.end_date || trip.start_date,
@@ -151,7 +153,21 @@ export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
             </h4>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>📅 {trip.duration_days} days</p>
-              <p>💰 {String(trip.itinerary_data?.estimated_total_cost || "N/A")}</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="flex items-center gap-1 cursor-help">
+                      💰 {getCalculatedBudget(trip)}
+                      <Info className="h-3 w-3" />
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">
+                      Sum of estimated activity costs. Actual costs may be higher.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
 

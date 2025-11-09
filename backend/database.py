@@ -81,6 +81,17 @@ class MongoDB:
             await self.database.likes.create_index([("user_id", 1), ("target_id", 1), ("target_type", 1)], unique=True)
             await self.database.likes.create_index([("target_id", 1), ("target_type", 1)])
 
+            # Join requests collection indexes
+            await self.database.join_requests.create_index("request_id", unique=True)
+            await self.database.join_requests.create_index([("trip_id", 1), ("status", 1)])
+            await self.database.join_requests.create_index([("requester_id", 1), ("status", 1)])
+            await self.database.join_requests.create_index([("trip_owner_id", 1), ("status", 1)])
+
+            # Notifications collection indexes
+            await self.database.notifications.create_index("notification_id", unique=True)
+            await self.database.notifications.create_index([("user_id", 1), ("is_read", 1), ("created_at", -1)])
+            await self.database.notifications.create_index([("user_id", 1), ("created_at", -1)])
+
             logger.info("Database indexes created successfully")
 
         except Exception as e:
@@ -136,6 +147,16 @@ class MongoDB:
         if "updated_at" not in document:
             document["updated_at"] = datetime.now(timezone.utc)
 
+        # Log what's being inserted for debugging
+        if collection_name == "trips":
+            logger.info(f"Inserting trip into {collection_name}: trip_id={document.get('trip_id')}, "
+                       f"max_passengers={document.get('max_passengers')}, "
+                       f"travelers={document.get('travelers')}, "
+                       f"end_date={document.get('end_date')}, "
+                       f"is_public={document.get('is_public')}")
+        else:
+            logger.debug(f"Inserting document into {collection_name}")
+
         collection = self.get_collection(collection_name)
         result = await collection.insert_one(document)
         return str(result.inserted_id)
@@ -154,6 +175,10 @@ class MongoDB:
         if "$set" not in update_copy:
             update_copy["$set"] = {}
         update_copy["$set"]["updated_at"] = datetime.now(timezone.utc)
+
+        # Log trip updates
+        if collection_name == "trips":
+            logger.info(f"Updating {collection_name} with filter={filter}, update={update_copy}")
 
         collection = self.get_collection(collection_name)
         result = await collection.update_one(filter, update_copy)

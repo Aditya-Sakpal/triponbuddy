@@ -100,6 +100,7 @@ export interface NeighboringPlace {
 
 export interface Itinerary {
   title: string;
+  destinations: string[];
   destination: string;
   duration_days: number;
   start_date: string;
@@ -131,7 +132,7 @@ export interface Traveler {
 
 export interface TripGenerationRequest {
   user_id: string;
-  destination: string;
+  destinations: string[];
   start_location?: string;
   start_date: string; // ISO date string
   duration_days: number;
@@ -139,6 +140,9 @@ export interface TripGenerationRequest {
   travelers?: Traveler[];
   preferences?: TripPreferences;
   is_international?: boolean;
+  max_passengers?: number;
+  // For backward compatibility - will be removed in future
+  destination?: string;
 }
 
 export interface TripGenerationResponse {
@@ -153,6 +157,7 @@ export interface TripDB {
   trip_id: string;
   user_id: string;
   title: string;
+  destinations: string[];
   destination: string;
   start_location?: string;
   start_date: string;
@@ -166,6 +171,8 @@ export interface TripDB {
   destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
+  max_passengers?: number;
+  joined_users?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -175,6 +182,8 @@ export interface TripUpdateRequest {
   is_saved?: boolean;
   is_public?: boolean;
   tags?: string[];
+  max_passengers?: number;
+  travelers?: Traveler[];
 }
 
 export interface TripListResponse {
@@ -318,4 +327,58 @@ export interface RouteDestinationsResponse {
   arrival_hotel: string;
   destinations: RouteDestination[];
   destination_city: string;
+}
+
+// Join Request and Notification Types
+export interface JoinRequest {
+  request_id: string;
+  trip_id: string;
+  trip_owner_id: string;
+  requester_id: string;
+  requester_name?: string;
+  requester_age: number;
+  requester_gender: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  trip_title: string;
+  trip_destination: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JoinRequestCreate {
+  trip_id: string;
+  age: number;
+  gender: string;
+}
+
+export interface JoinRequestResponse {
+  success: boolean;
+  message?: string;
+  request?: JoinRequest;
+}
+
+export interface JoinRequestAction {
+  request_id: string;
+  action: 'accepted' | 'rejected';
+}
+
+export interface Notification {
+  notification_id: string;
+  user_id: string;
+  type: 'join_request' | 'join_accepted';
+  title: string;
+  message: string;
+  related_trip_id?: string;
+  related_request_id?: string;
+  requester_id?: string;
+  requester_name?: string;
+  is_read: boolean;
+  request_status?: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+}
+
+export interface NotificationListResponse {
+  success: boolean;
+  notifications: Notification[];
+  unread_count: number;
 }

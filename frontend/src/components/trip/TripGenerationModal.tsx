@@ -226,6 +226,18 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
               <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1.5 rounded-full animate-pulse-slow" style={{width: '70%'}}></div>
             </div>
 
+            
+          {/* Cancel Button - outside bouncing animation */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCancel}
+            className="flex items-center gap-2"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </Button>
+
             {/* Travel Tips */}
             <div className="text-center max-w-sm px-2 min-h-[2rem] flex items-center justify-center">
               <p
@@ -237,16 +249,6 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
             </div>
           </div>
 
-          {/* Cancel Button - outside bouncing animation */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCancel}
-            className="flex items-center gap-2"
-          >
-            <X className="w-4 h-4" />
-            Cancel
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

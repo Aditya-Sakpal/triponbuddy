@@ -4,7 +4,7 @@ Trip-related Pydantic models
 
 from typing import List, Optional, Dict, Any
 from datetime import date, datetime
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 from uuid import uuid4
 
 
@@ -110,7 +110,8 @@ class NeighboringPlace(BaseModel):
 class Itinerary(BaseModel):
     """Complete itinerary model"""
     title: str = Field(description="Trip title")
-    destination: str = Field(description="Main destination")
+    destinations: List[str] = Field(min_length=1, description="Ordered list of destinations")
+    destination: str = Field(description="Final destination (last item in destinations)")
     duration_days: int = Field(ge=1, le=30, description="Duration in days")
     start_date: str = Field(description="Start date as ISO string")
     estimated_total_cost: str = Field(description="Total cost in INR")
@@ -122,7 +123,7 @@ class Itinerary(BaseModel):
     transportation_hubs_start: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at starting location")
     transportation_hubs_destination: List[TransportationHub] = Field(default_factory=list, description="Transportation hubs at destination")
     local_transportation: List[LocalTransportation] = Field(default_factory=list, description="Local transportation options at destination")
-    neighboring_places: List[NeighboringPlace] = Field(default_factory=list, description="Nearby places")
+    neighboring_places: List[NeighboringPlace] = Field(default_factory=list, min_length=5, description="Nearby places (minimum 5)")
 
     class Config:
         json_encoders = {
@@ -144,7 +145,7 @@ class TripPreferences(BaseModel):
 class TripGenerationRequest(BaseModel):
     """Request model for trip generation"""
     user_id: str = Field(description="User ID from Clerk")
-    destination: str = Field(description="Destination city/country")
+    destinations: List[str] = Field(min_length=1, description="Ordered list of destinations (last one is final destination)")
     start_location: Optional[str] = Field(default=None, description="Starting location")
     start_date: date = Field(description="Trip start date")
     duration_days: int = Field(ge=1, le=30, description="Trip duration")
@@ -152,6 +153,26 @@ class TripGenerationRequest(BaseModel):
     travelers: Optional[List[Traveler]] = Field(default=None, description="List of travelers with age and gender")
     preferences: Optional[TripPreferences] = Field(default=None, description="User preferences")
     is_international: bool = Field(default=False, description="International trip flag")
+    max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
+    
+    # For backward compatibility - deprecated
+    destination: Optional[str] = Field(default=None, description="DEPRECATED: Use destinations array instead")
+    
+    @model_validator(mode='after')
+    def validate_destinations(self):
+        """Ensure destinations is populated, handling backward compatibility"""
+        if not self.destinations or len(self.destinations) == 0:
+            if self.destination:
+                # Backward compatibility: convert single destination to array
+                self.destinations = [self.destination]
+            else:
+                raise ValueError("At least one destination is required")
+        
+        # Set destination to last item for backward compatibility
+        if not self.destination:
+            self.destination = self.destinations[-1]
+        
+        return self
 
 
 class TripGenerationResponse(BaseModel):
@@ -170,11 +191,20 @@ class TripGenerationResponse(BaseModel):
 
 class TripDB(BaseModel):
     """Trip database model"""
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+    )
+    
     id: Optional[str] = Field(default=None, description="MongoDB ObjectId")
     trip_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique trip ID")
     user_id: str = Field(description="User ID from Clerk")
     title: str = Field(description="Trip title")
-    destination: str = Field(description="Destination")
+    destinations: List[str] = Field(default_factory=list, description="Ordered list of destinations")
+    destination: str = Field(description="Final destination (last item in destinations array)")
     start_location: Optional[str] = Field(default=None, description="Starting location")
     start_date: str = Field(description="Start date as ISO string")
     end_date: Optional[str] = Field(default=None, description="End date as ISO string")
@@ -187,14 +217,10 @@ class TripDB(BaseModel):
     destination_image: Optional[str] = Field(default=None, description="Destination image URL")
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
+    max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
+    joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     updated_at: datetime = Field(default_factory=datetime.utcnow, description="Update timestamp")
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
-            date: lambda v: v.isoformat() if v else None
-        }
 
 
 class TripUpdateRequest(BaseModel):
@@ -203,6 +229,8 @@ class TripUpdateRequest(BaseModel):
     is_saved: Optional[bool] = None
     is_public: Optional[bool] = None
     tags: Optional[List[str]] = None
+    max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
+    travelers: Optional[List[Traveler]] = None
 
 
 class ActivityReplaceRequest(BaseModel):
@@ -299,3 +327,80 @@ class RouteGenerationResponse(BaseModel):
     success: bool = Field(default=True)
     route_plan: RoutePlan = Field(description="Generated route plan")
     message: Optional[str] = Field(default=None)
+
+
+class JoinRequest(BaseModel):
+    """Join request for a trip"""
+    request_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique request ID")
+    trip_id: str = Field(description="Trip ID to join")
+    trip_owner_id: str = Field(description="User ID of trip owner")
+    requester_id: str = Field(description="User ID of requester")
+    requester_name: Optional[str] = Field(default=None, description="Name of requester")
+    requester_age: int = Field(ge=1, le=120, description="Age of requester")
+    requester_gender: str = Field(description="Gender of requester")
+    status: str = Field(default="pending", description="Status: pending, accepted, rejected")
+    trip_title: str = Field(description="Title of the trip")
+    trip_destination: str = Field(description="Destination of the trip")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Request creation timestamp")
+    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Request update timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+
+
+class JoinRequestCreate(BaseModel):
+    """Request model for creating a join request"""
+    trip_id: str = Field(description="Trip ID to join")
+    age: int = Field(ge=1, le=120, description="Age of requester")
+    gender: str = Field(description="Gender of requester")
+
+
+class JoinRequestResponse(BaseModel):
+    """Response model for join request operations"""
+    success: bool = Field(default=True)
+    message: Optional[str] = None
+    request: Optional[JoinRequest] = None
+
+
+class JoinRequestAction(BaseModel):
+    """Request model for accepting/rejecting a join request"""
+    request_id: str = Field(description="Join request ID")
+    action: str = Field(description="Action: accept or reject")
+
+
+class Notification(BaseModel):
+    """Notification model"""
+    notification_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique notification ID")
+    user_id: str = Field(description="User ID who receives the notification")
+    type: str = Field(description="Notification type: join_request, join_accepted")
+    title: str = Field(description="Notification title")
+    message: str = Field(description="Notification message")
+    related_trip_id: Optional[str] = Field(default=None, description="Related trip ID")
+    related_request_id: Optional[str] = Field(default=None, description="Related join request ID")
+    requester_id: Optional[str] = Field(default=None, description="User ID of requester (for join requests)")
+    requester_name: Optional[str] = Field(default=None, description="Name of requester")
+    is_read: bool = Field(default=False, description="Read status")
+    request_status: Optional[str] = Field(default=None, description="Status of related join request: pending, accepted, rejected")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+
+
+class NotificationListResponse(BaseModel):
+    """Response model for notifications list"""
+    success: bool = Field(default=True)
+    notifications: List[Notification] = Field(description="List of notifications")
+    unread_count: int = Field(default=0, description="Count of unread notifications")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }

@@ -54,12 +54,28 @@ class TripService:
                 # Continue without image
 
             # Build trip data using helper
+            # Use model_dump() for Pydantic v2 with mode='python' to include None values
+            request_data = request.model_dump(mode='python', exclude_none=False)
+            logger.info(f"Request data received: max_passengers={request_data.get('max_passengers')}, "
+                       f"travelers={request_data.get('travelers')}, "
+                       f"full request_data keys: {list(request_data.keys())}")
+            
             trip_data = self.data_builder.build_trip_data(
                 user_id=request.user_id,
                 ai_response=ai_response,
-                request_data=request.dict(),
+                request_data=request_data,
                 destination_image=destination_image
             )
+            
+            logger.info(f"Creating trip with max_passengers={trip_data.get('max_passengers')}, "
+                       f"travelers={trip_data.get('travelers')}, "
+                       f"end_date={trip_data.get('end_date')}, "
+                       f"start_date={trip_data.get('start_date')}, "
+                       f"duration_days={trip_data.get('duration_days')}")
+            
+            logger.info(f"FINAL trip_data before MongoDB insert: max_passengers={trip_data.get('max_passengers')}, "
+                       f"travelers={trip_data.get('travelers')}, "
+                       f"travelers type={type(trip_data.get('travelers'))}")
 
             # Save to database
             trip_id = await mongodb.insert_one("trips", trip_data)
@@ -128,10 +144,36 @@ class TripService:
     async def get_trip(self, trip_id: str, user_id: str) -> Optional[Dict[str, Any]]:
 
         try:
+            logger.info(f"Getting trip {trip_id} for user {user_id}")
+            
+            # First try to find trip owned by user
             trip_doc = await mongodb.find_one(
                 "trips",
                 {"trip_id": trip_id, "user_id": user_id}
             )
+            
+            if trip_doc:
+                logger.info(f"Found trip owned by user")
+            
+            # If not found and not owned by user, check if it's a public trip
+            if not trip_doc:
+                logger.info(f"Trip not owned by user, checking if public")
+                trip_doc = await mongodb.find_one(
+                    "trips",
+                    {"trip_id": trip_id, "is_public": True}
+                )
+                if trip_doc:
+                    logger.info(f"Found public trip")
+            
+            # If still not found, check if user has joined this trip
+            if not trip_doc:
+                logger.info(f"Not a public trip, checking if user joined")
+                trip_doc = await mongodb.find_one(
+                    "trips",
+                    {"trip_id": trip_id, "joined_users": user_id}
+                )
+                if trip_doc:
+                    logger.info(f"Found trip where user is joined")
 
             if trip_doc:
                 try:
@@ -149,6 +191,14 @@ class TripService:
                         "error": "Error processing trip data"
                     }
             else:
+                logger.warning(f"Trip {trip_id} not found for user {user_id} (not owned, not public, not joined)")
+                # Check if trip exists at all
+                any_trip = await mongodb.find_one("trips", {"trip_id": trip_id})
+                if any_trip:
+                    logger.info(f"Trip exists but is_public={any_trip.get('is_public', False)}")
+                else:
+                    logger.warning(f"Trip {trip_id} does not exist in database")
+                
                 return {
                     "success": False,
                     "error": "Trip not found"
@@ -166,12 +216,15 @@ class TripService:
     ) -> bool:
 
         try:
+            logger.info(f"Updating trip {trip_id} with updates: {updates.model_dump()}")
+            
             # Validate updates
             if updates.title and not validate_trip_title(updates.title):
                 raise ValueError("Invalid trip title")
 
             # Build update document using helper
             update_doc = self.data_builder.build_update_document(updates)
+            logger.info(f"Built update document: {update_doc}")
 
             if not update_doc:
                 return True  # No updates needed
@@ -182,6 +235,7 @@ class TripService:
                 self.query_builder.build_trip_filter(trip_id, user_id),
                 {"$set": update_doc}
             )
+            logger.info(f"Update result: {success}")
 
             if success and updates.is_saved is not None:
                 # Update user trip count
@@ -247,6 +301,47 @@ class TripService:
 
         except Exception as e:
             logger.error(f"Error unsaving trip: {str(e)}")
+            raise
+
+    async def make_trip_public(self, trip_id: str, user_id: str) -> bool:
+        """Make a trip public for sharing"""
+
+        try:
+            success = await mongodb.update_one(
+                "trips",
+                {"trip_id": trip_id, "user_id": user_id},
+                {"$set": {"is_public": True}}
+            )
+
+            logger.info(f"Trip {trip_id} set to public: {success}")
+            return success
+
+        except Exception as e:
+            logger.error(f"Error making trip public: {str(e)}")
+            raise
+
+    async def can_user_edit_trip(self, trip_id: str, user_id: str) -> bool:
+        """Check if user can edit a trip (must be owner or joined member)"""
+
+        try:
+            trip_doc = await mongodb.find_one("trips", {"trip_id": trip_id})
+            
+            if not trip_doc:
+                return False
+            
+            # Check if user is the owner
+            if trip_doc["user_id"] == user_id:
+                return True
+            
+            # Check if user is a joined member
+            joined_users = trip_doc.get("joined_users", [])
+            if user_id in joined_users:
+                return True
+            
+            return False
+
+        except Exception as e:
+            logger.error(f"Error checking edit permission: {str(e)}")
             raise
 
     async def _update_user_trip_count(self, user_id: str):
