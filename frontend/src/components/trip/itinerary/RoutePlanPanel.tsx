@@ -77,7 +77,7 @@ export const RoutePlanPanel = ({ tripId, userId, destinationCity }: RoutePlanPan
               className="bg-blue-600 hover:bg-blue-700"
             >
               <Route className="mr-2 h-4 w-4" />
-              Open Planner
+              Open
             </Button>
           </div>
         </CardHeader>
