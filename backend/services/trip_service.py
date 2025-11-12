@@ -229,6 +229,9 @@ class TripService:
             if not update_doc:
                 return True  # No updates needed
 
+            # Add updated_at timestamp
+            update_doc["updated_at"] = datetime.now(timezone.utc)
+
             # Update in database
             success = await mongodb.update_one(
                 "trips",
@@ -558,6 +561,56 @@ class TripService:
 
         except Exception as e:
             logger.error(f"Error generating activity alternatives: {str(e)}")
+            raise
+
+    async def get_public_trips(
+        self,
+        page: int = 1,
+        limit: int = 20
+    ) -> Dict[str, Any]:
+        """Get all public trips with available slots for hosting"""
+        
+        try:
+            logger.info(f"Getting public trips with available slots, page: {page}, limit: {limit}")
+            
+            # Build filter for public trips with max_passengers set
+            filter_query = {
+                "is_public": True,
+                "max_passengers": {"$exists": True, "$gt": 0}
+            }
+            
+            logger.info(f"Filter query: {filter_query}")
+
+            # Calculate pagination
+            pagination = self.query_builder.calculate_pagination(page, limit)
+
+            # Get trips
+            trip_docs = await mongodb.find_many(
+                "trips",
+                filter_query,
+                limit=pagination["limit"],
+                skip=pagination["skip"],
+                sort=[("created_at", -1)]
+            )
+            
+            logger.info(f"Found {len(trip_docs)} public trip documents")
+
+            # Convert to TripDB instances
+            trips = convert_mongo_docs_to_trips(trip_docs)
+            
+            logger.info(f"Converted to {len(trips)} TripDB instances")
+
+            # Get total count
+            total = await mongodb.count_documents("trips", filter_query)
+            
+            # Build response
+            result = self.response_builder.build_trips_response(trips, total, page, limit)
+            
+            logger.info(f"Returning result with {len(trips)} public trips, total: {total}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Error getting public trips: {str(e)}")
             raise
 
 

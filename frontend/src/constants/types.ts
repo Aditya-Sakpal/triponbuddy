@@ -173,6 +173,9 @@ export interface TripDB {
   tags: string[];
   max_passengers?: number;
   joined_users?: string[];
+  preferred_gender?: string;
+  age_range_min?: number;
+  age_range_max?: number;
   created_at: string;
   updated_at: string;
 }
@@ -184,6 +187,9 @@ export interface TripUpdateRequest {
   tags?: string[];
   max_passengers?: number;
   travelers?: Traveler[];
+  preferred_gender?: string;
+  age_range_min?: number;
+  age_range_max?: number;
 }
 
 export interface TripListResponse {

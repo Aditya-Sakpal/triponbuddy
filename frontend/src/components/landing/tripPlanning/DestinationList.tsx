@@ -58,10 +58,17 @@ interface DestinationListProps {
   onChange: (destinations: string[]) => void;
   isInternational: boolean;
   className?: string;
+  onPendingDestinationChange?: (destination: string) => void;
 }
 
-export const DestinationList = ({ destinations, onChange, isInternational, className = "" }: DestinationListProps) => {
+export const DestinationList = ({ destinations, onChange, isInternational, className = "", onPendingDestinationChange }: DestinationListProps) => {
   const [newDestination, setNewDestination] = useState("");
+  
+  // Notify parent of pending destination changes
+  const handleNewDestinationChange = (value: string) => {
+    setNewDestination(value);
+    onPendingDestinationChange?.(value);
+  };
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -139,7 +146,7 @@ export const DestinationList = ({ destinations, onChange, isInternational, class
           <div className="flex-1">
             <LocationAutocomplete
               value={newDestination}
-              onChange={setNewDestination}
+              onChange={handleNewDestinationChange}
               placeholder={destinations.length === 0 ? "Enter your first destination" : "Add another destination"}
               icon={<MapPin className="w-4 h-4 text-primary" />}
             />

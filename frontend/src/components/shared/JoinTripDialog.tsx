@@ -32,6 +32,9 @@ interface JoinTripDialogProps {
   tripId: string;
   tripTitle: string;
   tripDestination: string;
+  preferredGender?: string | null;
+  ageRangeMin?: number | null;
+  ageRangeMax?: number | null;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -41,6 +44,9 @@ export const JoinTripDialog = ({
   tripId,
   tripTitle,
   tripDestination,
+  preferredGender,
+  ageRangeMin,
+  ageRangeMax,
   isOpen,
   onClose,
   onSuccess,
@@ -70,10 +76,50 @@ export const JoinTripDialog = ({
       return;
     }
 
+    // Validate age must be 18+
+    if (parseInt(age) < 18) {
+      toast({
+        title: "Age Restriction",
+        description: "Sorry, you must be at least 18 years old to join trips.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!gender) {
       toast({
         title: "Gender required",
         description: "Please select your gender",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate against trip's gender preference
+    if (preferredGender && preferredGender !== null && preferredGender !== "" && preferredGender !== gender) {
+      toast({
+        title: "Gender Requirement Not Met",
+        description: "We apologize, but the trip owner is looking for travel companions with similar preferences.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate against trip's age range
+    const ageNum = parseInt(age);
+    if (ageRangeMin !== null && ageRangeMin !== undefined && ageNum < ageRangeMin) {
+      toast({
+        title: "Age Requirement Not Met",
+        description: `We apologize, but the trip owner is looking for travelers aged ${ageRangeMin} and above.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (ageRangeMax !== null && ageRangeMax !== undefined && ageNum > ageRangeMax) {
+      toast({
+        title: "Age Requirement Not Met",
+        description: `We apologize, but the trip owner is looking for travelers aged ${ageRangeMax} and below.`,
         variant: "destructive",
       });
       return;
@@ -100,8 +146,6 @@ export const JoinTripDialog = ({
 
       const data = await response.json();
       
-      console.log("Join request response:", { status: response.status, data });
-
       if (!response.ok || !data.success) {
         throw new Error(data.detail || data.message || "Failed to send join request");
       }
@@ -156,6 +200,32 @@ export const JoinTripDialog = ({
             <p className="text-sm text-muted-foreground">📍 {tripDestination}</p>
           </div>
 
+          {/* Requirements Info */}
+          {((preferredGender && preferredGender !== null && preferredGender !== "") || 
+            (ageRangeMin !== null && ageRangeMin !== undefined) || 
+            (ageRangeMax !== null && ageRangeMax !== undefined)) && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-xs font-semibold text-amber-900 mb-1">Trip Requirements:</p>
+              <div className="space-y-1">
+                {preferredGender && preferredGender !== null && preferredGender !== "" && (
+                  <p className="text-xs text-amber-800">
+                    • Gender: {preferredGender.charAt(0).toUpperCase() + preferredGender.slice(1)}
+                  </p>
+                )}
+                {((ageRangeMin !== null && ageRangeMin !== undefined) || 
+                  (ageRangeMax !== null && ageRangeMax !== undefined)) && (
+                  <p className="text-xs text-amber-800">
+                    • Age: {ageRangeMin && ageRangeMax
+                      ? `${ageRangeMin}-${ageRangeMax} years`
+                      : ageRangeMin
+                      ? `${ageRangeMin}+ years`
+                      : `Up to ${ageRangeMax} years`}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Age Input */}
           <div className="space-y-2">
             <Label htmlFor="join-age">
@@ -164,13 +234,16 @@ export const JoinTripDialog = ({
             <Input
               id="join-age"
               type="number"
-              min="1"
+              min="18"
               max="120"
-              placeholder="Enter your age"
+              placeholder="Enter your age (must be 18+)"
               value={age}
               onChange={(e) => setAge(e.target.value)}
               disabled={isSubmitting}
             />
+            <p className="text-xs text-muted-foreground">
+              You must be at least 18 years old to join trips
+            </p>
           </div>
 
           {/* Gender Select */}

@@ -67,6 +67,37 @@ class JoinRequestService:
             if existing_request:
                 return {"success": False, "message": "You already have a pending request for this trip"}
 
+            # Validate age requirement (must be 18+)
+            if request_data.age < 18:
+                return {
+                    "success": False, 
+                    "message": "Sorry, you must be at least 18 years old to join trips."
+                }
+
+            # Check gender preference
+            preferred_gender = trip_doc.get("preferred_gender")
+            if preferred_gender and preferred_gender != request_data.gender:
+                return {
+                    "success": False, 
+                    "message": "We apologize, but the trip owner is looking for travel companions with similar preferences."
+                }
+
+            # Check age range
+            age_min = trip_doc.get("age_range_min")
+            age_max = trip_doc.get("age_range_max")
+            
+            if age_min is not None and request_data.age < age_min:
+                return {
+                    "success": False, 
+                    "message": f"We apologize, but the trip owner is looking for travelers aged {age_min} and above."
+                }
+            
+            if age_max is not None and request_data.age > age_max:
+                return {
+                    "success": False, 
+                    "message": f"We apologize, but the trip owner is looking for travelers aged {age_max} and below."
+                }
+
             # Create join request
             join_request = JoinRequest(
                 trip_id=trip_id,

@@ -46,6 +46,34 @@ async def generate_trip(
         )
 
 
+@router.get("/public", response_model=TripListResponse)
+async def get_public_trips(
+    request: Request,
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=200, description="Items per page")
+):
+    """Get all public trips with available slots for hosting"""
+
+    try:
+        logger.info(f"Getting public trips, page: {page}, limit: {limit}")
+        result = await trip_service.get_public_trips(
+            page=page,
+            limit=limit
+        )
+        logger.info(f"Service returned: {type(result)} with keys: {result.keys() if isinstance(result, dict) else 'Not a dict'}")
+        
+        response = TripListResponse(**result)
+        logger.info(f"Response model created successfully: {type(response)}")
+        return response
+
+    except Exception as e:
+        logger.error(f"Error getting public trips: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to retrieve public trips"
+        )
+
+
 @router.get("", response_model=TripListResponse)
 async def get_user_trips(
     request: Request,

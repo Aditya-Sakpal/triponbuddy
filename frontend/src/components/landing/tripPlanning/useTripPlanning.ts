@@ -13,13 +13,13 @@ import {
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
   const [destinations, setDestinations] = useState<string[]>([]);
+  const [pendingDestination, setPendingDestination] = useState("");
   const [startLocation, setStartLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
-  const [maxPassengers, setMaxPassengers] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -102,7 +102,7 @@ export const useTripPlanning = () => {
         travelers: travelers.length > 0 ? travelers : [],  // Send empty array instead of undefined
         preferences,
         is_international: isInternational,
-        max_passengers: maxPassengers || undefined,  // Keep as number or undefined
+        // max_passengers removed - can only be set when hosting a trip
       },
       signal: controller.signal,
     });
@@ -145,7 +145,12 @@ export const useTripPlanning = () => {
   const handlePlanTrip = () => {
     const userId = getCurrentUserId();
 
-    if (!destinations || destinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
+    // Use pending destination if destinations array is empty but there's a typed destination
+    const effectiveDestinations = destinations.length > 0 
+      ? destinations 
+      : (pendingDestination.trim() ? [pendingDestination.trim()] : []);
+
+    if (effectiveDestinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
       alert('Please fill in all required fields');
       return;
     }
@@ -153,7 +158,7 @@ export const useTripPlanning = () => {
     setIsGenerating(true);
 
     // Use the final destination for modal images
-    const finalDestination = destinations[destinations.length - 1];
+    const finalDestination = effectiveDestinations[effectiveDestinations.length - 1];
 
     fetchModalImages(
       singleImageMutation,
@@ -161,7 +166,7 @@ export const useTripPlanning = () => {
       setModalImages,
       () => {
         const userPreferences = buildTripPreferences(selectedPreferences);
-        initiateTrip(userId, destinations, startLocation, startDate, durationDays, userPreferences);
+        initiateTrip(userId, effectiveDestinations, startLocation, startDate, durationDays, userPreferences);
       }
     );
   };
@@ -184,6 +189,9 @@ export const useTripPlanning = () => {
     }
   };
 
+  // Check if we have at least one destination (either in array or pending)
+  const hasDestination = destinations.length > 0 || pendingDestination.trim().length > 0;
+
   return {
     // State
     selectedPreferences,
@@ -198,17 +206,16 @@ export const useTripPlanning = () => {
     isLoaded,
     travelers,
     budget,
-    maxPassengers,
     
     // Setters
     setDestinations,
+    setPendingDestination,
     setStartLocation,
     setStartDate,
     setDurationDays,
     setIsInternational,
     setTravelers,
     setBudget,
-    setMaxPassengers,
     
     // Actions
     handleDemo,
@@ -218,6 +225,6 @@ export const useTripPlanning = () => {
     
     // Computed
     isPending: generateTripMutation.isPending,
-    isDisabled: !destinations || destinations.length === 0 || !startDate || !durationDays,
+    isDisabled: !hasDestination || !startDate || durationDays < 1,
   };
 };

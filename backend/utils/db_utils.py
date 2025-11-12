@@ -22,6 +22,7 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "trip_id": doc_copy.get("trip_id"),
         "user_id": doc_copy.get("user_id"),
         "title": doc_copy.get("title"),
+        "destinations": doc_copy.get("destinations", []),
         "destination": doc_copy.get("destination"),
         "start_location": doc_copy.get("start_location"),
         "start_date": doc_copy.get("start_date"),
@@ -37,6 +38,9 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "tags": doc_copy.get("tags", []),
         "max_passengers": doc_copy.get("max_passengers"),
         "joined_users": doc_copy.get("joined_users", []),
+        "preferred_gender": doc_copy.get("preferred_gender"),
+        "age_range_min": doc_copy.get("age_range_min"),
+        "age_range_max": doc_copy.get("age_range_max"),
         "created_at": doc_copy.get("created_at"),
         "updated_at": doc_copy.get("updated_at"),
     }

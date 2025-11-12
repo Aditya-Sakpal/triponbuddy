@@ -219,6 +219,9 @@ class TripDB(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
     joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
+    preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
+    age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
+    age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     updated_at: datetime = Field(default_factory=datetime.utcnow, description="Update timestamp")
 
@@ -231,6 +234,9 @@ class TripUpdateRequest(BaseModel):
     tags: Optional[List[str]] = None
     max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
     travelers: Optional[List[Traveler]] = None
+    preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
+    age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
+    age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
 
 
 class ActivityReplaceRequest(BaseModel):
