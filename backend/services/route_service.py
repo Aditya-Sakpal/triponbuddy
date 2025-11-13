@@ -2,6 +2,8 @@ import logging
 from typing import Dict, Any
 from google import genai
 from config import settings
+import json
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -137,8 +139,7 @@ class RouteService:
     def _parse_route_response(self, response_text: str) -> Dict[str, Any]:
         """Parse the AI response and extract route data"""
         
-        import json
-        import re
+ 
         
         try:
             # Remove markdown code block formatting if present

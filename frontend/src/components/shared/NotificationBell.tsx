@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { Bell, Check, X, UserPlus, CheckCircle } from "lucide-react";
+import { Bell, Check, X, UserPlus, CheckCircle, Shield } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Notification } from "@/constants";
 import { formatDistanceToNow } from "date-fns";
+import { EmergencyNumberModal } from "./EmergencyNumberModal";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -26,6 +27,35 @@ export const NotificationBell = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [tripsWithEmergencyNumbers, setTripsWithEmergencyNumbers] = useState<Set<string>>(new Set());
+
+  // Fetch user's trips to check emergency numbers
+  const fetchTripsEmergencyStatus = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/trips?user_id=${user.id}&page=1&limit=100`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.trips) {
+          const tripsWithNumbers = new Set<string>();
+          data.trips.forEach((trip: { emergency_contact_number?: string; is_joined?: boolean; original_trip_id?: string; trip_id: string }) => {
+            if (trip.emergency_contact_number && trip.is_joined) {
+              tripsWithNumbers.add(trip.original_trip_id || trip.trip_id);
+            }
+          });
+          setTripsWithEmergencyNumbers(tripsWithNumbers);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching trips emergency status:", error);
+    }
+  }, [user]);
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
@@ -83,12 +113,16 @@ export const NotificationBell = () => {
   useEffect(() => {
     if (isSignedIn) {
       fetchNotifications();
+      fetchTripsEmergencyStatus();
       
       // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchNotifications, 30000);
+      const interval = setInterval(() => {
+        fetchNotifications();
+        fetchTripsEmergencyStatus();
+      }, 30000);
       return () => clearInterval(interval);
     }
-  }, [isSignedIn, fetchNotifications]);
+  }, [isSignedIn, fetchNotifications, fetchTripsEmergencyStatus]);
 
   // Track handled requests to hide buttons
   const [handledRequests, setHandledRequests] = useState<Set<string>>(new Set());
@@ -151,6 +185,7 @@ export const NotificationBell = () => {
   if (!isSignedIn) return null;
 
   return (
+    <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -261,6 +296,39 @@ export const NotificationBell = () => {
                             </span>
                           </div>
                         )}
+
+                      {/* Setup Safety button for accepted join requests without emergency number */}
+                      {notification.type === "join_accepted" && 
+                       notification.related_trip_id && 
+                       !tripsWithEmergencyNumbers.has(notification.related_trip_id) && (
+                        <div className="mt-2">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedNotification(notification);
+                              setShowEmergencyModal(true);
+                              setIsOpen(false);
+                            }}
+                          >
+                            <Shield className="h-3 w-3 mr-1" />
+                            Setup Safety
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Show safety set confirmation for trips with emergency number */}
+                      {notification.type === "join_accepted" && 
+                       notification.related_trip_id && 
+                       tripsWithEmergencyNumbers.has(notification.related_trip_id) && (
+                        <div className="mt-2">
+                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">
+                            ✓ Safety Setup Complete
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -271,5 +339,23 @@ export const NotificationBell = () => {
         </div>
       </PopoverContent>
     </Popover>
+
+    {/* Emergency Number Setup Modal */}
+    {selectedNotification && (
+      <EmergencyNumberModal
+        tripId={selectedNotification.related_trip_id || ""}
+        tripTitle={selectedNotification.message.split("trip to ")[1]?.replace("has been accepted!", "") || "your trip"}
+        isOpen={showEmergencyModal}
+        onClose={() => {
+          setShowEmergencyModal(false);
+          setSelectedNotification(null);
+        }}
+        onSuccess={() => {
+          fetchNotifications();
+          fetchTripsEmergencyStatus();
+        }}
+      />
+    )}
+    </>
   );
 };

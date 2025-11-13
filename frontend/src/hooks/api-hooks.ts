@@ -20,16 +20,13 @@ export const useGenerateTrip = () => {
 
   return useMutation({
     mutationFn: ({ request, signal }: { request: TripGenerationRequest; signal?: AbortSignal }) => {
-      // console.log('🚀 Mutation function called with:', request);
       return TripsApiService.generateTrip(request, signal);
     },
     onMutate: () => {
-      // console.log('🔄 Mutation started');
       setLoading(true);
       setError(null);
     },
     onSuccess: (data) => {
-      // console.log('✅ Mutation success, data received:', data);
       // The backend creates a trip record, so we should invalidate trips queries
       queryClient.invalidateQueries({ queryKey: queryKeys.trips });
       addNotification({

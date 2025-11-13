@@ -4,14 +4,18 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar, MapPin, Clock, BookmarkCheck, Info } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
 import { TripCardActions } from "@/components/trip";
+import { JoinedTripCardActions } from "./JoinedTripCardActions";
 import { formatDate, getCalculatedBudget } from "@/utils/tripUtils";
 
 interface TripCardProps {
   trip: TripDB;
+  onTripLeft?: () => void;
+  onEmergencyNumberSet?: () => void;
 }
 
-export const TripCard = ({ trip }: TripCardProps) => {
+export const TripCard = ({ trip, onTripLeft, onEmergencyNumberSet }: TripCardProps) => {
   const itinerary = trip.itinerary_data as unknown as Itinerary;
+  const isJoinedTrip = (trip as any).is_joined === true;
   
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -112,7 +116,15 @@ export const TripCard = ({ trip }: TripCardProps) => {
             Created {formatDate(trip.created_at)}
           </div>
 
-          <TripCardActions trip={trip} />
+          {isJoinedTrip ? (
+            <JoinedTripCardActions 
+              trip={trip} 
+              onTripLeft={onTripLeft} 
+              onEmergencyNumberSet={onEmergencyNumberSet}
+            />
+          ) : (
+            <TripCardActions trip={trip} />
+          )}
         </div>
       </div>
     </CardContent>

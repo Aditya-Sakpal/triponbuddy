@@ -13,6 +13,7 @@ import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import Trip from "./pages/Trip";
 import Forum from "./pages/Forum";
+import HostedTrips from "./pages/HostedTrips";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Pricing from "./pages/Pricing";
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/forum" element={<Forum />} />
+                <Route path="/hosted-trips" element={<HostedTrips />} />
                 <Route
                   path="/profile"
                   element={

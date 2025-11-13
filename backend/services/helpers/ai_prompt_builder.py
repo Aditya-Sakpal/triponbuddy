@@ -92,7 +92,7 @@ class AIPromptBuilder:
                     ]
                 }}
             ],
-            "accommodation": [
+            "accommodation": [ // as many options as possible across categories
                 {{
                     "name": "[Hotel Name 1]",
                     "type": "Budget",
@@ -102,33 +102,6 @@ class AIPromptBuilder:
                     "booking_url": "[URL]",
                     "amenities": ["Amenity 1", "Amenity 2"]
                 }},
-                {{
-                    "name": "[Hotel Name 2]",
-                    "type": "Mid-Range",
-                    "price_range": "₹1500-3500/night",
-                    "rating": "3.5-4.0/5",
-                    "location": "[Location]",
-                    "booking_url": "[URL]",
-                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3"]
-                }},
-                {{
-                    "name": "[Hotel Name 3]",
-                    "type": "Premium",
-                    "price_range": "₹3500-7000/night",
-                    "rating": "4.0-4.5/5",
-                    "location": "[Location]",
-                    "booking_url": "[URL]",
-                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3", "Amenity 4"]
-                }},
-                {{
-                    "name": "[Hotel Name 4]",
-                    "type": "Luxury",
-                    "price_range": "₹7000+/night",
-                    "rating": "4.5-5.0/5",
-                    "location": "[Location]",
-                    "booking_url": "[URL]",
-                    "amenities": ["Amenity 1", "Amenity 2", "Amenity 3", "Amenity 4", "Amenity 5"]
-                }}
             ],
             "transportation": {{
                 "routes": [
@@ -207,7 +180,7 @@ class AIPromptBuilder:
                     "booking_info": "[How to book tickets]"
                 }}
             ],
-            "neighboring_places": [
+            "neighboring_places": [ // At least 5 neighboring places
                 {{
                     "name": "[Place Name 1]",
                     "distance": "[Distance]",
@@ -217,42 +190,6 @@ class AIPromptBuilder:
                     "estimated_cost": "₹XXX",
                     "image_search_query": "[Query]"
                 }},
-                {{
-                    "name": "[Place Name 2]",
-                    "distance": "[Distance]",
-                    "description": "[Description]",
-                    "time_to_reach": "[Time]",
-                    "best_known_for": "[Known for]",
-                    "estimated_cost": "₹XXX",
-                    "image_search_query": "[Query]"
-                }},
-                {{
-                    "name": "[Place Name 3]",
-                    "distance": "[Distance]",
-                    "description": "[Description]",
-                    "time_to_reach": "[Time]",
-                    "best_known_for": "[Known for]",
-                    "estimated_cost": "₹XXX",
-                    "image_search_query": "[Query]"
-                }},
-                {{
-                    "name": "[Place Name 4]",
-                    "distance": "[Distance]",
-                    "description": "[Description]",
-                    "time_to_reach": "[Time]",
-                    "best_known_for": "[Known for]",
-                    "estimated_cost": "₹XXX",
-                    "image_search_query": "[Query]"
-                }},
-                {{
-                    "name": "[Place Name 5]",
-                    "distance": "[Distance]",
-                    "description": "[Description]",
-                    "time_to_reach": "[Time]",
-                    "best_known_for": "[Known for]",
-                    "estimated_cost": "₹XXX",
-                    "image_search_query": "[Query]"
-                }}
             ]
         }}
 

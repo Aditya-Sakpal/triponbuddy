@@ -9,10 +9,9 @@ import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingB
 import { useState, useEffect, useMemo } from "react";
 import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
-import { TravelerInput } from "@/components/landing/tripPlanning/TravelerInput";
-import { BudgetMaxPassengersInput } from "@/components/landing/tripPlanning/BudgetMaxPassengersInput";
+import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
-import type { TripDB, TripPreferences, Itinerary, ImageData, Traveler } from "@/constants";
+import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -29,9 +28,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
-  const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
-  const [maxPassengers, setMaxPassengers] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -62,8 +59,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       setDurationDays(trip.duration_days || 3);
       setIsInternational(trip.is_international || false);
       setBudget(trip.budget);
-      setTravelers(trip.travelers || []);
-      setMaxPassengers(trip.max_passengers);
       
       // Extract preferences from trip data
       const itinerary = trip.itinerary_data as unknown as Itinerary;
@@ -93,7 +88,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   // Handle trip generation success
   useEffect(() => {
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
-      console.log('Trip updated successfully, new trip ID:', generateTripMutation.data.trip_id);
       setIsGenerating(false);
       setModalImages([]);
       onTripUpdated(generateTripMutation.data.trip_id);
@@ -151,10 +145,9 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         start_date: startDate,
         duration_days: durationDays,
         budget: budget,
-        travelers: travelers.length > 0 ? travelers : undefined,
         preferences: userPreferences,
         is_international: isInternational,
-        max_passengers: maxPassengers,
+        // max_passengers removed - can only be set when hosting a trip
       },
       signal: controller.signal,
     });
@@ -193,9 +186,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     }
     if (originalPrefs.length === 0) originalPrefs.push('Relaxation');
 
-    const travelersChanged = JSON.stringify(travelers) !== JSON.stringify(trip.travelers || []);
     const budgetChanged = budget !== trip.budget;
-    const maxPassengersChanged = maxPassengers !== trip.max_passengers;
     
     // Check destinations array
     const originalDestinations = trip.destinations && trip.destinations.length > 0 
@@ -209,9 +200,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       startDate !== (trip.start_date || "") ||
       durationDays !== (trip.duration_days || 3) ||
       isInternational !== (trip.is_international || false) ||
-      travelersChanged ||
       budgetChanged ||
-      maxPassengersChanged ||
       JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
     );
   };
@@ -310,19 +299,10 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                 </div>
               </div>
 
-              {/* Travelers Section */}
-              <TravelerInput
-                travelers={travelers}
-                setTravelers={setTravelers}
-              />
-
-              {/* Budget and Max Passengers Section */}
-              <BudgetMaxPassengersInput
+              {/* Budget Section */}
+              <BudgetInput
                 budget={budget}
                 setBudget={setBudget}
-                maxPassengers={maxPassengers}
-                setMaxPassengers={setMaxPassengers}
-                currentTravelers={travelers.length}
               />
 
               {/* Travel Preferences */}

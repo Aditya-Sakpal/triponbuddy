@@ -20,7 +20,7 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 my-4">
       <Label htmlFor="budget" className="flex items-center gap-2 text-sm font-medium">
         <IndianRupee className="w-5 h-5" />
         Budget (Optional)

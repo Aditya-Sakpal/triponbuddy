@@ -6,6 +6,7 @@ import json
 import logging
 from typing import List
 from bs4 import BeautifulSoup
+from urllib.parse import quote_plus
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,6 @@ class BingSearchUrlBuilder:
         Returns:
             Properly formatted Bing image search URL
         """
-        from urllib.parse import quote_plus
         
         # URL encode the query (quote_plus handles spaces and special chars)
         encoded_query = quote_plus(query)

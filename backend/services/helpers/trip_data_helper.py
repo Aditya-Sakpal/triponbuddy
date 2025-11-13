@@ -105,6 +105,15 @@ class TripDataBuilder:
             update_doc["max_passengers"] = updates.max_passengers
         if updates.travelers is not None:
             update_doc["travelers"] = updates.travelers
+        
+        # Handle gender and age range specifications
+        # Check for explicit None to allow clearing these fields
+        if hasattr(updates, 'preferred_gender'):
+            update_doc["preferred_gender"] = updates.preferred_gender
+        if hasattr(updates, 'age_range_min'):
+            update_doc["age_range_min"] = updates.age_range_min
+        if hasattr(updates, 'age_range_max'):
+            update_doc["age_range_max"] = updates.age_range_max
             
         return update_doc
 

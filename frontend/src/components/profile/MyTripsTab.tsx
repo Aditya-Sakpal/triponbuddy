@@ -16,22 +16,33 @@ export const MyTripsTab = () => {
   const [sortBy, setSortBy] = useState<SortOption>("date-newest");
   const [tripType, setTripType] = useState<TripTypeOption>("all");
 
-  const { data: tripsData, isLoading } = useTrips({
+  const { data: tripsData, isLoading, refetch } = useTrips({
     user_id: user?.id || "",
     page: 1,
     limit: 100, // Get all trips for client-side filtering
   });
 
   const trips = tripsData?.trips || [];
-  const { savedTrips, historyTrips, filterAndSortTrips } = useTripFilters(
+  const { savedTrips, historyTrips, joinedTrips, filterAndSortTrips } = useTripFilters(
     trips,
     searchQuery,
     sortBy,
-    tripType
+    tripType,
+    user?.id
   );
 
   const handlePlanNewTrip = () => {
     navigate("/");
+  };
+
+  const handleTripLeft = () => {
+    // Refresh the trips list
+    refetch();
+  };
+
+  const handleEmergencyNumberSet = () => {
+    // Refresh the trips list to show updated emergency number
+    refetch();
   };
 
   if (!user) {
@@ -58,8 +69,11 @@ export const MyTripsTab = () => {
       <TripTabs
         historyTrips={historyTrips}
         savedTrips={savedTrips}
+        joinedTrips={joinedTrips}
         searchQuery={searchQuery}
         filterAndSortTrips={filterAndSortTrips}
+        onTripLeft={handleTripLeft}
+        onEmergencyNumberSet={handleEmergencyNumberSet}
       />
     </div>
   );

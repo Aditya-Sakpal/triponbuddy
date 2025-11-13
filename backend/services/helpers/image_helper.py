@@ -3,7 +3,7 @@ Image processing and validation helpers
 """
 
 import logging
-from typing import Set, Dict, Any
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

@@ -229,6 +229,9 @@ class TripService:
             if not update_doc:
                 return True  # No updates needed
 
+            # Add updated_at timestamp
+            update_doc["updated_at"] = datetime.now(timezone.utc)
+
             # Update in database
             success = await mongodb.update_one(
                 "trips",
@@ -558,6 +561,162 @@ class TripService:
 
         except Exception as e:
             logger.error(f"Error generating activity alternatives: {str(e)}")
+            raise
+
+    async def get_public_trips(
+        self,
+        page: int = 1,
+        limit: int = 20
+    ) -> Dict[str, Any]:
+        """Get all public trips with available slots for hosting"""
+        
+        try:
+            logger.info(f"Getting public trips with available slots, page: {page}, limit: {limit}")
+            
+            # Build filter for public trips with max_passengers set
+            filter_query = {
+                "is_public": True,
+                "max_passengers": {"$exists": True, "$gt": 0}
+            }
+            
+            logger.info(f"Filter query: {filter_query}")
+
+            # Calculate pagination
+            pagination = self.query_builder.calculate_pagination(page, limit)
+
+            # Get trips
+            trip_docs = await mongodb.find_many(
+                "trips",
+                filter_query,
+                limit=pagination["limit"],
+                skip=pagination["skip"],
+                sort=[("created_at", -1)]
+            )
+            
+            logger.info(f"Found {len(trip_docs)} public trip documents")
+
+            # Convert to TripDB instances
+            trips = convert_mongo_docs_to_trips(trip_docs)
+            
+            logger.info(f"Converted to {len(trips)} TripDB instances")
+
+            # Get total count
+            total = await mongodb.count_documents("trips", filter_query)
+            
+            # Build response
+            result = self.response_builder.build_trips_response(trips, total, page, limit)
+            
+            logger.info(f"Returning result with {len(trips)} public trips, total: {total}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Error getting public trips: {str(e)}")
+            raise
+
+    async def set_emergency_number(
+        self,
+        trip_id: str,
+        user_id: str,
+        emergency_number: str
+    ) -> Dict[str, Any]:
+        """Set emergency contact number for a joined trip"""
+        try:
+            # Verify the trip exists and user has joined it
+            trip_doc = await mongodb.find_one(
+                "trips",
+                {
+                    "trip_id": trip_id,
+                    "user_id": user_id,
+                    "is_joined": True
+                }
+            )
+
+            if not trip_doc:
+                return {
+                    "success": False,
+                    "message": "Trip not found or you haven't joined this trip"
+                }
+
+            # Update the emergency contact number
+            await mongodb.update_one(
+                "trips",
+                {"trip_id": trip_id, "user_id": user_id},
+                {"$set": {"emergency_contact_number": emergency_number, "updated_at": datetime.now(timezone.utc)}}
+            )
+
+            logger.info(f"Emergency number set for trip {trip_id} by user {user_id}")
+            return {
+                "success": True,
+                "message": "Emergency contact number saved successfully"
+            }
+
+        except Exception as e:
+            logger.error(f"Error setting emergency number: {str(e)}")
+            raise
+
+    async def leave_trip(self, trip_id: str, user_id: str) -> Dict[str, Any]:
+        """Leave a joined trip and remove all instances across the platform"""
+        try:
+            # Find the joined trip copy for this user
+            joined_trip = await mongodb.find_one(
+                "trips",
+                {
+                    "user_id": user_id,
+                    "is_joined": True,
+                    "original_trip_id": trip_id
+                }
+            )
+
+            if not joined_trip:
+                # Try with trip_id directly (in case it's the joined copy's ID)
+                joined_trip = await mongodb.find_one(
+                    "trips",
+                    {
+                        "trip_id": trip_id,
+                        "user_id": user_id,
+                        "is_joined": True
+                    }
+                )
+
+                if not joined_trip:
+                    return {
+                        "success": False,
+                        "message": "Joined trip not found"
+                    }
+
+            # Get the original trip ID
+            original_trip_id = joined_trip.get("original_trip_id") or trip_id
+
+            # Delete the joined trip copy
+            await mongodb.delete_one(
+                "trips",
+                {
+                    "trip_id": joined_trip["trip_id"],
+                    "user_id": user_id
+                }
+            )
+
+            # Remove user from the original trip's joined_users array
+            await mongodb.update_one(
+                "trips",
+                {"trip_id": original_trip_id},
+                {
+                    "$pull": {
+                        "joined_users": user_id,
+                        "joined_users_demographics": {"user_id": user_id}
+                    },
+                    "$set": {"updated_at": datetime.now(timezone.utc)}
+                }
+            )
+
+            logger.info(f"User {user_id} left trip {original_trip_id}")
+            return {
+                "success": True,
+                "message": "Successfully left the trip"
+            }
+
+        except Exception as e:
+            logger.error(f"Error leaving trip: {str(e)}")
             raise
 
 

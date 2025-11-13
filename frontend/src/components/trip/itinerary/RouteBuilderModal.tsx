@@ -21,14 +21,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Route, Loader2, X } from "lucide-react";
 import { RouteDestination, RoutePlan } from "@/constants";
 import { TripsApiService } from "@/lib/api-services";
 import { useToast } from "@/hooks/use-toast";
 import { RouteVisualization } from "./RouteVisualization";
 import { DestinationNode, FloatingEdge } from "./components";
-import type { DestinationNodeData } from "./components";
 
 interface RouteBuilderModalProps {
   isOpen: boolean;

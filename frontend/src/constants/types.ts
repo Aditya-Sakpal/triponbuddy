@@ -167,12 +167,23 @@ export interface TripDB {
   travelers?: Traveler[];
   is_international: boolean;
   is_saved: boolean;
+  is_joined?: boolean;
   is_public?: boolean;
   destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
   max_passengers?: number;
   joined_users?: string[];
+  joined_users_demographics?: Array<{
+    user_id: string;
+    age: number;
+    gender: string;
+  }>;
+  original_trip_id?: string;
+  preferred_gender?: string;
+  age_range_min?: number;
+  age_range_max?: number;
+  emergency_contact_number?: string;
   created_at: string;
   updated_at: string;
 }
@@ -184,6 +195,10 @@ export interface TripUpdateRequest {
   tags?: string[];
   max_passengers?: number;
   travelers?: Traveler[];
+  preferred_gender?: string;
+  age_range_min?: number;
+  age_range_max?: number;
+  emergency_contact_number?: string;
 }
 
 export interface TripListResponse {

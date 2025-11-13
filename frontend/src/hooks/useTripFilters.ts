@@ -8,15 +8,53 @@ export const useTripFilters = (
   trips: TripDB[],
   searchQuery: string,
   sortBy: SortOption,
-  tripType: TripTypeOption
+  tripType: TripTypeOption,
+  currentUserId?: string
 ) => {
-  // Separate saved and unsaved trips
-  const savedTrips = useMemo(() =>
-    trips.filter(trip => trip.is_saved), [trips]
+  // Separate joined trips (trips with is_joined flag or where user is in joined_users but not the owner)
+  const joinedTrips = useMemo(() =>
+    trips.filter(trip => {
+      // Primary check: is_joined flag (for trip copies)
+      if ((trip as any).is_joined === true) {
+        return true;
+      }
+      // Legacy check: user is in joined_users array but not the owner
+      return currentUserId && 
+        trip.joined_users && 
+        trip.joined_users.includes(currentUserId) &&
+        trip.user_id !== currentUserId;
+    }), [trips, currentUserId]
   );
 
+  // Separate saved trips (excluding joined trips)
+  // Note: Explicitly exclude trips with is_joined flag or where user is in joined_users array
+  const savedTrips = useMemo(() =>
+    trips.filter(trip => {
+      // Exclude trips with is_joined flag
+      if ((trip as any).is_joined === true) {
+        return false;
+      }
+      // Exclude legacy joined trips
+      if (currentUserId && trip.joined_users && trip.joined_users.includes(currentUserId) && trip.user_id !== currentUserId) {
+        return false;
+      }
+      return trip.is_saved === true;
+    }), [trips, currentUserId]
+  );
+
+  // History trips (unsaved, not joined)
   const historyTrips = useMemo(() =>
-    trips.filter(trip => !trip.is_saved), [trips]
+    trips.filter(trip => {
+      // Exclude trips with is_joined flag
+      if ((trip as any).is_joined === true) {
+        return false;
+      }
+      // Exclude legacy joined trips
+      if (currentUserId && trip.joined_users && trip.joined_users.includes(currentUserId) && trip.user_id !== currentUserId) {
+        return false;
+      }
+      return trip.is_saved === false;
+    }), [trips, currentUserId]
   );
 
   // Filter and sort function
@@ -58,6 +96,7 @@ export const useTripFilters = (
   return {
     savedTrips,
     historyTrips,
+    joinedTrips,
     filterAndSortTrips,
   };
 };
