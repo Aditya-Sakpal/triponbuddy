@@ -44,6 +44,7 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "preferred_gender": doc_copy.get("preferred_gender"),
         "age_range_min": doc_copy.get("age_range_min"),
         "age_range_max": doc_copy.get("age_range_max"),
+        "emergency_contact_number": doc_copy.get("emergency_contact_number"),
         "created_at": doc_copy.get("created_at"),
         "updated_at": doc_copy.get("updated_at"),
     }

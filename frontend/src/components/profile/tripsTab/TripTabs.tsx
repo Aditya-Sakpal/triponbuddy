@@ -10,6 +10,8 @@ interface TripTabsProps {
   joinedTrips: TripDB[];
   searchQuery: string;
   filterAndSortTrips: (tripList: TripDB[]) => TripDB[];
+  onTripLeft?: () => void;
+  onEmergencyNumberSet?: () => void;
 }
 
 export const TripTabs = ({
@@ -18,6 +20,8 @@ export const TripTabs = ({
   joinedTrips,
   searchQuery,
   filterAndSortTrips,
+  onTripLeft,
+  onEmergencyNumberSet,
 }: TripTabsProps) => {
   return (
     <Tabs defaultValue="history" className="w-full">
@@ -52,11 +56,18 @@ export const TripTabs = ({
         >
           <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="whitespace-nowrap">Joined Trips</span>
-          {joinedTrips.length > 0 && (
-            <Badge variant="secondary" className="ml-0.5 sm:ml-1 bg-purple-100 text-purple-600 text-xs px-1.5 py-0">
-              {joinedTrips.length}
-            </Badge>
-          )}
+          <div className="flex gap-1 ml-0.5 sm:ml-1">
+            {joinedTrips.length > 0 && (
+              <Badge variant="secondary" className="bg-purple-100 text-purple-600 text-xs px-1.5 py-0">
+                {joinedTrips.length}
+              </Badge>
+            )}
+            {joinedTrips.filter((trip: any) => !trip.emergency_contact_number).length > 0 && (
+              <Badge variant="destructive" className="bg-red-500 text-white text-xs px-1.5 py-0">
+                {joinedTrips.filter((trip: any) => !trip.emergency_contact_number).length}
+              </Badge>
+            )}
+          </div>
         </TabsTrigger>
       </TabsList>
 
@@ -96,6 +107,8 @@ export const TripTabs = ({
           trips={joinedTrips}
           searchQuery={searchQuery}
           filterAndSortTrips={filterAndSortTrips}
+          onTripLeft={onTripLeft}
+          onEmergencyNumberSet={onEmergencyNumberSet}
         />
       </TabsContent>
     </Tabs>

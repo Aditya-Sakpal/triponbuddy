@@ -17,7 +17,9 @@ from models.trip import (
     ActivityAlternativesRequest,
     ActivityAlternativesResponse,
     RouteGenerationRequest,
-    RouteGenerationResponse
+    RouteGenerationResponse,
+    EmergencyNumberSetup,
+    EmergencyNumberResponse
 )
 from services.trip_service import trip_service
 from services.route_service import route_service
@@ -525,5 +527,71 @@ async def generate_route(
         raise HTTPException(
             status_code=500,
             detail="Failed to generate route plan"
+        )
+
+
+@router.post("/emergency-number", response_model=EmergencyNumberResponse)
+async def set_emergency_number(
+    request: Request,
+    user_id: str = Query(..., description="User ID from Clerk"),
+    emergency_setup: EmergencyNumberSetup = None
+):
+    """Set emergency contact number for a joined trip"""
+    try:
+        if not emergency_setup:
+            raise HTTPException(status_code=400, detail="Emergency number setup data required")
+
+        result = await trip_service.set_emergency_number(
+            trip_id=emergency_setup.trip_id,
+            user_id=user_id,
+            emergency_number=emergency_setup.emergency_contact_number
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("message", "Failed to set emergency number")
+            )
+
+        return EmergencyNumberResponse(**result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting emergency number: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to set emergency number"
+        )
+
+
+@router.post("/leave", response_model=dict)
+async def leave_trip(
+    request: Request,
+    user_id: str = Query(..., description="User ID from Clerk"),
+    trip_id: str = Query(..., description="Trip ID to leave")
+):
+    """Leave a joined trip and remove all instances across the platform"""
+    try:
+        result = await trip_service.leave_trip(
+            trip_id=trip_id,
+            user_id=user_id
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("message", "Failed to leave trip")
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error leaving trip: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to leave trip"
         )
 

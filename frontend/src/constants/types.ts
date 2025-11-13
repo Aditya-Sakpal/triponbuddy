@@ -183,6 +183,7 @@ export interface TripDB {
   preferred_gender?: string;
   age_range_min?: number;
   age_range_max?: number;
+  emergency_contact_number?: string;
   created_at: string;
   updated_at: string;
 }
@@ -197,6 +198,7 @@ export interface TripUpdateRequest {
   preferred_gender?: string;
   age_range_min?: number;
   age_range_max?: number;
+  emergency_contact_number?: string;
 }
 
 export interface TripListResponse {

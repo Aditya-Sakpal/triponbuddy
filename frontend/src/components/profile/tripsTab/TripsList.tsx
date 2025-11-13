@@ -6,9 +6,11 @@ interface TripsListProps {
   trips: TripDB[];
   searchQuery: string;
   filterAndSortTrips: (tripList: TripDB[]) => TripDB[];
+  onTripLeft?: () => void;
+  onEmergencyNumberSet?: () => void;
 }
 
-export const TripsList = ({ trips, searchQuery, filterAndSortTrips }: TripsListProps) => {
+export const TripsList = ({ trips, searchQuery, filterAndSortTrips, onTripLeft, onEmergencyNumberSet }: TripsListProps) => {
   const filteredAndSortedTrips = filterAndSortTrips(trips);
 
   if (filteredAndSortedTrips.length === 0) {
@@ -28,7 +30,12 @@ export const TripsList = ({ trips, searchQuery, filterAndSortTrips }: TripsListP
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {filteredAndSortedTrips.map((trip) => (
-        <TripCard key={trip.trip_id} trip={trip} />
+        <TripCard 
+          key={trip.trip_id} 
+          trip={trip} 
+          onTripLeft={onTripLeft}
+          onEmergencyNumberSet={onEmergencyNumberSet}
+        />
       ))}
     </div>
   );

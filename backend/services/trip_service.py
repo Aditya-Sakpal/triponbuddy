@@ -613,6 +613,112 @@ class TripService:
             logger.error(f"Error getting public trips: {str(e)}")
             raise
 
+    async def set_emergency_number(
+        self,
+        trip_id: str,
+        user_id: str,
+        emergency_number: str
+    ) -> Dict[str, Any]:
+        """Set emergency contact number for a joined trip"""
+        try:
+            # Verify the trip exists and user has joined it
+            trip_doc = await mongodb.find_one(
+                "trips",
+                {
+                    "trip_id": trip_id,
+                    "user_id": user_id,
+                    "is_joined": True
+                }
+            )
+
+            if not trip_doc:
+                return {
+                    "success": False,
+                    "message": "Trip not found or you haven't joined this trip"
+                }
+
+            # Update the emergency contact number
+            await mongodb.update_one(
+                "trips",
+                {"trip_id": trip_id, "user_id": user_id},
+                {"$set": {"emergency_contact_number": emergency_number, "updated_at": datetime.now(timezone.utc)}}
+            )
+
+            logger.info(f"Emergency number set for trip {trip_id} by user {user_id}")
+            return {
+                "success": True,
+                "message": "Emergency contact number saved successfully"
+            }
+
+        except Exception as e:
+            logger.error(f"Error setting emergency number: {str(e)}")
+            raise
+
+    async def leave_trip(self, trip_id: str, user_id: str) -> Dict[str, Any]:
+        """Leave a joined trip and remove all instances across the platform"""
+        try:
+            # Find the joined trip copy for this user
+            joined_trip = await mongodb.find_one(
+                "trips",
+                {
+                    "user_id": user_id,
+                    "is_joined": True,
+                    "original_trip_id": trip_id
+                }
+            )
+
+            if not joined_trip:
+                # Try with trip_id directly (in case it's the joined copy's ID)
+                joined_trip = await mongodb.find_one(
+                    "trips",
+                    {
+                        "trip_id": trip_id,
+                        "user_id": user_id,
+                        "is_joined": True
+                    }
+                )
+
+                if not joined_trip:
+                    return {
+                        "success": False,
+                        "message": "Joined trip not found"
+                    }
+
+            # Get the original trip ID
+            original_trip_id = joined_trip.get("original_trip_id") or trip_id
+
+            # Delete the joined trip copy
+            await mongodb.delete_one(
+                "trips",
+                {
+                    "trip_id": joined_trip["trip_id"],
+                    "user_id": user_id
+                }
+            )
+
+            # Remove user from the original trip's joined_users array
+            await mongodb.update_one(
+                "trips",
+                {"trip_id": original_trip_id},
+                {
+                    "$pull": {
+                        "joined_users": user_id,
+                        "joined_users_demographics": {"user_id": user_id}
+                    },
+                    "$set": {"updated_at": datetime.now(timezone.utc)}
+                }
+            )
+
+            logger.info(f"User {user_id} left trip {original_trip_id}")
+            return {
+                "success": True,
+                "message": "Successfully left the trip"
+            }
+
+        except Exception as e:
+            logger.error(f"Error leaving trip: {str(e)}")
+            raise
+
 
 # Global trip service instance
 trip_service = TripService()

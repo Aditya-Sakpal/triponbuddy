@@ -225,6 +225,7 @@ class TripDB(BaseModel):
     preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
     age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
+    emergency_contact_number: Optional[str] = Field(default=None, description="Emergency contact number for joined trips")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp")
 
@@ -413,3 +414,15 @@ class NotificationListResponse(BaseModel):
             datetime: lambda v: v.isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
+
+
+class EmergencyNumberSetup(BaseModel):
+    """Request model for setting up emergency number for a joined trip"""
+    trip_id: str = Field(description="Trip ID")
+    emergency_contact_number: str = Field(description="Emergency contact number")
+
+
+class EmergencyNumberResponse(BaseModel):
+    """Response model for emergency number operations"""
+    success: bool = Field(default=True)
+    message: Optional[str] = None
