@@ -5,6 +5,8 @@ Unsplash image processing helpers
 import logging
 from typing import List, Dict, Any
 from dataclasses import dataclass
+import aiohttp
+
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +146,6 @@ class UnsplashImageVerifier:
             True if image is valid, False otherwise
         """
         try:
-            import aiohttp
             
             # Create session if not provided
             if session is None:
@@ -161,7 +162,6 @@ class UnsplashImageVerifier:
     @staticmethod
     async def _do_verify(url: str, session) -> bool:
         """Internal method to perform the actual verification"""
-        import aiohttp
         
         async with session.head(
             url,

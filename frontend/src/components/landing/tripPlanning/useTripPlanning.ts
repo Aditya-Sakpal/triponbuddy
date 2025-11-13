@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
-import type { TripPreferences, ImageData, Traveler } from "@/constants";
+import type { TripPreferences, ImageData } from "@/constants";
 import { 
   generateDemoTripData, 
   buildTripPreferences, 
@@ -18,7 +18,6 @@ export const useTripPlanning = () => {
   const [startDate, setStartDate] = useState("");
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
-  const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [budget, setBudget] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
@@ -99,7 +98,6 @@ export const useTripPlanning = () => {
         start_date: date,
         duration_days: days,
         budget: budget || undefined,
-        travelers: travelers.length > 0 ? travelers : [],  // Send empty array instead of undefined
         preferences,
         is_international: isInternational,
         // max_passengers removed - can only be set when hosting a trip
@@ -204,7 +202,6 @@ export const useTripPlanning = () => {
     isGenerating,
     isSignedIn,
     isLoaded,
-    travelers,
     budget,
     
     // Setters
@@ -214,7 +211,6 @@ export const useTripPlanning = () => {
     setStartDate,
     setDurationDays,
     setIsInternational,
-    setTravelers,
     setBudget,
     
     // Actions

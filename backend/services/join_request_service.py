@@ -5,13 +5,13 @@ Join Request Service for trip sharing functionality
 import logging
 from typing import Dict, Any, List
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from database import mongodb
 from models.trip import (
     JoinRequest,
     JoinRequestCreate,
-    Notification,
-    TripDB
+    Notification
 )
 
 logger = logging.getLogger(__name__)
@@ -122,7 +122,8 @@ class JoinRequestService:
                 related_trip_id=trip_id,
                 related_request_id=join_request.request_id,
                 requester_id=requester_id,
-                requester_name=requester_name
+                requester_name=requester_name,
+                created_at=datetime.now(timezone.utc)
             )
             await mongodb.insert_one("notifications", notification.model_dump())
 
@@ -171,14 +172,29 @@ class JoinRequestService:
                 if not trip_doc:
                     return {"success": False, "message": "Trip not found"}
 
-                # Add user to joined_users list
+                # Add user to joined_users list with demographics
                 joined_users = trip_doc.get("joined_users", [])
+                joined_users_demographics = trip_doc.get("joined_users_demographics", [])
+                
                 if request_doc["requester_id"] not in joined_users:
                     joined_users.append(request_doc["requester_id"])
+                    
+                    # Add demographics for this joined user
+                    joined_users_demographics.append({
+                        "user_id": request_doc["requester_id"],
+                        "age": request_doc["requester_age"],
+                        "gender": request_doc["requester_gender"]
+                    })
+                    
                     await mongodb.update_one(
                         "trips",
                         {"trip_id": request_doc["trip_id"]},
-                        {"$set": {"joined_users": joined_users}}
+                        {
+                            "$set": {
+                                "joined_users": joined_users,
+                                "joined_users_demographics": joined_users_demographics
+                            }
+                        }
                     )
 
                 # Create a copy of the trip for the joined user
@@ -191,7 +207,8 @@ class JoinRequestService:
                     title="Join Request Accepted",
                     message=f"Your request to join the trip to {request_doc['trip_destination']} has been accepted!",
                     related_trip_id=request_doc["trip_id"],
-                    related_request_id=request_id
+                    related_request_id=request_id,
+                    created_at=datetime.now(timezone.utc)
                 )
                 await mongodb.insert_one("notifications", notification.model_dump())
 
@@ -209,13 +226,13 @@ class JoinRequestService:
     async def _create_joined_trip_copy(self, original_trip: Dict[str, Any], request_doc: Dict[str, Any]) -> None:
         """Create a copy of the trip for the joined user"""
         try:
-            from uuid import uuid4
             
             # Create a new trip document for the joined user
             joined_trip = {
                 "trip_id": str(uuid4()),
                 "user_id": request_doc["requester_id"],
                 "title": f"{original_trip['title']} (Joined)",
+                "destinations": original_trip.get("destinations", [original_trip["destination"]]),
                 "destination": original_trip["destination"],
                 "start_location": original_trip.get("start_location"),
                 "start_date": original_trip["start_date"],
@@ -224,20 +241,22 @@ class JoinRequestService:
                 "budget": original_trip.get("budget"),
                 "travelers": [],  # The joined user can add their own travelers later
                 "is_international": original_trip.get("is_international", False),
-                "is_saved": True,
+                "is_saved": False,  # Not saved - will appear in joined trips tab
+                "is_joined": True,  # Flag to identify this as a joined trip copy
                 "is_public": False,
                 "destination_image": original_trip.get("destination_image"),
                 "itinerary_data": original_trip["itinerary_data"],
                 "tags": original_trip.get("tags", []),
                 "max_passengers": None,  # Joined trip cannot be shared further
                 "joined_users": [],
+                "joined_users_demographics": [],
                 "original_trip_id": original_trip["trip_id"],  # Reference to original trip
                 "created_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc)
             }
 
             await mongodb.insert_one("trips", joined_trip)
-            logger.info(f"Created joined trip copy for user {request_doc['requester_id']}")
+            logger.info(f"Created joined trip copy for user {request_doc['requester_id']} with is_joined=True, is_saved=False, original_trip_id={original_trip['trip_id']}")
 
         except Exception as e:
             logger.error(f"Error creating joined trip copy: {str(e)}")

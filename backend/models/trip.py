@@ -3,7 +3,7 @@ Trip-related Pydantic models
 """
 
 from typing import List, Optional, Dict, Any
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 from uuid import uuid4
 
@@ -194,7 +194,7 @@ class TripDB(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
         json_encoders={
-            datetime: lambda v: v.isoformat() if v else None,
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
     )
@@ -219,11 +219,14 @@ class TripDB(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
     joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
+    joined_users_demographics: Optional[List[Dict[str, Any]]] = Field(default=None, description="Demographics of joined users (age, gender)")
+    is_joined: Optional[bool] = Field(default=False, description="Flag to identify if this is a joined trip copy")
+    original_trip_id: Optional[str] = Field(default=None, description="Reference to original trip if this is a joined copy")
     preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
     age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Update timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp")
 
 
 class TripUpdateRequest(BaseModel):
@@ -347,12 +350,12 @@ class JoinRequest(BaseModel):
     status: str = Field(default="pending", description="Status: pending, accepted, rejected")
     trip_title: str = Field(description="Title of the trip")
     trip_destination: str = Field(description="Destination of the trip")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Request creation timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Request update timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Request creation timestamp")
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Request update timestamp")
 
     class Config:
         json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
 
@@ -390,11 +393,11 @@ class Notification(BaseModel):
     requester_name: Optional[str] = Field(default=None, description="Name of requester")
     is_read: bool = Field(default=False, description="Read status")
     request_status: Optional[str] = Field(default=None, description="Status of related join request: pending, accepted, rejected")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
 
     class Config:
         json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
 

@@ -189,6 +189,10 @@ All colors MUST be HSL.
   animation: progress 2s ease-in-out infinite;
 }
 
+.animate-progress-fill {
+  animation: progress 3s ease-in-out infinite;
+}
+
 /* Custom scrollbar styles */
 .horizontal-scroll::-webkit-scrollbar {
   height: 8px;

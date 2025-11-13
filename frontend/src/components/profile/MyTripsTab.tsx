@@ -23,11 +23,12 @@ export const MyTripsTab = () => {
   });
 
   const trips = tripsData?.trips || [];
-  const { savedTrips, historyTrips, filterAndSortTrips } = useTripFilters(
+  const { savedTrips, historyTrips, joinedTrips, filterAndSortTrips } = useTripFilters(
     trips,
     searchQuery,
     sortBy,
-    tripType
+    tripType,
+    user?.id
   );
 
   const handlePlanNewTrip = () => {
@@ -58,6 +59,7 @@ export const MyTripsTab = () => {
       <TripTabs
         historyTrips={historyTrips}
         savedTrips={savedTrips}
+        joinedTrips={joinedTrips}
         searchQuery={searchQuery}
         filterAndSortTrips={filterAndSortTrips}
       />

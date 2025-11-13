@@ -163,7 +163,12 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-full border-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-0 max-h-[600px] min-h-[550px]">
+      <DialogContent className="max-w-md w-full border-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-0 max-h-[600px] min-h-[550px] overflow-hidden">
+        {/* Animated Gradient Border Line at Top */}
+        <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-full w-full animate-pulse"></div>
+        </div>
+        
         <div className="relative flex flex-col items-center justify-center py-6 px-6 space-y-4 h-full">
           {/* Bouncing Animation Container - wraps all content */}
           <div className="animate-bounce-slow w-full flex flex-col items-center space-y-4">
@@ -217,16 +222,16 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
               </p>
             </div>
 
+            {/* Progress Bar */}
+
+            <div className="w-full max-w-xs bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1.5 rounded-full animate-progress-fill"></div>
+            </div>
+
             {/* Image Carousel with sliding animation */}
             {/* Loop over images in the WaveLoader (WaveLoader should handle the array) */}
             <WaveLoader images={images} isActive={isOpen && !generationComplete} />
 
-            {/* Progress Bar */}
-            <div className="w-full max-w-xs bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1.5 rounded-full animate-pulse-slow" style={{width: '70%'}}></div>
-            </div>
-
-            
           {/* Cancel Button - outside bouncing animation */}
           <Button
             variant="outline"

@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import { DateDurationInputs, TravelPreferences, TravelerInput, BudgetInput, ActionButtons, DestinationList } from "./tripPlanning";
+import { DateDurationInputs, TravelPreferences, BudgetInput, ActionButtons, DestinationList } from "./tripPlanning";
 import { useTripPlanning } from "./tripPlanning/useTripPlanning";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -103,11 +103,6 @@ export const TripPlanningSection = () => {
                 setStartDate={setStartDate}
                 durationDays={durationDays}
                 setDurationDays={setDurationDays}
-              />
-
-              <TravelerInput
-                travelers={travelers}
-                setTravelers={setTravelers}
               />
 
               <BudgetInput

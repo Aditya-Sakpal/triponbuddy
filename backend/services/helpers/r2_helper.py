@@ -4,7 +4,6 @@ Handles image uploads to Cloudflare R2 using S3-compatible API
 """
 
 import logging
-from typing import BinaryIO, Optional
 from uuid import uuid4
 import boto3
 from botocore.exceptions import ClientError, BotoCoreError

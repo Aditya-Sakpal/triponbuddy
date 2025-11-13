@@ -8,9 +8,11 @@ import { useUser } from "@clerk/clerk-react";
 import { TripDB } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Wallet, UserPlus, Users, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell } from "lucide-react";
 import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
+import { JoinRequestsModal } from "./JoinRequestsModal";
 import { getCalculatedBudget } from "@/utils/tripUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -19,12 +21,15 @@ interface HostedTripCardProps {
   trip: TripDB;
   username?: string;
   onTripUpdated?: () => void;
+  showPendingRequests?: boolean;
 }
 
-const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) => {
+const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = false }: HostedTripCardProps) => {
   const { user } = useUser();
   const [showJoinDialog, setShowJoinDialog] = useState(false);
+  const [showRequestsModal, setShowRequestsModal] = useState(false);
   const [fullTripData, setFullTripData] = useState<TripDB | null>(null);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   
   const formattedStartDate = format(new Date(trip.start_date), "MMM dd, yyyy");
   const formattedEndDate = trip.end_date 
@@ -44,8 +49,12 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
       }
       
       try {
+        // If this is a joined trip copy, we need to fetch the ORIGINAL trip to get demographics
+        // Check if trip has original_trip_id (means it's a copy)
+        const tripIdToFetch = (trip as any).original_trip_id || trip.trip_id;
+        
         const response = await fetch(
-          `${API_BASE_URL}/api/trips/${trip.trip_id}?user_id=${user.id}`
+          `${API_BASE_URL}/api/trips/${tripIdToFetch}?user_id=${user.id}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -60,6 +69,46 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
 
     fetchTripData();
   }, [trip.trip_id, user]);
+
+  // Fetch pending requests count if this is the user's trip
+  useEffect(() => {
+    const fetchPendingRequestsCount = async () => {
+      if (!showPendingRequests || !user || trip.user_id !== user.id) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/join-requests/notifications?user_id=${user.id}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Count pending requests for this specific trip
+            interface NotificationData {
+              type: string;
+              request_status: string;
+              related_trip_id: string;
+            }
+
+            const count = data.notifications.filter(
+              (notif: NotificationData) =>
+                notif.type === "join_request" &&
+                notif.request_status === "pending" &&
+                notif.related_trip_id === trip.trip_id
+            ).length;
+            
+            setPendingRequestsCount(count);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching pending requests:", error);
+      }
+    };
+
+    fetchPendingRequestsCount();
+  }, [showPendingRequests, user, trip.user_id, trip.trip_id]);
 
   // Calculate if trip is joinable
   const isJoinable = () => {
@@ -120,19 +169,31 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
     return false;
   };
 
-  // Get traveler demographics
-  const getTravelerDemographics = () => {
+  // Get all traveler demographics (original travelers + joined users)
+  const getAllTravelerDemographics = () => {
     const tripData = fullTripData || trip;
     const travelers = tripData.travelers || [];
+    const joinedDemographics = tripData.joined_users_demographics || [];
     
-    return travelers.map((traveler, idx) => ({
-      id: `traveler-${idx}`,
-      age: traveler.age,
-      gender: traveler.gender,
-    }));
+    const allDemographics = [
+      ...travelers.map((traveler, idx) => ({
+        id: `traveler-${idx}`,
+        age: traveler.age,
+        gender: traveler.gender,
+        type: 'original' as const,
+      })),
+      ...joinedDemographics.map((joined, idx) => ({
+        id: `joined-${idx}`,
+        age: joined.age,
+        gender: joined.gender,
+        type: 'joined' as const,
+      }))
+    ];
+    
+    return allDemographics;
   };
 
-  const demographics = getTravelerDemographics();
+  const demographics = getAllTravelerDemographics();
 
   return (
     <Card className="overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-all">
@@ -159,6 +220,20 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
           <h3 className="text-xl font-bold text-primary">
             {tripTitle}
           </h3>
+        )}
+
+        {/* Pending Requests Badge - Only shown for trip owner */}
+        {showPendingRequests && user && trip.user_id === user.id && pendingRequestsCount > 0 && (
+          <div className="pt-2">
+            <Badge
+              variant="default"
+              className="cursor-pointer hover:bg-primary/90 transition-colors"
+              onClick={() => setShowRequestsModal(true)}
+            >
+              <Bell className="h-3 w-3 mr-1" />
+              {pendingRequestsCount} Pending Request{pendingRequestsCount !== 1 ? 's' : ''}
+            </Badge>
+          </div>
         )}
 
         {/* Trip Details */}
@@ -225,16 +300,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
               const hasGenderReq = tripData.preferred_gender && tripData.preferred_gender !== null && tripData.preferred_gender !== "";
               const hasAgeReq = (tripData.age_range_min !== null && tripData.age_range_min !== undefined) || 
                                (tripData.age_range_max !== null && tripData.age_range_max !== undefined);
-              
-              console.log('HostedTripCard specifications check:', {
-                trip_id: trip.trip_id,
-                preferred_gender: tripData.preferred_gender,
-                age_range_min: tripData.age_range_min,
-                age_range_max: tripData.age_range_max,
-                hasGenderReq,
-                hasAgeReq,
-                fullTripDataExists: !!fullTripData
-              });
+            
               
               if (!hasGenderReq && !hasAgeReq) {
                 return (
@@ -320,6 +386,25 @@ const HostedTripCard = ({ trip, username, onTripUpdated }: HostedTripCardProps) 
               onTripUpdated();
             }
             setFullTripData(null);
+          }}
+        />
+      )}
+
+      {/* Join Requests Modal - Only for trip owner */}
+      {showPendingRequests && user && trip.user_id === user.id && (
+        <JoinRequestsModal
+          tripId={trip.trip_id}
+          tripTitle={trip.title || `Trip to ${trip.destination}`}
+          isOpen={showRequestsModal}
+          onClose={() => setShowRequestsModal(false)}
+          onRequestHandled={() => {
+            // Refresh pending requests count
+            setPendingRequestsCount((prev) => Math.max(0, prev - 1));
+            
+            // Refresh trip data
+            if (onTripUpdated) {
+              onTripUpdated();
+            }
           }}
         />
       )}
