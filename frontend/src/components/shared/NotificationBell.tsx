@@ -30,6 +30,7 @@ export const NotificationBell = () => {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [tripsWithEmergencyNumbers, setTripsWithEmergencyNumbers] = useState<Set<string>>(new Set());
+  const [joinedTripIdMap, setJoinedTripIdMap] = useState<Map<string, string>>(new Map());
 
   // Fetch user's trips to check emergency numbers
   const fetchTripsEmergencyStatus = useCallback(async () => {
@@ -44,12 +45,19 @@ export const NotificationBell = () => {
         const data = await response.json();
         if (data.success && data.trips) {
           const tripsWithNumbers = new Set<string>();
+          const tripIdMapping = new Map<string, string>();
           data.trips.forEach((trip: { emergency_contact_number?: string; is_joined?: boolean; original_trip_id?: string; trip_id: string }) => {
-            if (trip.emergency_contact_number && trip.is_joined) {
-              tripsWithNumbers.add(trip.original_trip_id || trip.trip_id);
+            if (trip.is_joined && trip.original_trip_id) {
+              // Map original_trip_id to the user's joined trip_id
+              tripIdMapping.set(trip.original_trip_id, trip.trip_id);
+              
+              if (trip.emergency_contact_number) {
+                tripsWithNumbers.add(trip.original_trip_id);
+              }
             }
           });
           setTripsWithEmergencyNumbers(tripsWithNumbers);
+          setJoinedTripIdMap(tripIdMapping);
         }
       }
     } catch (error) {
@@ -341,9 +349,9 @@ export const NotificationBell = () => {
     </Popover>
 
     {/* Emergency Number Setup Modal */}
-    {selectedNotification && (
+    {selectedNotification && selectedNotification.related_trip_id && (
       <EmergencyNumberModal
-        tripId={selectedNotification.related_trip_id || ""}
+        tripId={joinedTripIdMap.get(selectedNotification.related_trip_id) || ""}
         tripTitle={selectedNotification.message.split("trip to ")[1]?.replace("has been accepted!", "") || "your trip"}
         isOpen={showEmergencyModal}
         onClose={() => {

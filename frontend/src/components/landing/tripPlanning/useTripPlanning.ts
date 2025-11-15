@@ -143,7 +143,6 @@ export const useTripPlanning = () => {
   const handlePlanTrip = () => {
     const userId = getCurrentUserId();
 
-    // Use pending destination if destinations array is empty but there's a typed destination
     const effectiveDestinations = destinations.length > 0 
       ? destinations 
       : (pendingDestination.trim() ? [pendingDestination.trim()] : []);
@@ -155,12 +154,10 @@ export const useTripPlanning = () => {
 
     setIsGenerating(true);
 
-    // Use the final destination for modal images
-    const finalDestination = effectiveDestinations[effectiveDestinations.length - 1];
-
+    // Pass all destinations to fetch images from all of them
     fetchModalImages(
       singleImageMutation,
-      finalDestination,
+      effectiveDestinations,
       setModalImages,
       () => {
         const userPreferences = buildTripPreferences(selectedPreferences);

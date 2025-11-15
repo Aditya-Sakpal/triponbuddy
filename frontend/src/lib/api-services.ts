@@ -154,6 +154,7 @@ export class ImagesApiService {
       ...(params.max_images && { max_images: params.max_images }),
       ...(params.min_width && { min_width: params.min_width }),
       ...(params.min_height && { min_height: params.min_height }),
+      ...(params.randomize !== undefined && { randomize: params.randomize }),
     };
     return apiClient.post<SingleImageResponse>('/api/images/single', {}, queryParams);
   }

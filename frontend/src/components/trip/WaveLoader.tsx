@@ -17,7 +17,7 @@ export const WaveLoader = ({ images, isActive }: WaveLoaderProps) => {
 
     const imageInterval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // Change image every 3 seconds for faster pace
+    }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(imageInterval);
   }, [isActive, images.length]);
@@ -27,9 +27,9 @@ export const WaveLoader = ({ images, isActive }: WaveLoaderProps) => {
     if (!isActive) return;
 
     const slideInterval = setInterval(() => {
-      setSlideOffset((prev) => prev + 0.06); // Continuous increment for unidirectional movement
-      setWaveOffset((prev) => (prev + 0.06) % (Math.PI * 2)); // Keep sine wave for vertical motion
-    }, 40); // Decreased from 50ms to 40ms for smoother faster animation
+      setSlideOffset((prev) => prev + 0.04); // Slower continuous increment for unidirectional movement
+      setWaveOffset((prev) => (prev + 0.04) % (Math.PI * 2)); // Keep sine wave for vertical motion
+    }, 60); // Slower animation at 60ms intervals
 
     return () => clearInterval(slideInterval);
   }, [isActive]);

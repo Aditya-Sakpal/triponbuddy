@@ -113,6 +113,73 @@ class ImageService:
                 error=str(e)
             )
 
+    async def fetch_multiple_locations_randomized(
+        self,
+        locations: List[str],
+        max_images: int = 5,
+        min_width: int = 800,
+        min_height: int = 600
+    ) -> Dict[str, Any]:
+        """Fetch images from multiple locations and return randomized selection"""
+        
+        try:
+            import random
+            
+            logger.info(f"Fetching images from {len(locations)} locations: {locations}")
+            
+            # Fetch 3 images per location for variety
+            images_per_location = max(3, max_images // len(locations))
+            
+            # Create tasks for parallel processing
+            tasks = [
+                self.fetch_single_location_images(
+                    location=loc,
+                    max_images=images_per_location,
+                    min_width=min_width,
+                    min_height=min_height
+                )
+                for loc in locations
+            ]
+            
+            # Execute tasks concurrently
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Collect all valid images
+            all_images = []
+            for loc, result in zip(locations, results):
+                if isinstance(result, Exception):
+                    logger.error(f"Error fetching images for {loc}: {str(result)}")
+                    continue
+                
+                if result.get("success") and result.get("images"):
+                    all_images.extend(result["images"])
+                    logger.info(f"Got {len(result['images'])} images from {loc}")
+            
+            # Randomize and limit to max_images
+            if all_images:
+                random.shuffle(all_images)
+                selected_images = all_images[:max_images]
+                logger.info(f"Selected {len(selected_images)} randomized images from {len(all_images)} total across {len(locations)} locations")
+            else:
+                selected_images = []
+                logger.warning("No images found for any location")
+            
+            return self.metadata_builder.build_response_structure(
+                success=True,
+                images=selected_images,
+                query=", ".join(locations),
+                source="multi-location-randomized"
+            )
+            
+        except Exception as e:
+            logger.error(f"Error in fetch_multiple_locations_randomized: {str(e)}")
+            return self.metadata_builder.build_response_structure(
+                success=False,
+                images=[],
+                query=", ".join(locations),
+                error=str(e)
+            )
+
     async def _fetch_location_images(self, location: str, max_images: int) -> List[str]:
 
         images = []

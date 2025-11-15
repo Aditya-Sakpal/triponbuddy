@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 
@@ -34,23 +35,56 @@ class TripService:
     async def generate_trip(self, request: TripGenerationRequest) -> Dict[str, Any]:
 
         try:
+            # Log the destinations being processed
+            logger.info(f"Generating trip for destinations: {request.destinations}")
+            
             # Generate itinerary using AI
             ai_response = await ai_service.generate_itinerary(request)
 
-            # Fetch destination image
+            # Fetch destination images for all destinations
             destination_image = None
             try:
-                image_response = await image_service.fetch_single_location_images(
-                    location=f"{request.destination} tourism landmark",
-                    max_images=1,
-                    min_width=400,
-                    min_height=400
-                )
-                if image_response.get("success") and image_response.get("images"):
-                    destination_image = image_response["images"][0]["url"]
-                    logger.info(f"Fetched destination image for {request.destination}: {destination_image}")
+                import random
+                
+                logger.info(f"Starting image fetch for {len(request.destinations)} destinations: {request.destinations}")
+                
+                # Fetch images for all destinations in parallel
+                image_tasks = [
+                    image_service.fetch_single_location_images(
+                        location=f"{dest} tourism landmark",
+                        max_images=3,  # Fetch 3 images per destination for variety
+                        min_width=400,
+                        min_height=400
+                    )
+                    for dest in request.destinations
+                ]
+                
+                logger.info(f"Created {len(image_tasks)} image fetch tasks")
+                
+                # Wait for all image fetches to complete
+                image_responses = await asyncio.gather(*image_tasks, return_exceptions=True)
+                
+                # Collect all valid image URLs from all destinations
+                all_images = []
+                for dest, response in zip(request.destinations, image_responses):
+                    if isinstance(response, Exception):
+                        logger.warning(f"Failed to fetch images for {dest}: {str(response)}")
+                        continue
+                    
+                    if response.get("success") and response.get("images"):
+                        urls = [img["url"] for img in response["images"]]
+                        all_images.extend(urls)
+                        logger.info(f"Fetched {len(urls)} images for {dest}")
+                
+                # Randomly select one image from all collected images
+                if all_images:
+                    destination_image = random.choice(all_images)
+                    logger.info(f"Selected random image from {len(all_images)} total images across {len(request.destinations)} destinations")
+                else:
+                    logger.warning("No images found for any destination")
+                    
             except Exception as img_error:
-                logger.warning(f"Failed to fetch destination image: {str(img_error)}")
+                logger.warning(f"Failed to fetch destination images: {str(img_error)}")
                 # Continue without image
 
             # Build trip data using helper

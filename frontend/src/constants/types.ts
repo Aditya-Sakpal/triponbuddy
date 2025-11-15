@@ -310,6 +310,7 @@ export interface ImageSingleParams extends Record<string, unknown> {
   max_images?: number;
   min_width?: number;
   min_height?: number;
+  randomize?: boolean;
 }
 
 // Route Generation types
