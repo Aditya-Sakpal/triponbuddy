@@ -63,6 +63,8 @@ export const JoinRequestsModal = ({
               related_request_id: string;
               requester_id: string;
               requester_name?: string;
+              requester_age?: number;
+              requester_gender?: string;
               created_at: string;
             }
 
@@ -80,8 +82,8 @@ export const JoinRequestsModal = ({
               trip_owner_id: user.id,
               requester_id: notif.requester_id,
               requester_name: notif.requester_name || "Anonymous",
-              requester_age: 0, // Not available in notification
-              requester_gender: "", // Not available in notification
+              requester_age: notif.requester_age || 0,
+              requester_gender: notif.requester_gender || "",
               status: "pending" as const,
               trip_title: tripTitle,
               trip_destination: "",
@@ -184,6 +186,11 @@ export const JoinRequestsModal = ({
               >
                 <div>
                   <p className="font-semibold">{request.requester_name}</p>
+                  {request.requester_age && request.requester_gender && (
+                    <p className="text-sm text-muted-foreground">
+                      {request.requester_age} years old, {request.requester_gender}
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground">
                     Requested to join this trip
                   </p>

@@ -138,7 +138,7 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
     
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-    }, 2500);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [isOpen, generationComplete]);
@@ -163,15 +163,15 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-full border-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-0 max-h-[600px] min-h-[550px] overflow-hidden">
+      <DialogContent className="max-w-md w-full border-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-0 max-h-[750px] min-h-[600px] overflow-hidden">
         {/* Animated Gradient Border Line at Top */}
         <div className="absolute top-0 left-0 right-0 h-1 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-full w-full animate-pulse"></div>
         </div>
         
-        <div className="relative flex flex-col items-center justify-center py-6 px-6 space-y-4 h-full">
+        <div className="relative flex flex-col items-center justify-center py-8 px-6 space-y-6 h-full">
           {/* Bouncing Animation Container - wraps all content */}
-          <div className="animate-bounce-slow w-full flex flex-col items-center space-y-4">
+          <div className="animate-bounce-slow w-full flex flex-col items-center space-y-6">
             
             {/* Floating Pin Animation with Spinning Lines */}
             <div className="relative flex items-center justify-center w-20 h-20">
@@ -213,13 +213,22 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
             </div>
             
             {/* Title */}
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-foreground">
+            <div className="text-center space-y-3">
+              <h3 className="text-lg font-semibold text-bula">
                 Planning your trip to {destination || "your destination"}
               </h3>
-              <p className="text-muted-foreground text-sm mt-1">
-                {loadingMessages[messageIndex]}
-              </p>
+              
+              {/* Loading Message with Pulsating Dot */}
+              <div className="inline-flex items-center gap-3 px-4 py-2.5 bg-blue-100 dark:bg-gray-800 rounded-full">
+                {/* Pulsating Blue Dot */}
+                <div className="relative flex items-center justify-center w-2.5 h-2.5">
+                  <div className="absolute w-2.5 h-2.5 bg-blue-500 rounded-full animate-ping"></div>
+                  <div className="relative w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+                </div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {loadingMessages[messageIndex]}
+                </p>
+              </div>
             </div>
 
             {/* Progress Bar */}

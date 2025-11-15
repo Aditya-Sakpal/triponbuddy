@@ -7,6 +7,8 @@ import type {
   TripUpdateRequest,
   TripListParams,
   UserStatsResponse,
+  UserProfileResponse,
+  UserProfileUpdate,
   FeedbackCreate,
   FeedbackResponse,
   BulkImageResponse,
@@ -127,6 +129,17 @@ export class UsersApiService {
   static async getUserStats(userId: string): Promise<UserStatsResponse> {
     return apiClient.get<UserStatsResponse>('/api/users/stats', { user_id: userId });
   }
+
+  static async getUserProfile(userId: string): Promise<UserProfileResponse> {
+    return apiClient.get<UserProfileResponse>('/api/users/profile', { user_id: userId });
+  }
+
+  static async updateUserProfile(
+    userId: string,
+    profileData: UserProfileUpdate
+  ): Promise<UserProfileResponse> {
+    return apiClient.put<UserProfileResponse>('/api/users/profile', profileData, { user_id: userId });
+  }
 }
 
 // Images API Service
@@ -141,6 +154,7 @@ export class ImagesApiService {
       ...(params.max_images && { max_images: params.max_images }),
       ...(params.min_width && { min_width: params.min_width }),
       ...(params.min_height && { min_height: params.min_height }),
+      ...(params.randomize !== undefined && { randomize: params.randomize }),
     };
     return apiClient.post<SingleImageResponse>('/api/images/single', {}, queryParams);
   }

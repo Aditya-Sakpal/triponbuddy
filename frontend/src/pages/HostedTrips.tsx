@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Compass, Globe, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/api-hooks";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -24,6 +25,11 @@ const HostedTrips = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const PAGE_SIZE = 12;
+
+  // Get user profile for filtering
+  const { data: userProfileData } = useUserProfile(user?.id || "");
+  const userAge = userProfileData?.profile?.age;
+  const userGender = userProfileData?.profile?.gender;
 
   // Fetch public hosted trips
   const fetchHostedTrips = useCallback(async (pageNum: number, append: boolean = false) => {
@@ -48,7 +54,38 @@ const HostedTrips = () => {
         // Filter to only show trips with max_passengers set (hosting trips)
         // Show all public trips regardless of ownership or join status
         const hostingTrips = data.trips.filter((trip: TripDB) => {
-          return trip.max_passengers && trip.max_passengers > 0;
+          if (!trip.max_passengers || trip.max_passengers <= 0) {
+            return false;
+          }
+
+          // If user is the owner, always show their trip (bypass all demographic checks)
+          if (user && trip.user_id === user.id) {
+            return true;
+          }
+
+          // If user is logged in and has profile, filter by age/gender preferences
+          if (user && userAge && userGender) {
+            // Check gender preference
+            if (trip.preferred_gender && trip.preferred_gender !== null && trip.preferred_gender !== "") {
+              if (trip.preferred_gender !== userGender) {
+                return false; // User doesn't match gender preference
+              }
+            }
+
+            // Check age range
+            if (trip.age_range_min !== null && trip.age_range_min !== undefined) {
+              if (userAge < trip.age_range_min) {
+                return false; // User is too young
+              }
+            }
+            if (trip.age_range_max !== null && trip.age_range_max !== undefined) {
+              if (userAge > trip.age_range_max) {
+                return false; // User is too old
+              }
+            }
+          }
+
+          return true;
         });
 
         if (append) {
@@ -70,7 +107,7 @@ const HostedTrips = () => {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [toast]);
+  }, [toast, user, userAge, userGender]);
 
   useEffect(() => {
     fetchHostedTrips(1);

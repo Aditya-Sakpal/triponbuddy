@@ -67,8 +67,20 @@ class JoinRequestService:
             if existing_request:
                 return {"success": False, "message": "You already have a pending request for this trip"}
 
+            # Get user profile to check age and gender
+            user_profile = await mongodb.find_one("users", {"user_id": requester_id})
+            
+            if not user_profile or user_profile.get("age") is None or user_profile.get("gender") is None:
+                return {
+                    "success": False,
+                    "message": "Please complete your profile (age and gender) before requesting to join trips."
+                }
+            
+            user_age = user_profile.get("age")
+            user_gender = user_profile.get("gender")
+
             # Validate age requirement (must be 18+)
-            if request_data.age < 18:
+            if user_age < 18:
                 return {
                     "success": False, 
                     "message": "Sorry, you must be at least 18 years old to join trips."
@@ -76,7 +88,7 @@ class JoinRequestService:
 
             # Check gender preference
             preferred_gender = trip_doc.get("preferred_gender")
-            if preferred_gender and preferred_gender != request_data.gender:
+            if preferred_gender and preferred_gender != user_gender:
                 return {
                     "success": False, 
                     "message": "We apologize, but the trip owner is looking for travel companions with similar preferences."
@@ -86,26 +98,26 @@ class JoinRequestService:
             age_min = trip_doc.get("age_range_min")
             age_max = trip_doc.get("age_range_max")
             
-            if age_min is not None and request_data.age < age_min:
+            if age_min is not None and user_age < age_min:
                 return {
                     "success": False, 
                     "message": f"We apologize, but the trip owner is looking for travelers aged {age_min} and above."
                 }
             
-            if age_max is not None and request_data.age > age_max:
+            if age_max is not None and user_age > age_max:
                 return {
                     "success": False, 
                     "message": f"We apologize, but the trip owner is looking for travelers aged {age_max} and below."
                 }
 
-            # Create join request
+            # Create join request with user's profile data
             join_request = JoinRequest(
                 trip_id=trip_id,
                 trip_owner_id=trip_doc["user_id"],
                 requester_id=requester_id,
                 requester_name=requester_name,
-                requester_age=request_data.age,
-                requester_gender=request_data.gender,
+                requester_age=user_age,
+                requester_gender=user_gender,
                 trip_title=trip_doc["title"],
                 trip_destination=trip_doc["destination"]
             )
@@ -284,7 +296,7 @@ class JoinRequestService:
             for notif in notifications:
                 notification_dict = notif if isinstance(notif, dict) else notif
                 
-                # If it's a join request notification, fetch the request status
+                # If it's a join request notification, fetch the request status and demographics
                 if notification_dict.get("type") == "join_request" and notification_dict.get("related_request_id"):
                     request = await mongodb.find_one(
                         "join_requests",
@@ -292,6 +304,8 @@ class JoinRequestService:
                     )
                     if request:
                         notification_dict["request_status"] = request.get("status", "pending")
+                        notification_dict["requester_age"] = request.get("requester_age")
+                        notification_dict["requester_gender"] = request.get("requester_gender")
                     else:
                         notification_dict["request_status"] = "unknown"
                 

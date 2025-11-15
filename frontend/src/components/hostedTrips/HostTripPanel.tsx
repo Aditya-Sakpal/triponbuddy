@@ -291,11 +291,9 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
                 <p className="text-sm text-muted-foreground">
                   {selectedTrip.destination} • {selectedTrip.duration_days} days
                 </p>
-                {selectedTrip.budget && (
-                  <p className="text-sm font-medium text-green-600">
-                    Budget: ₹{selectedTrip.budget.toLocaleString()}
-                  </p>
-                )}
+                <p className="text-sm font-medium text-green-600">
+                  Budget: {getCalculatedBudget(selectedTrip)}
+                </p>
               </div>
             )}
 

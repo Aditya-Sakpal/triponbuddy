@@ -70,32 +70,43 @@ const getPlaceholderImages = (destination: string): ImageData[] => [
 export const fetchModalImages = (
   singleImageMutation: {
     mutate: (
-      params: { location: string; max_images: number; min_width: number; min_height: number },
+      params: { location: string; max_images: number; min_width: number; min_height: number; randomize?: boolean },
       callbacks: { onSuccess: (data: { images?: ImageData[] }) => void; onError: () => void }
     ) => void;
   },
-  destination: string,
+  destinations: string | string[],
   setModalImages: (images: ImageData[]) => void,
   onComplete: () => void
 ) => {
+  // Convert destinations array to comma-separated string, or use single destination
+  const locationString = Array.isArray(destinations) ? destinations.join(', ') : destinations;
+  const finalDestination = Array.isArray(destinations) ? destinations[destinations.length - 1] : destinations;
+  const shouldRandomize = Array.isArray(destinations) && destinations.length > 1;
+  
+  console.log('[fetchModalImages] Input destinations:', destinations);
+  console.log('[fetchModalImages] Is array?', Array.isArray(destinations));
+  console.log('[fetchModalImages] Location string:', locationString);
+  console.log('[fetchModalImages] Should randomize?', shouldRandomize);
+  
   singleImageMutation.mutate(
     {
-      location: destination,
-      max_images: 5,
+      location: locationString,
+      max_images: 10, // Fetch more images when multiple destinations
       min_width: 800,
       min_height: 600,
+      randomize: shouldRandomize,
     },
     {
       onSuccess: (data: { images?: ImageData[] }) => {
         if (data.images && data.images.length > 0) {
           setModalImages(data.images);
         } else {
-          setModalImages(getPlaceholderImages(destination));
+          setModalImages(getPlaceholderImages(finalDestination));
         }
         onComplete();
       },
       onError: () => {
-        setModalImages(getPlaceholderImages(destination));
+        setModalImages(getPlaceholderImages(finalDestination));
         onComplete();
       }
     }

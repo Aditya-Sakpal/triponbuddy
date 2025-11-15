@@ -10,6 +10,7 @@ import type {
   ImageBulkParams,
   ImageSingleParams,
   ApiError,
+  UserProfileUpdate,
 } from '../constants';
 
 // Trips Hooks
@@ -211,6 +212,39 @@ export const useUserStats = (userId: string) => {
     queryFn: () => UsersApiService.getUserStats(userId),
     enabled: !!userId,
     staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useUserProfile = (userId: string) => {
+  return useQuery({
+    queryKey: ['userProfile', userId],
+    queryFn: () => UsersApiService.getUserProfile(userId),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+  const { addNotification } = useUiStore();
+
+  return useMutation({
+    mutationFn: ({ userId, profileData }: { userId: string; profileData: UserProfileUpdate }) =>
+      UsersApiService.updateUserProfile(userId, profileData),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['userProfile', variables.userId] });
+      addNotification({
+        type: 'success',
+        message: data.message || 'Profile updated successfully',
+      });
+    },
+    onError: (error: ApiError) => {
+      const message = error?.message || 'Failed to update profile';
+      addNotification({
+        type: 'error',
+        message,
+      });
+    },
   });
 };
 
