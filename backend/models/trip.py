@@ -155,24 +155,6 @@ class TripGenerationRequest(BaseModel):
     is_international: bool = Field(default=False, description="International trip flag")
     max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
     
-    # For backward compatibility - deprecated
-    destination: Optional[str] = Field(default=None, description="DEPRECATED: Use destinations array instead")
-    
-    @model_validator(mode='after')
-    def validate_destinations(self):
-        """Ensure destinations is populated, handling backward compatibility"""
-        if not self.destinations or len(self.destinations) == 0:
-            if self.destination:
-                # Backward compatibility: convert single destination to array
-                self.destinations = [self.destination]
-            else:
-                raise ValueError("At least one destination is required")
-        
-        # Set destination to last item for backward compatibility
-        if not self.destination:
-            self.destination = self.destinations[-1]
-        
-        return self
 
 
 class TripGenerationResponse(BaseModel):
@@ -364,8 +346,6 @@ class JoinRequest(BaseModel):
 class JoinRequestCreate(BaseModel):
     """Request model for creating a join request"""
     trip_id: str = Field(description="Trip ID to join")
-    age: int = Field(ge=1, le=120, description="Age of requester")
-    gender: str = Field(description="Gender of requester")
 
 
 class JoinRequestResponse(BaseModel):
@@ -392,6 +372,8 @@ class Notification(BaseModel):
     related_request_id: Optional[str] = Field(default=None, description="Related join request ID")
     requester_id: Optional[str] = Field(default=None, description="User ID of requester (for join requests)")
     requester_name: Optional[str] = Field(default=None, description="Name of requester")
+    requester_age: Optional[int] = Field(default=None, description="Age of requester (populated for join requests)")
+    requester_gender: Optional[str] = Field(default=None, description="Gender of requester (populated for join requests)")
     is_read: bool = Field(default=False, description="Read status")
     request_status: Optional[str] = Field(default=None, description="Status of related join request: pending, accepted, rejected")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")

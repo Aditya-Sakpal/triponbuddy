@@ -141,8 +141,6 @@ export interface TripGenerationRequest {
   preferences?: TripPreferences;
   is_international?: boolean;
   max_passengers?: number;
-  // For backward compatibility - will be removed in future
-  destination?: string;
 }
 
 export interface TripGenerationResponse {
@@ -217,11 +215,32 @@ export interface TripResponse {
 }
 
 // User types
+export interface User {
+  user_id: string;
+  age?: number;
+  gender?: string;
+}
+
+export interface UserProfile {
+  user_id: string;
+  age?: number;
+  gender?: string;
+}
+
+export interface UserProfileUpdate {
+  age: number;
+  gender: string;
+}
+
+export interface UserProfileResponse {
+  success: boolean;
+  message?: string;
+  profile?: UserProfile;
+}
+
 export interface UserStats {
   total_trips: number;
   saved_trips: number;
-  favorite_destinations: string[];
-  recent_destinations: string[];
 }
 
 export interface UserStatsResponse {
@@ -362,8 +381,6 @@ export interface JoinRequest {
 
 export interface JoinRequestCreate {
   trip_id: string;
-  age: number;
-  gender: string;
 }
 
 export interface JoinRequestResponse {
@@ -387,6 +404,8 @@ export interface Notification {
   related_request_id?: string;
   requester_id?: string;
   requester_name?: string;
+  requester_age?: number;
+  requester_gender?: string;
   is_read: boolean;
   request_status?: 'pending' | 'accepted' | 'rejected';
   created_at: string;

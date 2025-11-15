@@ -51,7 +51,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
       try {
         // If this is a joined trip copy, we need to fetch the ORIGINAL trip to get demographics
         // Check if trip has original_trip_id (means it's a copy)
-        const tripIdToFetch = (trip as any).original_trip_id || trip.trip_id;
+        const tripIdToFetch = (trip as TripDB & { original_trip_id?: string }).original_trip_id || trip.trip_id;
         
         const response = await fetch(
           `${API_BASE_URL}/api/trips/${tripIdToFetch}?user_id=${user.id}`
@@ -68,7 +68,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
     };
 
     fetchTripData();
-  }, [trip.trip_id, user]);
+  }, [trip.trip_id, trip, user]);
 
   // Fetch pending requests count if this is the user's trip
   useEffect(() => {
@@ -182,8 +182,8 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
         gender: traveler.gender,
         type: 'original' as const,
       })),
-      ...joinedDemographics.map((joined, idx) => ({
-        id: `joined-${idx}`,
+      ...joinedDemographics.map((joined: { user_id: string; age: number; gender: string }) => ({
+        id: `joined-${joined.user_id}`,
         age: joined.age,
         gender: joined.gender,
         type: 'joined' as const,
@@ -254,7 +254,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           <div className="flex items-center gap-2 text-sm">
             <Wallet className="h-4 w-4 text-green-600" />
             <span className="font-semibold text-green-600">
-              Total Cost: {getCalculatedBudget(fullTripData || trip)}
+              Budget: {getCalculatedBudget(fullTripData || trip)}
             </span>
           </div>
         </div>
@@ -289,49 +289,6 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
             <span className="text-xs text-muted-foreground/70">
               (Max {trip.max_passengers})
             </span>
-          </div>
-        )}
-
-        {/* Gender and Age Requirements */}
-        {trip.max_passengers && (
-          <div className="pt-2 border-t space-y-1">
-            {(() => {
-              const tripData = fullTripData || trip;
-              const hasGenderReq = tripData.preferred_gender && tripData.preferred_gender !== null && tripData.preferred_gender !== "";
-              const hasAgeReq = (tripData.age_range_min !== null && tripData.age_range_min !== undefined) || 
-                               (tripData.age_range_max !== null && tripData.age_range_max !== undefined);
-            
-              
-              if (!hasGenderReq && !hasAgeReq) {
-                return (
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium text-green-600">✨ Everyone is welcome!</span>
-                  </div>
-                );
-              }
-              
-              return (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">Looking for:</p>
-                  {hasGenderReq && (
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium">Gender:</span>{" "}
-                      {tripData.preferred_gender!.charAt(0).toUpperCase() + tripData.preferred_gender!.slice(1)}
-                    </div>
-                  )}
-                  {hasAgeReq && (
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium">Age:</span>{" "}
-                      {tripData.age_range_min && tripData.age_range_max
-                        ? `${tripData.age_range_min}-${tripData.age_range_max} years`
-                        : tripData.age_range_min
-                        ? `${tripData.age_range_min}+ years`
-                        : `Up to ${tripData.age_range_max} years`}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
           </div>
         )}
 

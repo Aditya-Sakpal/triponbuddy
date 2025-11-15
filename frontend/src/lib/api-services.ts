@@ -7,6 +7,8 @@ import type {
   TripUpdateRequest,
   TripListParams,
   UserStatsResponse,
+  UserProfileResponse,
+  UserProfileUpdate,
   FeedbackCreate,
   FeedbackResponse,
   BulkImageResponse,
@@ -126,6 +128,17 @@ export class TripsApiService {
 export class UsersApiService {
   static async getUserStats(userId: string): Promise<UserStatsResponse> {
     return apiClient.get<UserStatsResponse>('/api/users/stats', { user_id: userId });
+  }
+
+  static async getUserProfile(userId: string): Promise<UserProfileResponse> {
+    return apiClient.get<UserProfileResponse>('/api/users/profile', { user_id: userId });
+  }
+
+  static async updateUserProfile(
+    userId: string,
+    profileData: UserProfileUpdate
+  ): Promise<UserProfileResponse> {
+    return apiClient.put<UserProfileResponse>('/api/users/profile', profileData, { user_id: userId });
   }
 }
 
