@@ -20,7 +20,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-3 md:px-6 bg-white md:bg-transparent">
         <div className="flex items-center justify-between my-2 md:my-0 gap-2">
           {/* Left side: Logo */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center flex-shrink-0 lg:flex-1">
             <Link to="/" className="flex items-center" onClick={closeMenu}>
               <img 
                 src={tripBuddyLogo} 
@@ -31,8 +31,8 @@ export const Navigation = () => {
           </div>
 
           {/* Center: Navigation Links */}
-          <div className="flex justify-center flex-1 min-w-0">
-            <div className="hidden lg:flex items-center space-x-3 xl:space-x-6">
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2">
+            <div className="flex items-center space-x-3 xl:space-x-6">
               {navLinks.map((link) => (
                 <Link 
                   key={link.to}
@@ -51,7 +51,7 @@ export const Navigation = () => {
           </div>
 
           {/* Right side: Notifications, Auth buttons and mobile menu button */}
-          <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0">
+          <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0 lg:flex-1 lg:justify-end">
             <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
               <NotificationBell />
               <div className="flex space-x-2 xl:space-x-3">
