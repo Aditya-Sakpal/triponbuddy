@@ -5,7 +5,8 @@ import { HeroSection,
         TestimonialsSection, 
         FeedbackSection, 
         WhyTriponBuddySection, 
-        HeroSlideShow } from "@/components/landing";
+        HeroSlideShow,
+        NearbyPlacesSection } from "@/components/landing";
 
 const Index = () => {
 
@@ -23,6 +24,8 @@ const Index = () => {
       
       {/* Main content area with white background */}
       <div>
+        <NearbyPlacesSection />
+        
         <ExploreDestinationsSection />
         
         <WhyPlanSection />
