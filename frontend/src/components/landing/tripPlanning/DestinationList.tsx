@@ -5,7 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
-import { MapPin, GripVertical, X, Plus } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { MapPin, GripVertical, X, Plus, Info } from "lucide-react";
 
 interface DestinationItem {
   id: string;
@@ -112,9 +113,19 @@ export const DestinationList = ({ destinations, onChange, isInternational, class
     <div className={className}>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">
-            Destinations <span className="text-destructive">*</span>
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">
+              Destinations <span className="text-destructive">*</span>
+            </label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Add places you want to visit. Drag to reorder your route.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           {destinations.length > 1 && (
             <span className="text-xs text-muted-foreground">
               {destinations.length} destinations • Drag to reorder

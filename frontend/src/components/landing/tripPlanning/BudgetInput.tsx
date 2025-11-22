@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { IndianRupee } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { IndianRupee, Info } from "lucide-react";
 
 interface BudgetInputProps {
   budget: number | undefined;
@@ -21,10 +22,20 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
 
   return (
     <div className="space-y-2 my-4">
-      <Label htmlFor="budget" className="flex items-center gap-2 text-sm font-medium">
-        <IndianRupee className="w-5 h-5" />
-        Budget (Optional)
-      </Label>
+      <div className="flex items-center gap-2">
+        <Label htmlFor="budget" className="flex items-center gap-2 text-sm font-medium">
+          <IndianRupee className="w-5 h-5" />
+          Budget (Optional)
+        </Label>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Set your total budget in INR to get cost-appropriate recommendations</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
           ₹

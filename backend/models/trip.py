@@ -207,6 +207,8 @@ class TripDB(BaseModel):
     preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
     age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
+    custom_budget: Optional[float] = Field(default=None, description="Custom budget set by host for this trip")
+    host_comments: Optional[str] = Field(default=None, description="Comments/remarks from the trip host")
     emergency_contact_number: Optional[str] = Field(default=None, description="Emergency contact number for joined trips")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp")
@@ -223,6 +225,8 @@ class TripUpdateRequest(BaseModel):
     preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
     age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
+    custom_budget: Optional[float] = Field(default=None, description="Custom budget set by host for this trip")
+    host_comments: Optional[str] = Field(default=None, description="Comments/remarks from the trip host")
 
 
 class ActivityReplaceRequest(BaseModel):
@@ -279,46 +283,6 @@ class TripResponse(BaseModel):
             datetime: lambda v: v.isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
-
-
-class RouteSegment(BaseModel):
-    """Model for a single segment of a route"""
-    step_number: int = Field(description="Step number in the route")
-    mode: str = Field(description="Mode of transport: auto, bus, metro, taxi, walk, etc.")
-    from_location: str = Field(description="Starting point of this segment")
-    to_location: str = Field(description="Ending point of this segment")
-    description: str = Field(description="Brief description of the segment")
-    landmarks: List[str] = Field(default_factory=list, description="Notable landmarks or spots along this segment")
-    estimated_time: str = Field(description="Estimated time for this segment")
-    estimated_cost: str = Field(description="Estimated cost for this segment in INR")
-    details: Optional[str] = Field(default=None, description="Additional details like metro line color, bus number, street names")
-
-
-class RoutePlan(BaseModel):
-    """Model for complete route plan"""
-    from_location: str = Field(description="Starting point")
-    to_location: str = Field(description="Destination")
-    total_distance: str = Field(description="Total distance")
-    total_time: str = Field(description="Total estimated time")
-    total_cost: str = Field(description="Total estimated cost in INR")
-    segments: List[RouteSegment] = Field(description="List of route segments")
-    tips: List[str] = Field(default_factory=list, description="Travel tips and suggestions")
-
-
-class RouteGenerationRequest(BaseModel):
-    """Request model for route generation"""
-    trip_id: str = Field(description="Trip ID")
-    user_id: str = Field(description="User ID from Clerk")
-    from_location: str = Field(description="Starting location (arrival hotel)")
-    to_locations: List[str] = Field(description="Ordered list of destination locations from itinerary")
-    destination_city: str = Field(description="Destination city for context")
-
-
-class RouteGenerationResponse(BaseModel):
-    """Response model for route generation"""
-    success: bool = Field(default=True)
-    route_plan: RoutePlan = Field(description="Generated route plan")
-    message: Optional[str] = Field(default=None)
 
 
 class JoinRequest(BaseModel):

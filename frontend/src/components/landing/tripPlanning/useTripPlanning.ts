@@ -43,7 +43,8 @@ export const useTripPlanning = () => {
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
       setIsGenerating(false);
       setModalImages([]);
-      navigate(`/trip/${generateTripMutation.data.trip_id}`);
+      // Add autoHostModal parameter for newly generated trips
+      navigate(`/trip/${generateTripMutation.data.trip_id}?autoHostModal=true`);
     }
   }, [
     generateTripMutation.isSuccess, 

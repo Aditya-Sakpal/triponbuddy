@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Calendar, Clock } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Calendar, Clock, Info } from "lucide-react";
 
 interface DateDurationInputsProps {
   startDate: string;
@@ -18,9 +19,19 @@ export const DateDurationInputs = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div className="space-y-3">
-        <Label htmlFor="start-date" className="text-sm font-medium">
-          Start Date <span className="text-destructive">*</span>
-        </Label>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="start-date" className="text-sm font-medium">
+            Start Date <span className="text-destructive">*</span>
+          </Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Select the date when you want to begin your trip</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <div className="relative">
           <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none z-10" />
           {!startDate && (
@@ -45,9 +56,19 @@ export const DateDurationInputs = ({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-sm font-medium">
-          Number of Days <span className="text-destructive">*</span>
-        </Label>
+        <div className="flex items-center gap-2">
+          <Label className="text-sm font-medium">
+            Number of Days <span className="text-destructive">*</span>
+          </Label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>How many days will your trip last? (1-30 days)</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <div className="relative">
           <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input

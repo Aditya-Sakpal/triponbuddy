@@ -254,10 +254,24 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           <div className="flex items-center gap-2 text-sm">
             <Wallet className="h-4 w-4 text-green-600" />
             <span className="font-semibold text-green-600">
-              Budget: {getCalculatedBudget(fullTripData || trip)}
+              Budget: {
+                (fullTripData || trip).custom_budget 
+                  ? `₹${(fullTripData || trip).custom_budget?.toLocaleString('en-IN')}`
+                  : getCalculatedBudget(fullTripData || trip)
+              }
             </span>
           </div>
         </div>
+
+        {/* Host Comments */}
+        {(fullTripData || trip).host_comments && (
+          <div className="pt-2 border-t">
+            <h4 className="text-sm font-semibold mb-2">Host's Message</h4>
+            <p className="text-sm text-muted-foreground italic">
+              "{(fullTripData || trip).host_comments}"
+            </p>
+          </div>
+        )}
 
         {/* Traveler Demographics */}
         {demographics.length > 0 && (

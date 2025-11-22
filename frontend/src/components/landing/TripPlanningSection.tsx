@@ -5,7 +5,8 @@ import { useTripPlanning } from "./tripPlanning/useTripPlanning";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
-import { MapPin } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { MapPin, Info } from "lucide-react";
 
 export const TripPlanningSection = () => {
   const {
@@ -20,7 +21,6 @@ export const TripPlanningSection = () => {
     isGenerating,
     isSignedIn,
     isLoaded,
-    travelers,
     budget,
     
     // Setters
@@ -30,7 +30,6 @@ export const TripPlanningSection = () => {
     setStartDate,
     setDurationDays,
     setIsInternational,
-    setTravelers,
     setBudget,
     
     // Actions
@@ -64,30 +63,49 @@ export const TripPlanningSection = () => {
             </CardHeader>
             
             <CardContent className="px-8 pb-8">
-              {/* Start Location and International Toggle */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="start-location" className="text-sm font-medium">
-                      Start Location 
-                    </Label>
-                    <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="worldwide" 
-                        checked={isInternational}
-                        onCheckedChange={setIsInternational}
-                      />
-                      <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
+              <TooltipProvider>
+                {/* Start Location and International Toggle */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="start-location" className="text-sm font-medium">
+                          Start Location
+                        </Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Enter the city or location where your journey begins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          id="worldwide" 
+                          checked={isInternational}
+                          onCheckedChange={setIsInternational}
+                        />
+                        <Label htmlFor="worldwide" className="text-sm text-muted-foreground">Worldwide</Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Toggle to search destinations worldwide or within India only</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
+                    <LocationAutocomplete
+                      id="start-location"
+                      value={startLocation}
+                      onChange={setStartLocation}
+                      placeholder="Enter your starting point"
+                      icon={<MapPin className="w-4 h-4" />}
+                    />
                   </div>
-                  <LocationAutocomplete
-                    id="start-location"
-                    value={startLocation}
-                    onChange={setStartLocation}
-                    placeholder="Enter your starting point"
-                    icon={<MapPin className="w-4 h-4" />}
-                  />
-                </div>
                 
                 {/* Destination List with Drag & Drop */}
                 <DestinationList
@@ -123,6 +141,7 @@ export const TripPlanningSection = () => {
                 isSignedIn={isSignedIn}
                 isLoaded={isLoaded}
               />
+              </TooltipProvider>
             </CardContent>
           </Card>
         </div>

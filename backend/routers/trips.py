@@ -16,13 +16,10 @@ from models.trip import (
     ActivityRemoveRequest,
     ActivityAlternativesRequest,
     ActivityAlternativesResponse,
-    RouteGenerationRequest,
-    RouteGenerationResponse,
     EmergencyNumberSetup,
     EmergencyNumberResponse
 )
 from services.trip_service import trip_service
-from services.route_service import route_service
 
 logger = logging.getLogger(__name__)
 
@@ -407,126 +404,6 @@ async def get_activity_alternatives(
         raise HTTPException(
             status_code=500,
             detail="Failed to generate activity alternatives"
-        )
-
-
-@router.get("/{trip_id}/route/destinations", response_model=dict)
-async def get_route_destinations(
-    request: Request,
-    trip_id: str,
-    user_id: str = Query(..., description="User ID from Clerk")
-):
-    """Get all available destinations from itinerary (excluding arrival/departure activities)"""
-
-    try:
-        trip_result = await trip_service.get_trip(trip_id, user_id)
-        
-        if not trip_result.get("success"):
-            raise HTTPException(status_code=404, detail="Trip not found")
-        
-        trip = trip_result.get("trip")
-        itinerary_data = trip.itinerary_data
-        
-        # Extract unique locations from all activities, excluding arrival/departure
-        destinations = []
-        arrival_hotel = None
-        
-        if "daily_plans" in itinerary_data:
-            for day_plan in itinerary_data["daily_plans"]:
-                for activity in day_plan.get("activities", []):
-                    tag = activity.get("tag", "")
-                    location = activity.get("location", "")
-                    activity_name = activity.get("activity", "")
-                    
-                    # Store the first hotel as arrival hotel
-                    if arrival_hotel is None and day_plan.get("day") == 1:
-                        # Look for accommodation/hotel in first day activities
-                        if "hotel" in activity_name.lower() or "check" in activity_name.lower():
-                            arrival_hotel = location
-                    
-                    # Skip arrival/departure activities
-                    if tag != "arrival_departure" and location:
-                        # Create unique destination entry
-                        dest_entry = {
-                            "location": location,
-                            "activity": activity_name,
-                            "day": day_plan.get("day"),
-                            "time": activity.get("time", "")
-                        }
-                        
-                        # Check if this location is already in the list
-                        if not any(d["location"] == location for d in destinations):
-                            destinations.append(dest_entry)
-        
-        # If no arrival hotel found, use first accommodation from the accommodation list
-        if not arrival_hotel and "accommodation" in itinerary_data:
-            accommodations = itinerary_data.get("accommodation", [])
-            if accommodations and len(accommodations) > 0:
-                arrival_hotel = accommodations[0].get("location", "") or accommodations[0].get("name", "")
-        
-        return {
-            "success": True,
-            "arrival_hotel": arrival_hotel or "Starting Point",
-            "destinations": destinations,
-            "destination_city": itinerary_data.get("destination", "")
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting route destinations: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve destinations"
-        )
-
-
-@router.post("/{trip_id}/route/generate", response_model=RouteGenerationResponse)
-async def generate_route(
-    request: Request,
-    trip_id: str,
-    route_request: RouteGenerationRequest,
-    user_id: str = Query(..., description="User ID from Clerk")
-):
-    """Generate a transportation route plan from arrival hotel to a selected destination"""
-
-    try:
-        # Validate that the trip belongs to the user
-        trip_result = await trip_service.get_trip(trip_id, user_id)
-        
-        if not trip_result.get("success"):
-            raise HTTPException(status_code=404, detail="Trip not found")
-        
-        # Validate the request matches the trip
-        if route_request.trip_id != trip_id or route_request.user_id != user_id:
-            raise HTTPException(status_code=400, detail="Invalid request parameters")
-        
-        # Validate that at least one destination is provided
-        if not route_request.to_locations or len(route_request.to_locations) == 0:
-            raise HTTPException(status_code=400, detail="At least one destination is required")
-        
-        # Generate the route plan
-        result = await route_service.generate_route_plan(
-            from_location=route_request.from_location,
-            to_locations=route_request.to_locations,
-            destination_city=route_request.destination_city
-        )
-
-        if not result.get("success"):
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to generate route plan"
-            )
-
-        return RouteGenerationResponse(**result)
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating route: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to generate route plan"
         )
 
 

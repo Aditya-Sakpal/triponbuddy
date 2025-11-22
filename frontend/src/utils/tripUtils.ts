@@ -54,11 +54,21 @@ const parsePrice = (priceString: string): number => {
 };
 
 /**
- * Calculates the total estimated cost from all activities in an itinerary
- * @param itinerary - The trip itinerary containing daily plans with activities
+ * Calculates the total estimated cost from all activities in a trip's itinerary
+ * This is the single source of truth for budget calculation across the app
+ * @param trip - The trip object or itinerary data containing daily plans with activities
  * @returns The sum of all activity estimated costs as a formatted string
  */
-export const calculateTotalCostFromActivities = (itinerary: Itinerary | Record<string, unknown>): string => {
+export const getCalculatedBudget = (trip: TripDB | { itinerary_data?: Record<string, unknown> } | Itinerary | Record<string, unknown>): string => {
+  // Handle different input types
+  let itinerary: Itinerary | Record<string, unknown> | undefined;
+  
+  if ('itinerary_data' in trip) {
+    itinerary = trip.itinerary_data as Itinerary | Record<string, unknown>;
+  } else {
+    itinerary = trip as Itinerary | Record<string, unknown>;
+  }
+  
   if (!itinerary || !('daily_plans' in itinerary)) {
     return '₹0';
   }
@@ -78,16 +88,4 @@ export const calculateTotalCostFromActivities = (itinerary: Itinerary | Record<s
 
   // Format the total cost with Indian rupee symbol and comma separators
   return `₹${totalCost.toLocaleString('en-IN')}`;
-};
-
-/**
- * Gets the calculated budget display string from itinerary activities
- * This is the single source of truth for budget display across the app
- */
-export const getCalculatedBudget = (trip: TripDB | { itinerary_data?: Record<string, unknown> }): string => {
-  if (!trip || !trip.itinerary_data) {
-    return '₹0';
-  }
-
-  return calculateTotalCostFromActivities(trip.itinerary_data);
 };

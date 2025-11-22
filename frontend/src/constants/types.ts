@@ -181,6 +181,8 @@ export interface TripDB {
   preferred_gender?: string;
   age_range_min?: number;
   age_range_max?: number;
+  custom_budget?: number;
+  host_comments?: string;
   emergency_contact_number?: string;
   created_at: string;
   updated_at: string;
@@ -196,6 +198,8 @@ export interface TripUpdateRequest {
   preferred_gender?: string;
   age_range_min?: number;
   age_range_max?: number;
+  custom_budget?: number;
+  host_comments?: string;
   emergency_contact_number?: string;
 }
 
@@ -311,57 +315,6 @@ export interface ImageSingleParams extends Record<string, unknown> {
   min_width?: number;
   min_height?: number;
   randomize?: boolean;
-}
-
-// Route Generation types
-export interface RouteSegment {
-  step_number: number;
-  mode: string;
-  from_location: string;
-  to_location: string;
-  description: string;
-  landmarks: string[];
-  estimated_time: string;
-  estimated_cost: string;
-  details?: string;
-}
-
-export interface RoutePlan {
-  from_location: string;
-  to_location: string;
-  total_distance: string;
-  total_time: string;
-  total_cost: string;
-  segments: RouteSegment[];
-  tips: string[];
-}
-
-export interface RouteGenerationRequest {
-  trip_id: string;
-  user_id: string;
-  from_location: string;
-  to_locations: string[];
-  destination_city: string;
-}
-
-export interface RouteGenerationResponse {
-  success: boolean;
-  route_plan: RoutePlan;
-  message?: string;
-}
-
-export interface RouteDestination {
-  location: string;
-  activity: string;
-  day: number;
-  time: string;
-}
-
-export interface RouteDestinationsResponse {
-  success: boolean;
-  arrival_hotel: string;
-  destinations: RouteDestination[];
-  destination_city: string;
 }
 
 // Join Request and Notification Types

@@ -18,3 +18,4 @@ export { TripCardActions } from '../profile/tripsTab/TripCardActions';
 export { ActivityModificationModal } from './ActivityModificationModal';
 export { BuildYourOwnTripPanel } from './BuildYourOwnTripPanel';
 export { ApplyingChangesModal } from './ApplyingChangesModal';
+export { HostTripModal } from './HostTripModal';
