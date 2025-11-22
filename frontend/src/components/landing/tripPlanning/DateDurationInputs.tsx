@@ -65,7 +65,7 @@ export const DateDurationInputs = ({
               <Info className="w-4 h-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>How many days will your trip last? (1-30 days)</p>
+              <p>Days your trip will last exclusive of travel time</p>
             </TooltipContent>
           </Tooltip>
         </div>

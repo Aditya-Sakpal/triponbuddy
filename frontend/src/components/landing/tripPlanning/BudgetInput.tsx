@@ -25,7 +25,7 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
       <div className="flex items-center gap-2">
         <Label htmlFor="budget" className="flex items-center gap-2 text-sm font-medium">
           <IndianRupee className="w-5 h-5" />
-          Budget (Optional)
+          Budget/person
         </Label>
         <Tooltip>
           <TooltipTrigger asChild>
