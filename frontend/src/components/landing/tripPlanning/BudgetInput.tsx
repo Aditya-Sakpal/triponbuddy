@@ -1,14 +1,17 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IndianRupee, Info } from "lucide-react";
+import { IndianRupee, Info, Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface BudgetInputProps {
   budget: number | undefined;
   setBudget: (budget: number | undefined) => void;
+  minimumBudget?: number;
+  isEstimating?: boolean;
 }
 
-export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
+export const BudgetInput = ({ budget, setBudget, minimumBudget, isEstimating }: BudgetInputProps) => {
   const handleBudgetChange = (value: string) => {
     if (value === '') {
       setBudget(undefined);
@@ -20,6 +23,8 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
     }
   };
 
+  const isBelowMinimum = budget !== undefined && minimumBudget !== undefined && budget < minimumBudget;
+
   return (
     <div className="space-y-2 my-4">
       <div className="flex items-center gap-2">
@@ -27,6 +32,9 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
           <IndianRupee className="w-5 h-5" />
           Budget/person
         </Label>
+        {isEstimating && (
+          <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <Info className="w-4 h-4 text-muted-foreground cursor-help" />
@@ -43,15 +51,29 @@ export const BudgetInput = ({ budget, setBudget }: BudgetInputProps) => {
         <Input
           id="budget"
           type="number"
-          min="0"
+          min={minimumBudget || 0}
           step="1000"
           value={budget || ''}
           onChange={(e) => handleBudgetChange(e.target.value)}
-          placeholder="Enter your budget in INR"
-          className="pl-8 h-12"
+          placeholder={minimumBudget ? `Minimum: ₹${minimumBudget.toLocaleString('en-IN')}` : "Enter your budget in INR"}
+          className={`pl-8 h-12 ${isBelowMinimum ? 'border-destructive' : ''}`}
         />
       </div>
-
+      
+      {isBelowMinimum && (
+        <Alert variant="destructive" className="py-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-sm">
+            Budget should be at least ₹{minimumBudget?.toLocaleString('en-IN')} for this trip
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {minimumBudget && !isBelowMinimum && budget !== undefined && (
+        <p className="text-xs text-muted-foreground">
+          Minimum recommended: ₹{minimumBudget.toLocaleString('en-IN')}
+        </p>
+      )}
     </div>
   );
 };

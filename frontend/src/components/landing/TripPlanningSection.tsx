@@ -22,6 +22,8 @@ export const TripPlanningSection = () => {
     isSignedIn,
     isLoaded,
     budget,
+    minimumBudget,
+    isEstimatingBudget,
     
     // Setters
     setDestinations,
@@ -126,6 +128,8 @@ export const TripPlanningSection = () => {
               <BudgetInput
                 budget={budget}
                 setBudget={setBudget}
+                minimumBudget={minimumBudget}
+                isEstimating={isEstimatingBudget}
               />
 
               <TravelPreferences

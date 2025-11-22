@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
@@ -9,6 +9,7 @@ import {
   buildTripPreferences, 
   fetchModalImages 
 } from "./tripPlanningHelpers";
+import { tripApi } from "@/services/tripApi";
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
@@ -19,6 +20,8 @@ export const useTripPlanning = () => {
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
+  const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -72,6 +75,47 @@ export const useTripPlanning = () => {
       setDestinations([destinationParam]);
     }
   }, [searchParams]);
+
+  // Estimate minimum budget when trip parameters change
+  const estimateBudget = useCallback(async () => {
+    const effectiveDestinations = destinations.length > 0 
+      ? destinations 
+      : (pendingDestination.trim() ? [pendingDestination.trim()] : []);
+
+    if (effectiveDestinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
+      return;
+    }
+
+    setIsEstimatingBudget(true);
+    try {
+      const response = await tripApi.estimateBudget({
+        destinations: effectiveDestinations,
+        duration_days: durationDays,
+        start_date: startDate,
+      });
+
+      if (response.success && response.minimum_budget) {
+        setMinimumBudget(response.minimum_budget);
+        // Auto-populate budget if not set or if current budget is less than minimum
+        if (!budget || budget < response.minimum_budget) {
+          setBudget(response.minimum_budget);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to estimate budget:", error);
+    } finally {
+      setIsEstimatingBudget(false);
+    }
+  }, [destinations, pendingDestination, startDate, durationDays, budget]);
+
+  // Trigger budget estimation when relevant parameters change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      estimateBudget();
+    }, 500); // Debounce for 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [destinations, pendingDestination, startDate, durationDays]);
 
   const getCurrentUserId = () => {
     if (isLoaded && isSignedIn && user) {
@@ -153,6 +197,12 @@ export const useTripPlanning = () => {
       return;
     }
 
+    // Validate budget against minimum
+    if (budget !== undefined && minimumBudget !== undefined && budget < minimumBudget) {
+      alert(`Budget should be at least ₹${minimumBudget.toLocaleString('en-IN')} for this trip`);
+      return;
+    }
+
     setIsGenerating(true);
 
     // Pass all destinations to fetch images from all of them
@@ -201,6 +251,8 @@ export const useTripPlanning = () => {
     isSignedIn,
     isLoaded,
     budget,
+    minimumBudget,
+    isEstimatingBudget,
     
     // Setters
     setDestinations,

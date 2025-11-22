@@ -372,3 +372,16 @@ class EmergencyNumberResponse(BaseModel):
     """Response model for emergency number operations"""
     success: bool = Field(default=True)
     message: Optional[str] = None
+
+
+class BudgetEstimateRequest(BaseModel):
+    """Request model for budget estimation"""
+    destinations: List[str] = Field(description="List of destination cities")
+    duration_days: int = Field(ge=1, description="Trip duration in days")
+    start_date: str = Field(description="Trip start date in ISO format")
+
+
+class BudgetEstimateResponse(BaseModel):
+    """Response model for budget estimation"""
+    success: bool = Field(default=True)
+    minimum_budget: int = Field(description="Minimum budget per person in INR")
