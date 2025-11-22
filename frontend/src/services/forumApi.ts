@@ -51,6 +51,14 @@ export const forumApi = {
     return response;
   },
 
+  async getUserPosts(userId: string, page: number, pageSize: number): Promise<PostFeedResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/forum/users/${userId}/posts?page=${page}&page_size=${pageSize}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch user posts");
+    return response.json();
+  },
+
   // Comments
   async getComments(postId: string, userId?: string): Promise<CommentsResponse> {
     const url = userId

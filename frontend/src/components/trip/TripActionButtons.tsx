@@ -1,23 +1,27 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, Share, Heart, HeartOff } from "lucide-react";
+import { ArrowLeft, Edit, Share, Heart, HeartOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TripActionButtonsProps {
   onEditTrip: () => void;
   onShare: () => void;
   onSaveToggle: () => void;
+  onHostTrip?: () => void;
   isLoading?: boolean;
   isSaved?: boolean;
   canEdit?: boolean;
+  isOwner?: boolean;
 }
 
 export const TripActionButtons = ({
   onEditTrip,
   onShare,
   onSaveToggle,
+  onHostTrip,
   isLoading = false,
   isSaved = false,
-  canEdit = true
+  canEdit = true,
+  isOwner = false
 }: TripActionButtonsProps) => {
   const navigate = useNavigate();
 
@@ -64,6 +68,16 @@ export const TripActionButtons = ({
             )}
             {isSaved ? 'Unsave Trip' : 'Save Trip'}
           </Button>
+          {isOwner && onHostTrip && (
+            <Button
+              onClick={onHostTrip}
+              disabled={isLoading}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Host Trip
+            </Button>
+          )}
         </div>
       </div>
 
@@ -97,18 +111,30 @@ export const TripActionButtons = ({
             Share
           </Button>
         </div>
-        <Button
-          onClick={onSaveToggle}
-          disabled={isLoading}
-          className="w-full px-4 py-2 text-sm"
-        >
-          {isSaved ? (
-            <HeartOff className="w-4 h-4 mr-2" />
-          ) : (
-            <Heart className="w-4 h-4 mr-2" />
+        <div className={`grid gap-2 ${isOwner && onHostTrip ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <Button
+            onClick={onSaveToggle}
+            disabled={isLoading}
+            className="w-full px-4 py-2 text-sm"
+          >
+            {isSaved ? (
+              <HeartOff className="w-4 h-4 mr-2" />
+            ) : (
+              <Heart className="w-4 h-4 mr-2" />
+            )}
+            {isSaved ? 'Unsave Trip' : 'Save Trip'}
+          </Button>
+          {isOwner && onHostTrip && (
+            <Button
+              onClick={onHostTrip}
+              disabled={isLoading}
+              className="w-full px-4 py-2 text-sm bg-green-600 hover:bg-green-700"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Host Trip
+            </Button>
           )}
-          {isSaved ? 'Unsave Trip' : 'Save Trip'}
-        </Button>
+        </div>
       </div>
     </>
   );

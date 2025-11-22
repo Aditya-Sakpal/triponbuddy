@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
-import { Mountain, Building, Umbrella, Music, ShoppingBag, Utensils } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, Info } from "lucide-react";
 
 interface TravelPreferencesProps {
   selectedPreferences: string[];
@@ -21,9 +22,19 @@ export const TravelPreferences = ({
 
   return (
     <div className="mb-8">
-      <Label className="text-sm font-medium mb-4 block">
-        Travel Preferences 
-      </Label>
+      <div className="flex items-center gap-2 mb-4">
+        <Label className="text-sm font-medium">
+          Travel Preferences
+        </Label>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Select interests to personalize your trip recommendations</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {preferenceOptions.map((pref, index) => {
           const Icon = pref.icon;

@@ -120,6 +120,45 @@ class AIService:
             logger.error(f"Error generating alternative activities: {str(e)}")
             raise Exception(f"Failed to generate alternatives: {str(e)}")
 
+    async def estimate_minimum_budget(
+        self,
+        destinations: list[str],
+        duration_days: int,
+        start_date: str
+    ) -> Dict[str, Any]:
+        """Quickly estimate minimum budget per person for a trip"""
+        
+        destinations_text = " -> ".join(destinations)
+        
+        prompt = f"""Estimate a realistic budget per person in INR for this trip:
+- Destinations: {destinations_text}
+- Duration: {duration_days} days
+- Start Date: {start_date}
+
+Consider: accommodation (budget hotels), local transport, meals (budget-friendly), entry fees.
+Respond with ONLY a JSON object: {{"minimum_budget": <number>}}"""
+
+        try:
+            response = self.client.models.generate_content(
+                model='gemini-flash-latest',
+                contents=prompt
+            )
+            budget_data = self.response_parser.parse_json_response(response.text)
+            
+            return {
+                "success": True,
+                "minimum_budget": budget_data.get("minimum_budget", 5000)
+            }
+
+        except Exception as e:
+            logger.error(f"Error estimating budget: {str(e)}")
+            # Return fallback budget based on duration
+            fallback_budget = duration_days * 2000  # ₹2000 per day as fallback
+            return {
+                "success": True,
+                "minimum_budget": fallback_budget
+            }
+
 
 # Global AI service instance
 ai_service = AIService()

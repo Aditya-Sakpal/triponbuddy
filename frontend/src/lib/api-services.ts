@@ -15,9 +15,6 @@ import type {
   SingleImageResponse,
   ImageBulkParams,
   ImageSingleParams,
-  RouteGenerationRequest,
-  RouteGenerationResponse,
-  RouteDestinationsResponse,
 } from '../constants';
 
 // Trips API Service
@@ -100,25 +97,6 @@ export class TripsApiService {
         day,
         activity_index: activityIndex,
       },
-      { user_id: userId }
-    );
-  }
-
-  static async getRouteDestinations(tripId: string, userId: string): Promise<RouteDestinationsResponse> {
-    return apiClient.get<RouteDestinationsResponse>(
-      `/api/trips/${tripId}/route/destinations`,
-      { user_id: userId }
-    );
-  }
-
-  static async generateRoute(
-    tripId: string,
-    request: RouteGenerationRequest,
-    userId: string
-  ): Promise<RouteGenerationResponse> {
-    return apiClient.post<RouteGenerationResponse>(
-      `/api/trips/${tripId}/route/generate`,
-      request,
       { user_id: userId }
     );
   }

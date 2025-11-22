@@ -6,3 +6,5 @@ export { TestimonialsSection } from "./TestimonialsSection";
 export { WhyPlanSection } from "./WhyPlanSection";
 export { WhyTriponBuddySection } from "./WhyTriponBuddySection";
 export { FeedbackSection } from "./FeedbackSection";
+export { NearbyPlacesSection } from "./NearbyPlacesSection";
+export { NearbyPlacesCard } from "./NearbyPlacesCard";

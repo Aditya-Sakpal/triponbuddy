@@ -111,6 +111,12 @@ class TripDataBuilder:
             update_doc["age_range_min"] = updates.age_range_min
         if hasattr(updates, 'age_range_max'):
             update_doc["age_range_max"] = updates.age_range_max
+        
+        # Handle custom budget and host comments
+        if hasattr(updates, 'custom_budget') and updates.custom_budget is not None:
+            update_doc["custom_budget"] = updates.custom_budget
+        if hasattr(updates, 'host_comments'):
+            update_doc["host_comments"] = updates.host_comments
             
         return update_doc
 

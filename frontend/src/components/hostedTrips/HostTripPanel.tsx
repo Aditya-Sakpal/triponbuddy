@@ -45,6 +45,7 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
   const [ageRangeType, setAgeRangeType] = useState<string>("any");
   const [customAgeMin, setCustomAgeMin] = useState<number>(18);
   const [customAgeMax, setCustomAgeMax] = useState<number>(60);
+  const [customBudget, setCustomBudget] = useState<string>("");
 
   // Fetch user's trips
   useEffect(() => {
@@ -80,6 +81,17 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
   }, [user, toast]);
 
   const selectedTrip = trips.find((trip) => trip.trip_id === selectedTripId);
+  
+  // Calculate minimum budget from selected trip activities
+  const calculatedBudget = selectedTrip ? getCalculatedBudget(selectedTrip) : "₹0";
+  const minBudgetValue = parseFloat(calculatedBudget.replace(/[₹,]/g, '')) || 0;
+  
+  // Update custom budget when trip is selected
+  useEffect(() => {
+    if (selectedTrip) {
+      setCustomBudget(minBudgetValue.toString());
+    }
+  }, [selectedTripId, minBudgetValue]);
 
   const handleHostTrip = async () => {
     if (!user || !selectedTrip) {
@@ -96,6 +108,17 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
       toast({
         title: "Error",
         description: "Please enter a valid number of passengers (1-10)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate custom budget
+    const budgetValue = parseFloat(customBudget);
+    if (isNaN(budgetValue) || budgetValue < minBudgetValue) {
+      toast({
+        title: "Error",
+        description: `Budget must be at least ${calculatedBudget} (the calculated trip cost)`,
         variant: "destructive",
       });
       return;
@@ -142,7 +165,7 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
           break;
       }
 
-      // First, update the trip to set max_passengers, gender/age preferences, and make it public
+      // First, update the trip to set max_passengers, gender/age preferences, custom budget, and make it public
       const updateResponse = await fetch(
         `${API_BASE_URL}/api/trips/${selectedTrip.trip_id}?user_id=${user.id}`,
         {
@@ -156,6 +179,7 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
             preferred_gender: preferredGender === "any" ? null : preferredGender,
             age_range_min: ageRangeMin,
             age_range_max: ageRangeMax,
+            custom_budget: budgetValue,
           }),
         }
       );
@@ -164,11 +188,11 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
         throw new Error("Failed to update trip settings");
       }
 
-      // Prepare shared trip data for the forum post
+      // Prepare shared trip data for the forum post (use custom budget)
       const sharedTripData: SharedTrip = {
         trip_id: selectedTrip.trip_id,
         destination: selectedTrip.destination,
-        total_cost: getCalculatedBudget(selectedTrip),
+        total_cost: `₹${budgetValue.toLocaleString('en-IN')}`,
         cover_image_url: selectedTrip.destination_image,
         start_date: selectedTrip.start_date,
         end_date: selectedTrip.end_date || selectedTrip.start_date,
@@ -210,6 +234,7 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
       setAgeRangeType("any");
       setCustomAgeMin(18);
       setCustomAgeMax(60);
+      setCustomBudget("");
 
       if (onTripHosted) {
         onTripHosted();
@@ -324,6 +349,39 @@ export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
                 placeholder="e.g., 4"
               />
             </div>
+
+            {/* Custom Budget */}
+            {selectedTrip && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="custom-budget">Budget per Person (₹)</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">
+                          Set the budget for travelers joining your trip. Must be at least {calculatedBudget} (the base trip cost).
+                          You can set a higher budget if needed.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Input
+                  id="custom-budget"
+                  type="number"
+                  min={minBudgetValue}
+                  value={customBudget}
+                  onChange={(e) => setCustomBudget(e.target.value)}
+                  placeholder={`Minimum: ${minBudgetValue}`}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Minimum budget: {calculatedBudget}
+                </p>
+              </div>
+            )}
 
             {/* Gender Preference */}
             <div className="space-y-2">

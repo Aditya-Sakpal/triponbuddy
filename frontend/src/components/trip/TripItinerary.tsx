@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Calendar, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel} from "@/components/trip";
+import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel, HostTripModal} from "@/components/trip";
 import { apiClient } from "@/lib/api-client";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
 import { getCalculatedBudget } from "@/utils/tripUtils";
@@ -27,8 +27,10 @@ export const TripItinerary = ({
   currentUserId
 }: TripItineraryProps) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("itinerary");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHostTripModalOpen, setIsHostTripModalOpen] = useState(false);
   const [editModalInitialDestination, setEditModalInitialDestination] = useState<string | undefined>(undefined);
   const [destinationImages, setDestinationImages] = useState<ImageData[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
@@ -36,6 +38,9 @@ export const TripItinerary = ({
   const [checkingPermission, setCheckingPermission] = useState(true);
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
+  
+  // Check if user is the owner of this trip
+  const isOwner = currentUserId === trip.user_id;
 
   // Calculate the actual budget from activities (single source of truth)
   const budgetDisplay = getCalculatedBudget(trip);
@@ -76,6 +81,18 @@ export const TripItinerary = ({
 
     checkEditPermission();
   }, [trip.trip_id, currentUserId]);
+
+  // Auto-open Host Trip Modal for newly generated trips
+  useEffect(() => {
+    const shouldAutoOpen = searchParams.get('autoHostModal');
+    
+    if (shouldAutoOpen === 'true' && isOwner && !trip.is_public) {
+      setIsHostTripModalOpen(true);
+      // Remove the query parameter after opening
+      searchParams.delete('autoHostModal');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams, isOwner, trip.is_public]);
 
   useEffect(() => {
     const fetchDestinationImages = async () => {
@@ -164,6 +181,10 @@ export const TripItinerary = ({
     setIsEditModalOpen(true);
   };
 
+  const handleHostTrip = () => {
+    setIsHostTripModalOpen(true);
+  };
+
   const handleGenerateTripForPlace = (placeName: string) => {
     setEditModalInitialDestination(placeName);
     setIsEditModalOpen(true);
@@ -244,9 +265,11 @@ export const TripItinerary = ({
                 onEditTrip={handleEditTrip}
                 onShare={handleShare}
                 onSaveToggle={handleSaveToggle}
+                onHostTrip={handleHostTrip}
                 isLoading={isLoading || checkingPermission}
                 isSaved={trip.is_saved}
                 canEdit={canEdit}
+                isOwner={isOwner}
               />
             </div>
           </div>
@@ -265,9 +288,11 @@ export const TripItinerary = ({
             onEditTrip={handleEditTrip}
             onShare={handleShare}
             onSaveToggle={handleSaveToggle}
+            onHostTrip={handleHostTrip}
             isLoading={isLoading || checkingPermission}
             isSaved={trip.is_saved}
             canEdit={canEdit}
+            isOwner={isOwner}
           />
       </div>
       
@@ -327,6 +352,18 @@ export const TripItinerary = ({
         trip={trip}
         onTripUpdated={handleTripUpdated}
         initialDestination={editModalInitialDestination}
+      />
+
+      {/* Host Trip Modal */}
+      <HostTripModal
+        trip={trip}
+        isOpen={isHostTripModalOpen}
+        onClose={() => setIsHostTripModalOpen(false)}
+        onSuccess={() => {
+          if (onRefresh) {
+            onRefresh();
+          }
+        }}
       />
     </div>
   );
