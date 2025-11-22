@@ -61,9 +61,9 @@ export const BudgetInput = ({ budget, setBudget, minimumBudget, isEstimating }: 
       </div>
       
       {isBelowMinimum && (
-        <Alert variant="destructive" className="py-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm">
+        <Alert variant="destructive" className="py-3">
+          <AlertCircle className="h-4 w-4 !top-3" />
+          <AlertDescription className="text-sm [&_p]:leading-normal">
             Budget should be at least ₹{minimumBudget?.toLocaleString('en-IN')} for this trip
           </AlertDescription>
         </Alert>
