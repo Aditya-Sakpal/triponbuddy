@@ -9,7 +9,6 @@ export const Footer = () => {
   const quickLinks = [
     { to: "/", label: "Home" },
     { to: "/explore", label: "Destinations" },
-    { to: "/seasonal", label: "Seasonal" },
     { to: "/profile?tab=trips", label: "My Trips" },
     { to: "/contact", label: "Contact" },
     { to: "/privacy", label: "Privacy Policy" },

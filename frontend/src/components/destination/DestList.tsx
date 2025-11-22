@@ -28,10 +28,38 @@ export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: Dest
       }
     }
 
-    // TODO: Add season filtering logic here when needed
-    // if (selectedSeason !== "all") {
-    //   // Season filtering logic
-    // }
+    // Filter by season - filter destinations within this state
+    if (selectedSeason !== "all" && selectedSeason !== "all-seasons") {
+      const seasonFilteredDestinations = stateData.destinations.filter(dest => {
+        // Match season in bestTimeToVisit field
+        const timeToVisit = dest.bestTimeToVisit?.toLowerCase() || "";
+        
+        switch(selectedSeason) {
+          case "summer":
+            return timeToVisit.includes("may") || timeToVisit.includes("jun");
+          case "winter":
+            return timeToVisit.includes("nov") || timeToVisit.includes("dec") || 
+                   timeToVisit.includes("jan") || timeToVisit.includes("feb");
+          case "monsoon":
+            return timeToVisit.includes("jul") || timeToVisit.includes("aug") || 
+                   timeToVisit.includes("sep");
+          case "autumn":
+            return timeToVisit.includes("sep") || timeToVisit.includes("oct") || 
+                   timeToVisit.includes("nov");
+          default:
+            return true;
+        }
+      });
+      
+      // If no destinations match the season filter, exclude this state
+      if (seasonFilteredDestinations.length === 0) {
+        return false;
+      }
+      
+      // Update stateData to only include filtered destinations
+      stateData.destinations = seasonFilteredDestinations;
+      stateData.count = seasonFilteredDestinations.length;
+    }
 
     return true;
   });  // Preload all images on component mount with priority loading
