@@ -2,13 +2,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ProfileTab } from "./ProfileTab";
 import { MyTripsTab } from "./MyTripsTab";
+import { MyPostsTab } from "./MyPostsTab";
 import { useSearchParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { useUserProfile } from "@/hooks/api-hooks";
 
 export const ProfileCard = () => {
   const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') === 'trips' ? 'trips' : 'profile';
+  const tabParam = searchParams.get('tab');
+  const activeTab = tabParam === 'trips' ? 'trips' : tabParam === 'posts' ? 'posts' : 'profile';
   const { user } = useUser();
   
   const { data: userProfileData, isLoading: profileLoading } = useUserProfile(
@@ -40,6 +42,12 @@ export const ProfileCard = () => {
             >
               My Trips
             </TabsTrigger>
+            <TabsTrigger 
+              value="posts" 
+              className="rounded-none border-b-2 px-0 pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-lg"
+            >
+              My Posts
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="p-6">
@@ -48,6 +56,10 @@ export const ProfileCard = () => {
 
           <TabsContent value="trips" className="p-6">
             <MyTripsTab />
+          </TabsContent>
+
+          <TabsContent value="posts" className="p-6">
+            <MyPostsTab />
           </TabsContent>
         </Tabs>
       </Card>

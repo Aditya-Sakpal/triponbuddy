@@ -350,3 +350,74 @@ export const useCommentActions = (commentId: string, onDelete?: () => void) => {
 
   return { deleteComment, toggleLike, isDeleting, isLiking };
 };
+
+/**
+ * Hook for managing user's own posts
+ */
+export const useUserPosts = (userId: string, pageSize = 20) => {
+  const { toast } = useToast();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const fetchPosts = useCallback(
+    async (pageNum: number, append = false) => {
+      if (pageNum === 1) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      try {
+        const data = await forumApi.getUserPosts(userId, pageNum, pageSize);
+
+        if (append) {
+          setPosts((prev) => [...prev, ...data.posts]);
+        } else {
+          setPosts(data.posts);
+        }
+
+        setHasMore(data.has_more);
+      } catch (error) {
+        console.error("Error fetching user posts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load posts",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [pageSize, userId, toast]
+  );
+
+  useEffect(() => {
+    if (userId) {
+      fetchPosts(1);
+    }
+  }, [fetchPosts, userId]);
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchPosts(nextPage, true);
+  };
+
+  const refresh = () => {
+    setPage(1);
+    fetchPosts(1);
+  };
+
+  return {
+    posts,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    refresh,
+  };
+};
