@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 interface Destination {
   id?: string;
@@ -27,6 +29,49 @@ export const DestinationCard = ({
   onImageLoad 
 }: DestinationCardProps) => {
   const navigate = useNavigate();
+  const [placesImage, setPlacesImage] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  // Fetch image from Google Places API
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPlacesImage = async () => {
+      try {
+        setImageLoading(true);
+        // Combine destination name with state for better search results
+        const searchQuery = destination.state 
+          ? `${destination.name}, ${destination.state}`
+          : destination.name;
+        
+        const photoUrl = await googlePlacesService.getActivityPhoto(searchQuery);
+        
+        if (isMounted) {
+          if (photoUrl) {
+            setPlacesImage(photoUrl);
+            setImageFailed(false);
+          } else {
+            // If no photo found, use fallback
+            setImageFailed(true);
+          }
+          setImageLoading(false);
+        }
+      } catch (error) {
+        console.error(`Error fetching Places image for ${destination.name}:`, error);
+        if (isMounted) {
+          setImageFailed(true);
+          setImageLoading(false);
+        }
+      }
+    };
+
+    fetchPlacesImage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [destination.name, destination.state]);
 
   const handleExploreClick = () => {
     // Navigate to home page with destination as query param
@@ -35,21 +80,26 @@ export const DestinationCard = ({
     navigate(`/?${params.toString()}`);
   };
 
+  // Determine which image to display
+  // Use Places API image if available, otherwise use provided image (if any), or use placeholder
+  const displayImage = placesImage || destination.image || `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop`;
+  const shouldShowLoader = imageLoading;
+
   return (
     <Card className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border-border/50 hover:border-primary/20 overflow-hidden h-full flex flex-col">
       <div className="relative overflow-hidden rounded-t-lg flex-shrink-0">
         {/* Background placeholder for loading state */}
-        {!isImageLoaded && (
+        {shouldShowLoader && (
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center z-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bula"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         )}
         
         <img
-          src={destination.image}
+          src={displayImage}
           alt={destination.name}
           className={`w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300 ${
-            isImageLoaded ? 'opacity-100' : 'opacity-0'
+            shouldShowLoader ? 'opacity-0' : 'opacity-100'
           }`}
           onLoad={onImageLoad}
           loading="eager"

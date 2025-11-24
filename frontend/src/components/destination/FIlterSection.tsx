@@ -7,6 +7,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { locations, seasons } from "@/content/destinationContent";
+import { internationalCountries } from "@/content/internationalDestinations";
 import { useState } from "react";
 
 interface FilterSectionProps {
@@ -27,6 +28,11 @@ export const FilterSection = ({
   setIsWorldwide
 }: FilterSectionProps) => {
   const [open, setOpen] = useState(false);
+  
+  // Get the appropriate locations list based on worldwide toggle
+  const availableLocations = isWorldwide 
+    ? ["All Locations", ...internationalCountries]
+    : locations;
     
   return (
     <section className="relative -mt-16 z-20">
@@ -45,7 +51,7 @@ export const FilterSection = ({
                     >
                       <span className="truncate">
                         {selectedLocation
-                          ? locations.find((location) => location.toLowerCase().replace(/\s+/g, '-') === selectedLocation)
+                          ? availableLocations.find((location) => location.toLowerCase().replace(/\s+/g, '-') === selectedLocation)
                           : "All Locations"}
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -63,7 +69,7 @@ export const FilterSection = ({
                       <CommandList>
                         <CommandEmpty>No location found.</CommandEmpty>
                         <CommandGroup>
-                          {locations.filter((location) => location !== "All Locations").map((location) => (
+                          {availableLocations.filter((location) => location !== "All Locations").map((location) => (
                             <CommandItem
                               key={location}
                               value={location}
@@ -111,7 +117,11 @@ export const FilterSection = ({
                   <Switch
                     id="worldwide"
                     checked={isWorldwide}
-                    onCheckedChange={setIsWorldwide}
+                    onCheckedChange={(checked) => {
+                      setIsWorldwide(checked);
+                      // Reset location selection when toggling
+                      setSelectedLocation("all");
+                    }}
                   />
                 </div>
               </div>
