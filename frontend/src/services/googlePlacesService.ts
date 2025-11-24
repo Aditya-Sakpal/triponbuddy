@@ -72,6 +72,56 @@ class GooglePlacesService {
   }
 
   /**
+   * Check if a location is within India using geocoding
+   * @param locationName Name of the location to check
+   * @returns true if location is in India, false otherwise
+   */
+  async isLocationInIndia(locationName: string): Promise<boolean> {
+    try {
+      await this.ensureInitialized();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (!(window.google?.maps as any)?.Geocoder) {
+        throw new Error('Google Geocoder not available');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const geocoder = new (window.google.maps as any).Geocoder();
+
+      return new Promise((resolve, reject) => {
+        geocoder.geocode(
+          { address: locationName },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (results: any, status: any) => {
+            if (status === 'OK' && results && results.length > 0) {
+              const result = results[0];
+              
+              // Check if any address component contains "India"
+              const isInIndia = result.address_components?.some(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (component: any) => 
+                  component.types.includes('country') && 
+                  (component.short_name === 'IN' || component.long_name === 'India')
+              ) || false;
+
+              resolve(isInIndia);
+            } else if (status === 'ZERO_RESULTS') {
+              // Location not found, assume it could be anywhere
+              resolve(false);
+            } else {
+              reject(new Error(`Geocoding error: ${status}`));
+            }
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error checking location:', error);
+      // If there's an error, assume it might be international to be safe
+      return false;
+    }
+  }
+
+  /**
    * Get user's current location using browser geolocation API
    */
   async getCurrentLocation(): Promise<GeolocationCoordinates> {
@@ -126,79 +176,75 @@ class GooglePlacesService {
     radius: number = 100000,
     limit: number = 10
   ): Promise<NearbyPlace[]> {
-    try {
-      // Ensure Places Service is initialized
-      await this.ensureInitialized();
+    // Ensure Places Service is initialized
+    await this.ensureInitialized();
 
-      if (!this.placesService) {
-        throw new Error('Places Service not initialized');
-      }
-
-      // Types that represent interesting places to visit
-      const interestingTypes = [
-        'tourist_attraction',
-        'park',
-        'museum',
-        'natural_feature',
-        'point_of_interest',
-        'amusement_park',
-        'aquarium',
-        'art_gallery',
-        'campground',
-        'church',
-        'hindu_temple',
-        'mosque',
-        'zoo',
-      ];
-
-      // Create location object
-      const location = new window.google.maps.LatLng(latitude, longitude);
-
-      // Perform multiple searches with different types to get diverse results
-      const allPlaces: NearbyPlace[] = [];
-      const seenPlaceIds = new Set<string>();
-
-      // Search for each type to get diverse results
-      for (const type of interestingTypes.slice(0, 3)) {
-        try {
-          const places = await this.searchByType(location, radius, type);
-          
-          // Add unique places
-          for (const place of places) {
-            if (!seenPlaceIds.has(place.id) && allPlaces.length < limit) {
-              seenPlaceIds.add(place.id);
-              allPlaces.push(place);
-            }
-          }
-
-          // Break if we have enough places
-          if (allPlaces.length >= limit) {
-            break;
-          }
-        } catch (error) {
-          // Continue with other types
-        }
-      }
-
-      // If we still don't have enough places, do a general search
-      if (allPlaces.length < limit) {
-        try {
-          const generalPlaces = await this.searchByType(location, radius);
-          for (const place of generalPlaces) {
-            if (!seenPlaceIds.has(place.id) && allPlaces.length < limit) {
-              seenPlaceIds.add(place.id);
-              allPlaces.push(place);
-            }
-          }
-        } catch (error) {
-          // Silently continue
-        }
-      }
-
-      return allPlaces.slice(0, limit);
-    } catch (error) {
-      throw error;
+    if (!this.placesService) {
+      throw new Error('Places Service not initialized');
     }
+
+    // Types that represent interesting places to visit
+    const interestingTypes = [
+      'tourist_attraction',
+      'park',
+      'museum',
+      'natural_feature',
+      'point_of_interest',
+      'amusement_park',
+      'aquarium',
+      'art_gallery',
+      'campground',
+      'church',
+      'hindu_temple',
+      'mosque',
+      'zoo',
+    ];
+
+    // Create location object
+    const location = new window.google.maps.LatLng(latitude, longitude);
+
+    // Perform multiple searches with different types to get diverse results
+    const allPlaces: NearbyPlace[] = [];
+    const seenPlaceIds = new Set<string>();
+
+    // Search for each type to get diverse results
+    for (const type of interestingTypes.slice(0, 3)) {
+      try {
+        const places = await this.searchByType(location, radius, type);
+        
+        // Add unique places
+        for (const place of places) {
+          if (!seenPlaceIds.has(place.id) && allPlaces.length < limit) {
+            seenPlaceIds.add(place.id);
+            allPlaces.push(place);
+          }
+        }
+
+        // Break if we have enough places
+        if (allPlaces.length >= limit) {
+          break;
+        }
+      } catch (error) {
+        // Continue with other types
+      }
+    }
+
+    // If we still don't have enough places, do a general search
+    if (allPlaces.length < limit) {
+      try {
+        const generalPlaces = await this.searchByType(location, radius);
+        for (const place of generalPlaces) {
+          if (!seenPlaceIds.has(place.id) && allPlaces.length < limit) {
+            seenPlaceIds.add(place.id);
+            allPlaces.push(place);
+          }
+        }
+      } catch (error) {
+        // Silently continue
+      }
+    }
+
+    return allPlaces.slice(0, limit);
   }
 
   /**
@@ -265,22 +311,18 @@ class GooglePlacesService {
     radius: number = 100000,
     limit: number = 10
   ): Promise<NearbyPlace[]> {
-    try {
-      // Get user's current location
-      const location = await this.getCurrentLocation();
-      
-      // Search for nearby places
-      const places = await this.searchNearbyPlaces(
-        location.latitude,
-        location.longitude,
-        radius,
-        limit
-      );
+    // Get user's current location
+    const location = await this.getCurrentLocation();
+    
+    // Search for nearby places
+    const places = await this.searchNearbyPlaces(
+      location.latitude,
+      location.longitude,
+      radius,
+      limit
+    );
 
-      return places;
-    } catch (error) {
-      throw error;
-    }
+    return places;
   }
 }
 

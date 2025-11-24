@@ -10,6 +10,7 @@ import {
   fetchModalImages 
 } from "./tripPlanningHelpers";
 import { tripApi } from "@/services/tripApi";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
@@ -185,7 +186,7 @@ export const useTripPlanning = () => {
     }, 100);
   };
 
-  const handlePlanTrip = () => {
+  const handlePlanTrip = async () => {
     const userId = getCurrentUserId();
 
     const effectiveDestinations = destinations.length > 0 
@@ -201,6 +202,24 @@ export const useTripPlanning = () => {
     if (budget !== undefined && minimumBudget !== undefined && budget < minimumBudget) {
       alert(`Budget should be at least ₹${minimumBudget.toLocaleString('en-IN')} for this trip`);
       return;
+    }
+
+    // Check if any destination is outside India when worldwide toggle is off
+    if (!isInternational) {
+      try {
+        for (const destination of effectiveDestinations) {
+          const isInIndia = await googlePlacesService.isLocationInIndia(destination);
+          if (!isInIndia) {
+            alert(
+              `"${destination}" appears to be outside India. Please enable the "Worldwide" toggle to plan international trips.`
+            );
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error validating destination location:', error);
+        // Allow to proceed if validation fails
+      }
     }
 
     setIsGenerating(true);

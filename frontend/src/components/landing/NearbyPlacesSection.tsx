@@ -152,12 +152,6 @@ export const NearbyPlacesSection = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               {useGooglePlaces ? "Nearby Places" : "Explore Destinations"}
             </h2>
-            {useGooglePlaces && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
-                <MapPin className="h-3 w-3" />
-                Near You
-              </span>
-            )}
           </div>
           <p className="text-gray-600">
             {useGooglePlaces 
