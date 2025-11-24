@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
+import { useGenerateTrip } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
 import type { TripPreferences, ImageData } from "@/constants";
 import { 
@@ -33,7 +33,6 @@ export const useTripPlanning = () => {
   const { setUser: setAuthUser } = useAuthStore();
   
   const generateTripMutation = useGenerateTrip();
-  const singleImageMutation = useSingleImage();
   
   // Sync Clerk authentication with auth store
   useEffect(() => {
@@ -152,7 +151,7 @@ export const useTripPlanning = () => {
     });
   };
 
-  const handleDemo = () => {
+  const handleDemo = async () => {
     const { destination, startLocation, startDate } = generateDemoTripData(isInternational);
     
     // Set demo values in form
@@ -163,12 +162,11 @@ export const useTripPlanning = () => {
     setSelectedPreferences(['Relaxation', 'Food']);
     
     // Trigger trip generation after a brief delay
-    setTimeout(() => {
+    setTimeout(async () => {
       const userId = getCurrentUserId();
       setIsGenerating(true);
       
-      fetchModalImages(
-        singleImageMutation,
+      await fetchModalImages(
         destination,
         setModalImages,
         () => {
@@ -225,8 +223,7 @@ export const useTripPlanning = () => {
     setIsGenerating(true);
 
     // Pass all destinations to fetch images from all of them
-    fetchModalImages(
-      singleImageMutation,
+    await fetchModalImages(
       effectiveDestinations,
       setModalImages,
       () => {
