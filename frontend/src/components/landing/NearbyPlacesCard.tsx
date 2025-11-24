@@ -7,10 +7,12 @@ interface Destination {
   id?: string;
   name: string;
   state?: string;
-  description: string;
+  description?: string;
   image: string;
   season?: string;
   bestTimeToVisit?: string;
+  rating?: number;
+  types?: string[];
 }
 
 interface NearbyPlacesCardProps {

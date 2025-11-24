@@ -254,9 +254,8 @@ class JoinRequestService:
                 "travelers": [],  # The joined user can add their own travelers later
                 "is_international": original_trip.get("is_international", False),
                 "is_saved": False,  # Not saved - will appear in joined trips tab
-                "is_joined": True,  # Flag to identify this as a joined trip copy
+                "is_joined": True,  # Flag to identify this is a joined trip copy
                 "is_public": False,
-                "destination_image": original_trip.get("destination_image"),
                 "itinerary_data": original_trip["itinerary_data"],
                 "tags": original_trip.get("tags", []),
                 "max_passengers": None,  # Joined trip cannot be shared further

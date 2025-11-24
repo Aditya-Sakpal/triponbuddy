@@ -25,6 +25,9 @@ class AIPromptBuilder:
                 travelers_details.append(f"{traveler.age}-year-old {traveler.gender}")
             travelers_text = f"\n        - Number of Travelers: {travelers_count} ({', '.join(travelers_details)})"
         
+        # Build transportation mode instructions
+        transportation_instructions = AIPromptBuilder._build_transportation_mode_instructions(request.transportation_mode)
+        
         # Build destinations text
         destinations_text = " -> ".join(request.destinations)
         final_destination = request.destinations[-1]
@@ -55,6 +58,8 @@ class AIPromptBuilder:
         - International Trip: {request.is_international}
         - Preferences: {preferences_text}
         - Budget: {budget_text}{travelers_text}{multi_dest_instructions}
+        
+        {transportation_instructions}
 
         Please provide a detailed JSON response with the following structure:
         {{
@@ -354,6 +359,43 @@ class AIPromptBuilder:
 
         return prompt
 
+    @staticmethod
+    def _build_transportation_mode_instructions(transportation_mode: str) -> str:
+        """Build transportation mode specific instructions"""
+        mode_value = transportation_mode.value if hasattr(transportation_mode, 'value') else str(transportation_mode)
+        
+        if mode_value == "road":
+            return """
+        IMPORTANT - TRANSPORTATION MODE: ROAD ONLY
+        - In the transportation.routes array, ONLY include road/car/bus transportation options
+        - DO NOT include flight or train options in the routes
+        - Focus on highways, state roads, and scenic routes
+        - Include realistic driving times and distances
+        - Suggest stops along the way for food, rest, and sightseeing
+        - Provide information about road conditions and toll costs if applicable"""
+        elif mode_value == "train":
+            return """
+        IMPORTANT - TRANSPORTATION MODE: TRAIN ONLY
+        - In the transportation.routes array, ONLY include train/railway transportation options
+        - DO NOT include flight or car/road options in the routes
+        - Include specific train names, numbers, and classes available
+        - Provide information about railway stations and their facilities
+        - Mention booking platforms and advance reservation requirements"""
+        elif mode_value == "flight":
+            return """
+        IMPORTANT - TRANSPORTATION MODE: FLIGHT ONLY
+        - In the transportation.routes array, ONLY include flight/air transportation options
+        - DO NOT include train or car/road options in the routes
+        - Include specific airlines, flight times, and booking information
+        - Provide information about airports and their facilities
+        - Mention baggage allowances and check-in procedures"""
+        else:
+            return """
+        TRANSPORTATION MODE: DEFAULT (All modes available)
+        - Provide exactly 3 transportation routes: one flight, one train, and one local/road transport option
+        - Include comprehensive information for all transportation modes
+        - Allow travelers to choose the best option based on their preferences"""
+    
     @staticmethod
     def _build_preferences_text(preferences: Union[TripPreferences, Dict[str, Any], None] = None) -> str:
         """Build preferences text from preferences (either Pydantic model or dictionary)"""

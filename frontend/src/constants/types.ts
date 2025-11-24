@@ -1,5 +1,7 @@
 // TypeScript types matching backend Pydantic models
 
+export type TransportationMode = 'default' | 'road' | 'train' | 'flight';
+
 // API Response types
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -141,13 +143,13 @@ export interface TripGenerationRequest {
   preferences?: TripPreferences;
   is_international?: boolean;
   max_passengers?: number;
+  transportation_mode?: TransportationMode;
 }
 
 export interface TripGenerationResponse {
   success: boolean;
   trip_id: string;
   itinerary: Itinerary;
-  image_queries: string[];
 }
 
 export interface TripDB {
@@ -167,10 +169,11 @@ export interface TripDB {
   is_saved: boolean;
   is_joined?: boolean;
   is_public?: boolean;
-  destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
   max_passengers?: number;
+  transportation_mode?: string;
+  distance_km?: number;
   joined_users?: string[];
   joined_users_demographics?: Array<{
     user_id: string;
@@ -279,17 +282,6 @@ export interface ImageData {
   title: string;
 }
 
-export interface BulkImageResponse {
-  [key: string]: string[];
-}
-
-export interface SingleImageResponse {
-  success: boolean;
-  images: ImageData[];
-  cached: boolean;
-  query: string;
-}
-
 // API Error types
 export interface ApiError {
   code: string;
@@ -303,18 +295,6 @@ export interface TripListParams extends Record<string, unknown> {
   is_saved?: boolean;
   page?: number;
   limit?: number;
-}
-
-export interface ImageBulkParams {
-  locations: string[];
-}
-
-export interface ImageSingleParams extends Record<string, unknown> {
-  location: string;
-  max_images?: number;
-  min_width?: number;
-  min_height?: number;
-  randomize?: boolean;
 }
 
 // Join Request and Notification Types

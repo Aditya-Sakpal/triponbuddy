@@ -161,7 +161,6 @@ export const HostTripModal = ({
         host_comments: comments || null,
       };
       
-      console.log("Updating trip with payload:", updatePayload);
       
       const updateResponse = await fetch(
         `${API_BASE_URL}/api/trips/${trip.trip_id}?user_id=${user.id}`,
@@ -181,14 +180,13 @@ export const HostTripModal = ({
       }
       
       const updateResult = await updateResponse.json();
-      console.log("Trip update result:", updateResult);
 
       // Prepare shared trip data for the forum post
       const sharedTripData: SharedTrip = {
         trip_id: trip.trip_id,
         destination: trip.destination,
         total_cost: `₹${budgetValue.toLocaleString('en-IN')}`, // Use custom budget
-        cover_image_url: trip.destination_image,
+        cover_image_url: undefined,
         start_date: trip.start_date,
         end_date: trip.end_date || trip.start_date,
         duration_days: trip.duration_days,

@@ -11,10 +11,6 @@ import type {
   UserProfileUpdate,
   FeedbackCreate,
   FeedbackResponse,
-  BulkImageResponse,
-  SingleImageResponse,
-  ImageBulkParams,
-  ImageSingleParams,
 } from '../constants';
 
 // Trips API Service
@@ -117,24 +113,6 @@ export class UsersApiService {
     profileData: UserProfileUpdate
   ): Promise<UserProfileResponse> {
     return apiClient.put<UserProfileResponse>('/api/users/profile', profileData, { user_id: userId });
-  }
-}
-
-// Images API Service
-export class ImagesApiService {
-  static async fetchBulkImages(params: ImageBulkParams): Promise<BulkImageResponse> {
-    return apiClient.post<BulkImageResponse>('/api/images/bulk', params.locations);
-  }
-
-  static async fetchSingleImage(params: ImageSingleParams): Promise<SingleImageResponse> {
-    const queryParams = {
-      location: params.location,
-      ...(params.max_images && { max_images: params.max_images }),
-      ...(params.min_width && { min_width: params.min_width }),
-      ...(params.min_height && { min_height: params.min_height }),
-      ...(params.randomize !== undefined && { randomize: params.randomize }),
-    };
-    return apiClient.post<SingleImageResponse>('/api/images/single', {}, queryParams);
   }
 }
 

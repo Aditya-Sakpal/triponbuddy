@@ -7,6 +7,7 @@ declare global {
 declare namespace google {
   namespace maps {
     namespace places {
+      // Legacy AutocompleteService (deprecated but still supported)
       class AutocompleteService {
         getPlacePredictions(
           request: AutocompletionRequest,
@@ -71,11 +72,293 @@ declare namespace google {
       }
 
       class AutocompleteSessionToken {}
+
+      // New AutocompleteSuggestion API (recommended)
+      namespace AutocompleteSuggestion {
+        function fetchAutocompleteSuggestions(
+          request: AutocompleteSuggestionRequest
+        ): Promise<AutocompleteSuggestionResponse>;
+      }
+
+      interface AutocompleteSuggestionRequest {
+        input: string;
+        includedPrimaryTypes?: string[];
+        includedRegionCodes?: string[];
+        locationBias?: {
+          radius: number;
+          center: { lat: number; lng: number };
+        };
+        locationRestriction?: {
+          north: number;
+          south: number;
+          east: number;
+          west: number;
+        };
+        region?: string;
+        sessionToken?: AutocompleteSessionToken;
+      }
+
+      interface AutocompleteSuggestionResponse {
+        suggestions: PlacePredictionSuggestion[];
+      }
+
+      interface PlacePredictionSuggestion {
+        placePrediction: {
+          place: string;
+          placeId: string;
+          text: {
+            text: string;
+          };
+          structuredFormat: {
+            mainText: {
+              text: string;
+            };
+            secondaryText: {
+              text: string;
+            };
+          };
+          types?: string[];
+        };
+      }
+
+      class PlacesService {
+        constructor(attrContainer: HTMLDivElement | google.maps.Map);
+        
+        nearbySearch(
+          request: PlaceSearchRequest,
+          callback: (
+            results: PlaceResult[] | null,
+            status: PlacesServiceStatus,
+            pagination: PlaceSearchPagination | null
+          ) => void
+        ): void;
+
+        getDetails(
+          request: PlaceDetailsRequest,
+          callback: (
+            result: PlaceResult | null,
+            status: PlacesServiceStatus
+          ) => void
+        ): void;
+      }
+
+      interface PlaceSearchRequest {
+        bounds?: LatLngBounds | LatLngBoundsLiteral;
+        keyword?: string;
+        location?: LatLng | LatLngLiteral;
+        maxPriceLevel?: number;
+        minPriceLevel?: number;
+        name?: string;
+        openNow?: boolean;
+        radius?: number;
+        rankBy?: RankBy;
+        type?: string;
+        types?: string[];
+      }
+
+      interface PlaceDetailsRequest {
+        placeId: string;
+        fields?: string[];
+        sessionToken?: AutocompleteSessionToken;
+      }
+
+      interface PlaceResult {
+        address_components?: AddressComponent[];
+        adr_address?: string;
+        business_status?: string;
+        formatted_address?: string;
+        formatted_phone_number?: string;
+        geometry?: PlaceGeometry;
+        html_attributions?: string[];
+        icon?: string;
+        icon_background_color?: string;
+        icon_mask_base_uri?: string;
+        international_phone_number?: string;
+        name?: string;
+        opening_hours?: OpeningHours;
+        permanently_closed?: boolean;
+        photos?: PlacePhoto[];
+        place_id?: string;
+        plus_code?: PlusCode;
+        price_level?: number;
+        rating?: number;
+        reviews?: PlaceReview[];
+        types?: string[];
+        url?: string;
+        user_ratings_total?: number;
+        utc_offset_minutes?: number;
+        vicinity?: string;
+        website?: string;
+      }
+
+      interface PlaceGeometry {
+        location?: LatLng;
+        viewport?: LatLngBounds;
+      }
+
+      interface PlacePhoto {
+        height: number;
+        html_attributions: string[];
+        width: number;
+        getUrl(opts: PhotoOptions): string;
+      }
+
+      interface PhotoOptions {
+        maxHeight?: number;
+        maxWidth?: number;
+      }
+
+      interface OpeningHours {
+        open_now?: boolean;
+        periods?: OpeningPeriod[];
+        weekday_text?: string[];
+        isOpen(date?: Date): boolean;
+      }
+
+      interface OpeningPeriod {
+        close?: OpeningHoursTime;
+        open: OpeningHoursTime;
+      }
+
+      interface OpeningHoursTime {
+        day: number;
+        time: string;
+        hours?: number;
+        minutes?: number;
+        nextDate?: number;
+      }
+
+      interface PlaceReview {
+        author_name: string;
+        author_url?: string;
+        language: string;
+        profile_photo_url?: string;
+        rating: number;
+        relative_time_description: string;
+        text: string;
+        time: number;
+      }
+
+      interface AddressComponent {
+        long_name: string;
+        short_name: string;
+        types: string[];
+      }
+
+      interface PlusCode {
+        compound_code?: string;
+        global_code: string;
+      }
+
+      interface PlaceSearchPagination {
+        hasNextPage: boolean;
+        nextPage(): void;
+      }
+
+      enum RankBy {
+        PROMINENCE = 0,
+        DISTANCE = 1
+      }
+
+      // New Place class API types
+      interface PlacesLibrary {
+        Place: typeof Place;
+        SearchNearbyRankPreference: typeof SearchNearbyRankPreference;
+      }
+
+      class Place {
+        id: string;
+        displayName?: string;
+        formattedAddress?: string;
+        location?: LatLng;
+        rating?: number;
+        photos?: Photo[];
+        types?: string[];
+
+        constructor(options: { id: string });
+        
+        static searchNearby(request: SearchNearbyRequest): Promise<SearchNearbyResponse>;
+        static searchByText(request: SearchByTextRequest): Promise<SearchByTextResponse>;
+        
+        fetchFields(request: FetchFieldsRequest): Promise<FetchFieldsResponse>;
+      }
+
+      interface Photo {
+        getURI(options?: PhotoOptions): string;
+        authorAttributions?: AuthorAttribution[];
+      }
+
+      interface AuthorAttribution {
+        displayName?: string;
+        uri?: string;
+        photoUri?: string;
+      }
+
+      interface SearchNearbyRequest {
+        locationRestriction: {
+          center: LatLngLiteral;
+          radius: number;
+        };
+        includedTypes?: string[];
+        excludedTypes?: string[];
+        maxResultCount?: number;
+        rankPreference?: SearchNearbyRankPreference;
+        fields?: string[];
+      }
+
+      interface SearchNearbyResponse {
+        places: Place[];
+      }
+
+      interface SearchByTextRequest {
+        textQuery: string;
+        fields?: string[];
+        includedType?: string;
+        maxResultCount?: number;
+        location?: LatLngLiteral;
+        radius?: number;
+      }
+
+      interface SearchByTextResponse {
+        places: Place[];
+      }
+
+      interface FetchFieldsRequest {
+        fields: string[];
+      }
+
+      interface FetchFieldsResponse {
+        place: Place;
+      }
+
+      enum SearchNearbyRankPreference {
+        RANK_PREFERENCE_UNSPECIFIED = 'RANK_PREFERENCE_UNSPECIFIED',
+        POPULARITY = 'POPULARITY',
+        DISTANCE = 'DISTANCE'
+      }
     }
+
+    function importLibrary(library: 'places'): Promise<google.maps.places.PlacesLibrary>;
+    function importLibrary(library: string): Promise<unknown>;
 
     interface LatLng {
       lat(): number;
       lng(): number;
+    }
+
+    interface LatLngLiteral {
+      lat: number;
+      lng: number;
+    }
+
+    class LatLng {
+      constructor(lat: number, lng: number, noWrap?: boolean);
+      lat(): number;
+      lng(): number;
+      equals(other: LatLng): boolean;
+      toString(): string;
+      toUrlValue(precision?: number): string;
+      toJSON(): LatLngLiteral;
     }
 
     interface LatLngBounds {

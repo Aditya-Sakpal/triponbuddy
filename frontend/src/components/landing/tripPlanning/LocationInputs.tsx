@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { MapPin } from "lucide-react";
 
 interface LocationInputsProps {

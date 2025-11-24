@@ -1,12 +1,11 @@
 import logging
-import asyncio
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 
 from database import mongodb
 from models.trip import TripGenerationRequest, TripUpdateRequest
 from services.ai_service import ai_service
-from services.image_service import image_service
+from services.google_maps_service import google_maps_service
 from utils.db_utils import convert_mongo_docs_to_trips, convert_mongo_doc_to_trip
 from services.helpers.trip_data_helper import (
     TripDataBuilder,
@@ -38,67 +37,39 @@ class TripService:
             # Log the destinations being processed
             logger.info(f"Generating trip for destinations: {request.destinations}")
             
+            # Calculate distance if start_location and destination are provided
+            distance_km = None
+            if request.start_location and request.destinations:
+                final_destination = request.destinations[-1]
+                logger.info(f"Calculating distance from {request.start_location} to {final_destination}")
+                distance_km = await google_maps_service.calculate_distance(
+                    request.start_location,
+                    final_destination
+                )
+                if distance_km:
+                    logger.info(f"Calculated distance: {distance_km:.2f} km")
+            
             # Generate itinerary using AI
             ai_response = await ai_service.generate_itinerary(request)
-
-            # Fetch destination images for all destinations
-            destination_image = None
-            try:
-                import random
-                
-                logger.info(f"Starting image fetch for {len(request.destinations)} destinations: {request.destinations}")
-                
-                # Fetch images for all destinations in parallel
-                image_tasks = [
-                    image_service.fetch_single_location_images(
-                        location=f"{dest} tourism landmark",
-                        max_images=3,  # Fetch 3 images per destination for variety
-                        min_width=400,
-                        min_height=400
-                    )
-                    for dest in request.destinations
-                ]
-                
-                logger.info(f"Created {len(image_tasks)} image fetch tasks")
-                
-                # Wait for all image fetches to complete
-                image_responses = await asyncio.gather(*image_tasks, return_exceptions=True)
-                
-                # Collect all valid image URLs from all destinations
-                all_images = []
-                for dest, response in zip(request.destinations, image_responses):
-                    if isinstance(response, Exception):
-                        logger.warning(f"Failed to fetch images for {dest}: {str(response)}")
-                        continue
-                    
-                    if response.get("success") and response.get("images"):
-                        urls = [img["url"] for img in response["images"]]
-                        all_images.extend(urls)
-                        logger.info(f"Fetched {len(urls)} images for {dest}")
-                
-                # Randomly select one image from all collected images
-                if all_images:
-                    destination_image = random.choice(all_images)
-                    logger.info(f"Selected random image from {len(all_images)} total images across {len(request.destinations)} destinations")
-                else:
-                    logger.warning("No images found for any destination")
-                    
-            except Exception as img_error:
-                logger.warning(f"Failed to fetch destination images: {str(img_error)}")
-                # Continue without image
 
             # Build trip data using helper
             # Use model_dump() for Pydantic v2 with mode='python' to include None values
             request_data = request.model_dump(mode='python', exclude_none=False)
+            # Add calculated distance to request_data
+            if distance_km:
+                request_data['distance_km'] = distance_km
+            
             logger.info(f"Request data received: max_passengers={request_data.get('max_passengers')}, "
                        f"travelers={request_data.get('travelers')}, "
+                       f"transportation_mode={request_data.get('transportation_mode')}, "
+                       f"distance_km={distance_km}, "
                        f"full request_data keys: {list(request_data.keys())}")
             
+            # Images are now fetched on frontend via Google Places API
             trip_data = self.data_builder.build_trip_data(
                 user_id=request.user_id,
                 ai_response=ai_response,
-                request_data=request_data,
-                destination_image=destination_image
+                request_data=request_data
             )
             
             logger.info(f"Creating trip with max_passengers={trip_data.get('max_passengers')}, "
@@ -120,8 +91,7 @@ class TripService:
             return {
                 "success": True,
                 "trip_id": trip_data["trip_id"],
-                "itinerary": ai_response["itinerary"],
-                "image_queries": ai_response["image_queries"]
+                "itinerary": ai_response["itinerary"]
             }
 
         except Exception as e:

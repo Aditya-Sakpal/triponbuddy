@@ -84,7 +84,7 @@ export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
         trip_id: trip.trip_id,
         destination: trip.destination,
         total_cost: getCalculatedBudget(trip),
-        cover_image_url: trip.destination_image,
+        cover_image_url: undefined,
         start_date: trip.start_date,
         end_date: trip.end_date || trip.start_date,
         duration_days: trip.duration_days,

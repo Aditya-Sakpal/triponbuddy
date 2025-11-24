@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel, HostTripModal} from "@/components/trip";
-import { apiClient } from "@/lib/api-client";
+import { googlePlacesService } from "@/services/googlePlacesService";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
 import { getCalculatedBudget } from "@/utils/tripUtils";
 
@@ -63,13 +63,18 @@ export const TripItinerary = ({
 
       setCheckingPermission(true);
       try {
-        const response = await apiClient.get<{ success: boolean; can_edit: boolean }>(
-          `/api/trips/${trip.trip_id}/can-edit`,
-          { user_id: currentUserId }
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+        const response = await fetch(
+          `${API_BASE_URL}/api/trips/${trip.trip_id}/can-edit?user_id=${encodeURIComponent(currentUserId)}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
         );
         
-        if (response.success) {
-          setCanEdit(response.can_edit);
+        if (response.ok) {
+          const data = await response.json();
+          setCanEdit(data.can_edit || false);
         }
       } catch (error) {
         console.error('Failed to check edit permission:', error);
@@ -100,19 +105,21 @@ export const TripItinerary = ({
       
       setImagesLoading(true);
       try {
-        const response = await apiClient.post<{
-          success: boolean;
-          images: ImageData[];
-        }>('/api/images/single', {}, {
-          location: trip.destination,
-          max_images: 5,
-          min_width: 800,
-          min_height: 600
-        });
+        const photoUrls = await googlePlacesService.getLocationPhotos(
+          trip.destination,
+          5,
+          { maxWidth: 1200, maxHeight: 800 }
+        );
         
-        if (response.success && response.images) {
-          setDestinationImages(response.images);
-        }
+        // Convert to ImageData format expected by the component
+        const images: ImageData[] = photoUrls.map(url => ({
+          url,
+          width: 1200,
+          height: 800,
+          source: 'Google Places',
+          title: trip.destination
+        }));
+        setDestinationImages(images);
       } catch (error) {
         console.error('Failed to fetch destination images:', error);
       } finally {
@@ -134,13 +141,16 @@ export const TripItinerary = ({
   const handleShare = async () => {
     try {
       // First, make the trip public
-      const response = await apiClient.put<{ success: boolean; message: string }>(
-        `/api/trips/${trip.trip_id}/share`,
-        {},
-        { user_id: trip.user_id }
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const response = await fetch(
+        `${API_BASE_URL}/api/trips/${trip.trip_id}/share?user_id=${encodeURIComponent(trip.user_id)}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
       
-      if (!response.success) {
+      if (!response.ok) {
         throw new Error('Failed to make trip public');
       }
       
@@ -313,7 +323,13 @@ export const TripItinerary = ({
           </TabsList>
 
           <TabsContent value="itinerary" className="space-y-6">
-            <ItineraryTab itinerary={itinerary} tripId={trip.trip_id} onRefresh={onRefresh} />
+            <ItineraryTab 
+              itinerary={itinerary} 
+              tripId={trip.trip_id} 
+              onRefresh={onRefresh}
+              transportationMode={trip.transportation_mode}
+              onNavigateToTransportation={() => setActiveTab('transportation')}
+            />
             <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
           </TabsContent>
 
@@ -330,6 +346,7 @@ export const TripItinerary = ({
               tripId={trip.trip_id}
               userId={trip.user_id}
               destinationCity={itinerary?.destination || trip.destination}
+              transportationMode={trip.transportation_mode}
             />
           </TabsContent>
 

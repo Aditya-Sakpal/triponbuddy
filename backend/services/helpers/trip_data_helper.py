@@ -17,8 +17,7 @@ class TripDataBuilder:
     def build_trip_data(
         user_id: str,
         ai_response: Dict[str, Any],
-        request_data: Dict[str, Any],
-        destination_image: str = None
+        request_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Build trip data from AI response and request data"""
         
@@ -59,6 +58,11 @@ class TripDataBuilder:
 
         destinations = request_data.get("destinations", [])
 
+        # Get transportation_mode from request_data, default to "default"
+        transportation_mode = request_data.get("transportation_mode", "default")
+        if hasattr(transportation_mode, "value"):
+            transportation_mode = transportation_mode.value
+        
         trip_data = {
             "trip_id": str(uuid4()),
             "user_id": user_id,
@@ -74,10 +78,11 @@ class TripDataBuilder:
             "is_international": request_data.get("is_international"),
             "is_saved": False,
             "is_public": False,
-            "destination_image": destination_image,
             "itinerary_data": itinerary,
             "tags": [],
             "max_passengers": max_passengers,
+            "transportation_mode": transportation_mode,
+            "distance_km": request_data.get("distance_km"),
             "joined_users": [],
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)

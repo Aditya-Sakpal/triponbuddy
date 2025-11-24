@@ -1,10 +1,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TripGenerationModal } from "@/components/trip/TripGenerationModal";
-import { DateDurationInputs, TravelPreferences, BudgetInput, ActionButtons, DestinationList } from "./tripPlanning";
+import { DateDurationInputs, TravelPreferences, BudgetInput, ActionButtons, DestinationList, TransportationModeSelector } from "./tripPlanning";
 import { useTripPlanning } from "./tripPlanning/useTripPlanning";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MapPin, Info } from "lucide-react";
 
@@ -24,6 +24,7 @@ export const TripPlanningSection = () => {
     budget,
     minimumBudget,
     isEstimatingBudget,
+    transportationMode,
     
     // Setters
     setDestinations,
@@ -33,6 +34,7 @@ export const TripPlanningSection = () => {
     setDurationDays,
     setIsInternational,
     setBudget,
+    setTransportationMode,
     
     // Actions
     handleDemo,
@@ -130,6 +132,13 @@ export const TripPlanningSection = () => {
                 setBudget={setBudget}
                 minimumBudget={minimumBudget}
                 isEstimating={isEstimatingBudget}
+              />
+
+              <TransportationModeSelector
+                value={transportationMode}
+                onChange={setTransportationMode}
+                startLocation={startLocation}
+                destination={destinations[destinations.length - 1] || ''}
               />
 
               <TravelPreferences

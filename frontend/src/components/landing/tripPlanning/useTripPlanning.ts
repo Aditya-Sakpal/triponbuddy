@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
+import { useGenerateTrip } from "@/hooks/api-hooks";
 import { useAuthStore } from "@/lib/stores";
 import type { TripPreferences, ImageData } from "@/constants";
 import { 
@@ -10,6 +10,7 @@ import {
   fetchModalImages 
 } from "./tripPlanningHelpers";
 import { tripApi } from "@/services/tripApi";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
@@ -22,6 +23,7 @@ export const useTripPlanning = () => {
   const [budget, setBudget] = useState<number | undefined>(undefined);
   const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
   const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
+  const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -32,7 +34,6 @@ export const useTripPlanning = () => {
   const { setUser: setAuthUser } = useAuthStore();
   
   const generateTripMutation = useGenerateTrip();
-  const singleImageMutation = useSingleImage();
   
   // Sync Clerk authentication with auth store
   useEffect(() => {
@@ -145,13 +146,14 @@ export const useTripPlanning = () => {
         budget: budget || undefined,
         preferences,
         is_international: isInternational,
+        transportation_mode: transportationMode,
         // max_passengers removed - can only be set when hosting a trip
       },
       signal: controller.signal,
     });
   };
 
-  const handleDemo = () => {
+  const handleDemo = async () => {
     const { destination, startLocation, startDate } = generateDemoTripData(isInternational);
     
     // Set demo values in form
@@ -162,12 +164,11 @@ export const useTripPlanning = () => {
     setSelectedPreferences(['Relaxation', 'Food']);
     
     // Trigger trip generation after a brief delay
-    setTimeout(() => {
+    setTimeout(async () => {
       const userId = getCurrentUserId();
       setIsGenerating(true);
       
-      fetchModalImages(
-        singleImageMutation,
+      await fetchModalImages(
         destination,
         setModalImages,
         () => {
@@ -185,7 +186,7 @@ export const useTripPlanning = () => {
     }, 100);
   };
 
-  const handlePlanTrip = () => {
+  const handlePlanTrip = async () => {
     const userId = getCurrentUserId();
 
     const effectiveDestinations = destinations.length > 0 
@@ -203,11 +204,28 @@ export const useTripPlanning = () => {
       return;
     }
 
+    // Check if any destination is outside India when worldwide toggle is off
+    if (!isInternational) {
+      try {
+        for (const destination of effectiveDestinations) {
+          const isInIndia = await googlePlacesService.isLocationInIndia(destination);
+          if (!isInIndia) {
+            alert(
+              `"${destination}" appears to be outside India. Please enable the "Worldwide" toggle to plan international trips.`
+            );
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error validating destination location:', error);
+        // Allow to proceed if validation fails
+      }
+    }
+
     setIsGenerating(true);
 
     // Pass all destinations to fetch images from all of them
-    fetchModalImages(
-      singleImageMutation,
+    await fetchModalImages(
       effectiveDestinations,
       setModalImages,
       () => {
@@ -253,6 +271,7 @@ export const useTripPlanning = () => {
     budget,
     minimumBudget,
     isEstimatingBudget,
+    transportationMode,
     
     // Setters
     setDestinations,
@@ -262,6 +281,7 @@ export const useTripPlanning = () => {
     setDurationDays,
     setIsInternational,
     setBudget,
+    setTransportationMode,
     
     // Actions
     handleDemo,

@@ -2,7 +2,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { MapPin, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useSingleImage } from "@/hooks/api-hooks";
 import type { ImageData } from "@/constants";
 import { WaveLoader } from "@/components/trip/WaveLoader";
 
@@ -33,104 +32,23 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
   const [messageIndex, setMessageIndex] = useState(0);
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const [imagesFetched, setImagesFetched] = useState(false);
-  
-  const singleImageMutation = useSingleImage();
 
-  // Use preloaded images if available
+  // Use preloaded images - this is now the only way images are loaded
+  // Images are fetched in useTripPlanning hook using Google Places API
   useEffect(() => {
     if (preloadedImages && preloadedImages.length > 0) {
       setImages(preloadedImages);
-      setImagesFetched(true);
     }
   }, [preloadedImages]);
 
-  // Fetch images when modal opens and destination is provided (fallback if no preloaded images)
+  // Reset state when modal closes or generation completes
   useEffect(() => {
-    if (isOpen && destination && !imagesFetched && (!preloadedImages || preloadedImages.length === 0)) {
-      setMessageIndex(0);
-      setCurrentTipIndex(0);
-      setImagesFetched(true);
-      
-      // Fetch real images from backend
-      singleImageMutation.mutate(
-        {
-          location: destination,
-          max_images: 10, // Fetch up to 10 images only
-          min_width: 800,
-          min_height: 600,
-        },
-        {
-          onSuccess: (data) => {
-            if (data.images && data.images.length > 0) {
-              // Only keep the first 8-10 images
-              setImages(data.images.slice(0, 10));
-            } else {
-              // Fallback to placeholder images if no images found
-              setImages([
-                {
-                  url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                  width: 800,
-                  height: 600,
-                  source: "unsplash",
-                  title: destination
-                },
-                {
-                  url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
-                  width: 800,
-                  height: 600,
-                  source: "unsplash", 
-                  title: destination
-                },
-                {
-                  url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
-                  width: 800,
-                  height: 600,
-                  source: "unsplash",
-                  title: destination
-                }
-              ]);
-            }
-          },
-          onError: () => {
-            // Fallback to placeholder images on error
-            setImages([
-              {
-                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash",
-                title: destination
-              },
-              {
-                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash", 
-                title: destination
-              },
-              {
-                url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=600&fit=crop",
-                width: 800,
-                height: 600,
-                source: "unsplash",
-                title: destination
-              }
-            ]);
-          }
-        }
-      );
-    }
-    
-    // Reset imagesFetched when modal closes or generation completes
     if (!isOpen || generationComplete) {
-      setImagesFetched(false);
       setImages([]);
       setMessageIndex(0);
       setCurrentTipIndex(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, destination, imagesFetched, preloadedImages, generationComplete]);
+  }, [isOpen, generationComplete]);
 
   // Loading messages rotation
   useEffect(() => {

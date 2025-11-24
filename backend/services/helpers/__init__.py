@@ -14,22 +14,7 @@ from services.helpers.trip_data_helper import (
     TripQueryBuilder,
     TripResponseBuilder
 )
-from services.helpers.image_helper import (
-    ImageUrlValidator,
-    LocationQueryCleaner,
-    ImageMetadataBuilder
-)
-from services.helpers.bing_parser import (
-    BingImageParser,
-    BingSearchUrlBuilder
-)
-from services.helpers.unsplash_helper import (
-    ImageItem,
-    UnsplashResponseParser,
-    UnsplashAttributionBuilder,
-    UnsplashImageVerifier,
-    UnsplashRequestBuilder
-)
+
 from services.helpers.payment_helper import (
     PRICING_PLANS,
     BadRequestError,
@@ -53,22 +38,6 @@ __all__ = [
     'TripItineraryHelper',
     'TripQueryBuilder',
     'TripResponseBuilder',
-    
-    # Image helpers
-    'ImageUrlValidator',
-    'LocationQueryCleaner',
-    'ImageMetadataBuilder',
-    
-    # Bing helpers
-    'BingImageParser',
-    'BingSearchUrlBuilder',
-    
-    # Unsplash helpers
-    'ImageItem',
-    'UnsplashResponseParser',
-    'UnsplashAttributionBuilder',
-    'UnsplashImageVerifier',
-    'UnsplashRequestBuilder',
 
     # Payments helpers
     'PRICING_PLANS',

@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
+import { useGenerateTrip } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
+import { TransportationModeSelector } from "@/components/landing/tripPlanning/TransportationModeSelector";
 import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
 
 interface EditTripModalProps {
@@ -29,12 +30,11 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
   const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   
   const generateTripMutation = useGenerateTrip();
-  const singleImageMutation = useSingleImage();
   
   const preferenceOptions = useMemo(() => [
     { icon: Mountain, label: "Adventure" },
@@ -59,6 +59,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       setDurationDays(trip.duration_days || 3);
       setIsInternational(trip.is_international || false);
       setBudget(trip.budget);
+      setTransportationMode((trip.transportation_mode as 'default' | 'road' | 'train' | 'flight') || 'default');
       
       // Extract preferences from trip data
       const itinerary = trip.itinerary_data as unknown as Itinerary;
@@ -89,7 +90,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   useEffect(() => {
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
       setIsGenerating(false);
-      setModalImages([]);
       onTripUpdated(generateTripMutation.data.trip_id);
       onClose();
       // Reset mutation state
@@ -102,7 +102,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     if (generateTripMutation.isError) {
       console.error('Trip update failed:', generateTripMutation.error);
       setIsGenerating(false);
-      setModalImages([]);
       alert(`Failed to update trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
     }
   }, [generateTripMutation.isError, generateTripMutation.error]);
@@ -147,6 +146,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         budget: budget,
         preferences: userPreferences,
         is_international: isInternational,
+        transportation_mode: transportationMode,
         // max_passengers removed - can only be set when hosting a trip
       },
       signal: controller.signal,
@@ -162,7 +162,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     // Reset the mutation state
     generateTripMutation.reset();
     setIsGenerating(false);
-    setModalImages([]);
   };
 
   const handleClose = () => {
@@ -194,6 +193,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       : (trip.destination ? [trip.destination] : []);
     const destinationsChanged = JSON.stringify(destinations.sort()) !== JSON.stringify(originalDestinations.sort());
 
+    const transportationModeChanged = transportationMode !== (trip.transportation_mode || 'default');
+
     return (
       destinationsChanged ||
       startLocation !== (trip.start_location || "") ||
@@ -201,6 +202,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       durationDays !== (trip.duration_days || 3) ||
       isInternational !== (trip.is_international || false) ||
       budgetChanged ||
+      transportationModeChanged ||
       JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
     );
   };
@@ -212,7 +214,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         onClose={() => {}} // Can't close while generating
         destination={destinations[destinations.length - 1] || ""}
         onCancel={handleCancelGeneration}
-        preloadedImages={modalImages}
       />
       
       <Dialog open={isOpen && !generateTripMutation.isPending} onOpenChange={handleClose}>
@@ -303,6 +304,14 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
               <BudgetInput
                 budget={budget}
                 setBudget={setBudget}
+              />
+
+              {/* Transportation Mode Section */}
+              <TransportationModeSelector
+                value={transportationMode}
+                onChange={setTransportationMode}
+                startLocation={startLocation}
+                destination={destinations[destinations.length - 1] || ''}
               />
 
               {/* Travel Preferences */}

@@ -1,4 +1,5 @@
 import type { TripPreferences, ImageData } from "@/constants";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 /**
  * Generates random demo trip data
@@ -65,50 +66,40 @@ const getPlaceholderImages = (destination: string): ImageData[] => [
 ];
 
 /**
- * Fetches modal images for trip generation
+ * Fetches modal images for trip generation using Google Places API
  */
-export const fetchModalImages = (
-  singleImageMutation: {
-    mutate: (
-      params: { location: string; max_images: number; min_width: number; min_height: number; randomize?: boolean },
-      callbacks: { onSuccess: (data: { images?: ImageData[] }) => void; onError: () => void }
-    ) => void;
-  },
+export const fetchModalImages = async (
   destinations: string | string[],
   setModalImages: (images: ImageData[]) => void,
   onComplete: () => void
 ) => {
-  // Convert destinations array to comma-separated string, or use single destination
-  const locationString = Array.isArray(destinations) ? destinations.join(', ') : destinations;
   const finalDestination = Array.isArray(destinations) ? destinations[destinations.length - 1] : destinations;
-  const shouldRandomize = Array.isArray(destinations) && destinations.length > 1;
   
-  console.log('[fetchModalImages] Input destinations:', destinations);
-  console.log('[fetchModalImages] Is array?', Array.isArray(destinations));
-  console.log('[fetchModalImages] Location string:', locationString);
-  console.log('[fetchModalImages] Should randomize?', shouldRandomize);
-  
-  singleImageMutation.mutate(
-    {
-      location: locationString,
-      max_images: 10, // Fetch more images when multiple destinations
-      min_width: 800,
-      min_height: 600,
-      randomize: shouldRandomize,
-    },
-    {
-      onSuccess: (data: { images?: ImageData[] }) => {
-        if (data.images && data.images.length > 0) {
-          setModalImages(data.images);
-        } else {
-          setModalImages(getPlaceholderImages(finalDestination));
-        }
-        onComplete();
-      },
-      onError: () => {
-        setModalImages(getPlaceholderImages(finalDestination));
-        onComplete();
-      }
+  try {
+    
+    // Fetch photos using Google Places API
+    const photoUrls = await googlePlacesService.getDestinationPhotos(destinations, 10);
+    
+    if (photoUrls.length > 0) {
+      // Convert photo URLs to ImageData format
+      const imageData: ImageData[] = photoUrls.map(url => ({
+        url,
+        width: 1200,
+        height: 800,
+        source: "google_places",
+        title: finalDestination
+      }));
+      
+      setModalImages(imageData);
+    } else {
+      // Fallback to placeholder images
+      setModalImages(getPlaceholderImages(finalDestination));
     }
-  );
+  } catch (error) {
+    console.error('[fetchModalImages] Error fetching photos:', error);
+    // Fallback to placeholder images on error
+    setModalImages(getPlaceholderImages(finalDestination));
+  } finally {
+    onComplete();
+  }
 };
