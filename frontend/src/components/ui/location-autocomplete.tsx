@@ -47,26 +47,6 @@ interface GooglePrediction {
   };
 }
 
-interface AutocompleteSuggestionRequest {
-  input: string;
-  includedPrimaryTypes?: string[];
-  language?: string;
-  region?: string;
-}
-
-interface AutocompleteSuggestionResponse {
-  suggestions: Array<{
-    placePrediction?: {
-      placeId?: string;
-      text?: { text?: string };
-      structuredFormat?: {
-        mainText?: { text?: string };
-        secondaryText?: { text?: string };
-      };
-    };
-  }>;
-}
-
 interface LocationSuggestion {
   place_id: string;
   description: string;
@@ -219,12 +199,11 @@ class GooglePlacesService {
     const googleWindow = window as GoogleWindow;
     if (typeof window !== 'undefined' && googleWindow.google?.maps?.places) {
       try {
-        // Try to use the new AutocompleteSuggestion API first (recommended)
-        if (googleWindow.google.maps.places.AutocompleteSuggestion) {
-          this.autocompleteService = 'new-api'; // Flag to use new API
-        } else if (googleWindow.google.maps.places.AutocompleteService) {
-          // Fallback to legacy AutocompleteService
+        // Use the stable legacy AutocompleteService
+        // The new AutocompleteSuggestion API has authentication issues and requires different setup
+        if (googleWindow.google.maps.places.AutocompleteService) {
           this.autocompleteService = new googleWindow.google.maps.places.AutocompleteService();
+          console.log('✅ Google Places AutocompleteService initialized');
         }
       } catch (error) {
         console.error('❌ Failed to initialize Google Places Service:', error);
@@ -252,82 +231,46 @@ class GooglePlacesService {
   }
 
   async getPlacePredictions(query: string): Promise<LocationSuggestion[]> {
-    
     // Try to initialize service if not already done
     this.ensureServiceInitialized();
     
     if (!this.autocompleteService) {
       // Fallback to mock service if Google Maps is not available
+      console.warn('Google Maps not available, using mock service');
       const mockService = new MockPlacesService();
       return mockService.getPlacePredictions(query);
     }
 
-    
-    // Handle new API
-    if (this.autocompleteService === 'new-api') {
-      try {
-        const googleWindow = window as GoogleWindow;
-        // Use new AutocompleteSuggestion API when available
-        const request: AutocompleteSuggestionRequest = {
+    // Use the legacy AutocompleteService API
+    const googleWindow = window as GoogleWindow;
+    return new Promise((resolve, reject) => {
+      (this.autocompleteService as GoogleAutocompleteService).getPlacePredictions(
+        {
           input: query,
-          includedPrimaryTypes: ['locality', 'sublocality', 'administrative_area_level_1'],
-          language: 'en',
-          region: 'global'
-        };
-        
-        const response = await googleWindow.google!.maps!.places.AutocompleteSuggestion!.fetchAutocompleteSuggestions(request);
-        const suggestions: LocationSuggestion[] = response.suggestions.map((suggestion) => ({
-          place_id: suggestion.placePrediction?.placeId || Math.random().toString(),
-          description: suggestion.placePrediction?.text?.text || '',
-          structured_formatting: {
-            main_text: suggestion.placePrediction?.structuredFormat?.mainText?.text || '',
-            secondary_text: suggestion.placePrediction?.structuredFormat?.secondaryText?.text || ''
+          types: ['(cities)'],
+          componentRestrictions: undefined // Allow worldwide search
+        },
+        (predictions: GooglePrediction[] | null, status: string) => {
+          if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.OK && predictions) {
+            const suggestions: LocationSuggestion[] = predictions.map((prediction) => ({
+              place_id: prediction.place_id,
+              description: prediction.description,
+              structured_formatting: prediction.structured_formatting
+            }));
+            console.log(`✅ Found ${suggestions.length} location suggestions`);
+            resolve(suggestions);
+          } else if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.ZERO_RESULTS) {
+            console.log('No results found');
+            resolve([]);
+          } else {
+            console.warn(`Places API returned status: ${status}, falling back to mock`);
+            // Fallback to mock service on error
+            const mockService = new MockPlacesService();
+            mockService.getPlacePredictions(query).then(resolve).catch(reject);
           }
-        }));
-        
-        return suggestions;
-      } catch (error) {
-        const mockService = new MockPlacesService();
-        return mockService.getPlacePredictions(query);
-      }
-    }
-    
-    // Handle legacy API
-    if (typeof this.autocompleteService === 'object') {
-      const googleWindow = window as GoogleWindow;
-      return new Promise((resolve, reject) => {
-        (this.autocompleteService as GoogleAutocompleteService).getPlacePredictions(
-          {
-            input: query,
-            types: ['(cities)'],
-            componentRestrictions: undefined // Allow worldwide search
-          },
-          (predictions: GooglePrediction[] | null, status: string) => {
-            
-            if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.OK && predictions) {
-              const suggestions: LocationSuggestion[] = predictions.map((prediction) => ({
-                place_id: prediction.place_id,
-                description: prediction.description,
-                structured_formatting: prediction.structured_formatting
-              }));
-              resolve(suggestions);
-            } else if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.ZERO_RESULTS) {
-              resolve([]);
-            } else {
-              
-              
-              // Fallback to mock service on error
-              const mockService = new MockPlacesService();
-              mockService.getPlacePredictions(query).then(resolve).catch(reject);
-            }
-          }
-        );
-      });
-    }
-
-    // Fallback to mock service
-    const mockService = new MockPlacesService();
-    return mockService.getPlacePredictions(query);
+        }
+      );
+    });
   }
 }
 
