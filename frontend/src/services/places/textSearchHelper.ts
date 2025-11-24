@@ -28,7 +28,6 @@ export async function searchPlacesByName(
       const { places } = await Place.searchByText(request);
 
       if (!places || places.length === 0) {
-        console.log(`[searchPlacesByName] No results for ${locationName}`);
         return [];
       }
 
@@ -54,11 +53,9 @@ export async function searchPlacesByName(
           },
         }));
 
-      console.log(`[searchPlacesByName] Found ${nearbyPlaces.length} places for ${locationName}`);
       return nearbyPlaces;
     } catch (error) {
       if (retriesLeft > 0) {
-        console.log(`[searchPlacesByName] Retrying (${retriesLeft} left) for ${locationName}`);
         await new Promise(resolve => setTimeout(resolve, 500));
         return attemptSearch(retriesLeft - 1);
       }

@@ -37,6 +37,8 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "itinerary_data": doc_copy.get("itinerary_data", {}),
         "tags": doc_copy.get("tags", []),
         "max_passengers": doc_copy.get("max_passengers"),
+        "transportation_mode": doc_copy.get("transportation_mode", "default"),
+        "distance_km": doc_copy.get("distance_km"),
         "joined_users": doc_copy.get("joined_users", []),
         "joined_users_demographics": doc_copy.get("joined_users_demographics"),
         "original_trip_id": doc_copy.get("original_trip_id"),

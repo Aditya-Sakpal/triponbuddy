@@ -58,6 +58,11 @@ class TripDataBuilder:
 
         destinations = request_data.get("destinations", [])
 
+        # Get transportation_mode from request_data, default to "default"
+        transportation_mode = request_data.get("transportation_mode", "default")
+        if hasattr(transportation_mode, "value"):
+            transportation_mode = transportation_mode.value
+        
         trip_data = {
             "trip_id": str(uuid4()),
             "user_id": user_id,
@@ -76,6 +81,8 @@ class TripDataBuilder:
             "itinerary_data": itinerary,
             "tags": [],
             "max_passengers": max_passengers,
+            "transportation_mode": transportation_mode,
+            "distance_km": request_data.get("distance_km"),
             "joined_users": [],
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)

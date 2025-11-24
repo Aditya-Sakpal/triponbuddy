@@ -4,7 +4,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
-import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
+import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { MapPin, GripVertical, X, Plus, Info } from "lucide-react";
 

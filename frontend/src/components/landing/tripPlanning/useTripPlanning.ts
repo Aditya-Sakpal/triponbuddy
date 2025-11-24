@@ -23,6 +23,7 @@ export const useTripPlanning = () => {
   const [budget, setBudget] = useState<number | undefined>(undefined);
   const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
   const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
+  const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -145,6 +146,7 @@ export const useTripPlanning = () => {
         budget: budget || undefined,
         preferences,
         is_international: isInternational,
+        transportation_mode: transportationMode,
         // max_passengers removed - can only be set when hosting a trip
       },
       signal: controller.signal,
@@ -269,6 +271,7 @@ export const useTripPlanning = () => {
     budget,
     minimumBudget,
     isEstimatingBudget,
+    transportationMode,
     
     // Setters
     setDestinations,
@@ -278,6 +281,7 @@ export const useTripPlanning = () => {
     setDurationDays,
     setIsInternational,
     setBudget,
+    setTransportationMode,
     
     // Actions
     handleDemo,

@@ -7,16 +7,49 @@ import { cn } from "@/lib/utils";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 
 // TypeScript interfaces for Google Maps
+interface AutocompleteSuggestionRequest {
+  input: string;
+  includedPrimaryTypes?: string[];
+  locationBias?: {
+    radius: number;
+    center: { lat: number; lng: number };
+  };
+  locationRestriction?: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  };
+  region?: string;
+  includeQueryPredictions?: boolean;
+}
+
+interface PlacePrediction {
+  placePrediction: {
+    place: string;
+    placeId: string;
+    text: {
+      text: string;
+    };
+    structuredFormat: {
+      mainText: {
+        text: string;
+      };
+      secondaryText: {
+        text: string;
+      };
+    };
+  };
+}
+
+interface AutocompleteSuggestionResponse {
+  suggestions: PlacePrediction[];
+}
+
 interface GoogleMaps {
   places: {
-    AutocompleteService?: new () => GoogleAutocompleteService;
     AutocompleteSuggestion?: {
       fetchAutocompleteSuggestions: (request: AutocompleteSuggestionRequest) => Promise<AutocompleteSuggestionResponse>;
-    };
-    PlacesServiceStatus: {
-      OK: string;
-      ZERO_RESULTS: string;
-      REQUEST_DENIED: string;
     };
   };
 }
@@ -24,26 +57,6 @@ interface GoogleMaps {
 interface GoogleWindow {
   google?: {
     maps?: GoogleMaps;
-  };
-}
-
-interface GoogleAutocompleteService {
-  getPlacePredictions: (
-    request: {
-      input: string;
-      types?: string[];
-      componentRestrictions?: Record<string, unknown>;
-    },
-    callback: (predictions: GooglePrediction[] | null, status: string) => void
-  ) => void;
-}
-
-interface GooglePrediction {
-  place_id: string;
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
   };
 }
 
@@ -189,7 +202,7 @@ class MockPlacesService {
 
 // Google Places service wrapper
 class GooglePlacesService {
-  private autocompleteService: GoogleAutocompleteService | string | null = null;
+  private isServiceAvailable: boolean = false;
 
   constructor() {
     this.initializeService();
@@ -199,22 +212,20 @@ class GooglePlacesService {
     const googleWindow = window as GoogleWindow;
     if (typeof window !== 'undefined' && googleWindow.google?.maps?.places) {
       try {
-        // Use the stable legacy AutocompleteService
-        // The new AutocompleteSuggestion API has authentication issues and requires different setup
-        if (googleWindow.google.maps.places.AutocompleteService) {
-          this.autocompleteService = new googleWindow.google.maps.places.AutocompleteService();
-          console.log('✅ Google Places AutocompleteService initialized');
+        // Use the new AutocompleteSuggestion API
+        if (googleWindow.google.maps.places.AutocompleteSuggestion) {
+          this.isServiceAvailable = true;
         }
       } catch (error) {
         console.error('❌ Failed to initialize Google Places Service:', error);
-        this.autocompleteService = null;
+        this.isServiceAvailable = false;
       }
     } 
   }
 
   // Check if service is initialized
   isInitialized(): boolean {
-    return !!this.autocompleteService;
+    return this.isServiceAvailable;
   }
 
   // Reinitialize service (useful when Google Maps loads after component mount)
@@ -225,7 +236,7 @@ class GooglePlacesService {
   // Reinitialize service if it wasn't available before
   private ensureServiceInitialized() {
     const googleWindow = window as GoogleWindow;
-    if (!this.autocompleteService && typeof window !== 'undefined' && googleWindow.google?.maps?.places) {
+    if (!this.isServiceAvailable && typeof window !== 'undefined' && googleWindow.google?.maps?.places) {
       this.initializeService();
     }
   }
@@ -234,43 +245,58 @@ class GooglePlacesService {
     // Try to initialize service if not already done
     this.ensureServiceInitialized();
     
-    if (!this.autocompleteService) {
+    if (!this.isServiceAvailable) {
       // Fallback to mock service if Google Maps is not available
       console.warn('Google Maps not available, using mock service');
       const mockService = new MockPlacesService();
       return mockService.getPlacePredictions(query);
     }
 
-    // Use the legacy AutocompleteService API
+    // Use the new AutocompleteSuggestion API
     const googleWindow = window as GoogleWindow;
-    return new Promise((resolve, reject) => {
-      (this.autocompleteService as GoogleAutocompleteService).getPlacePredictions(
-        {
-          input: query,
-          types: ['(cities)'],
-          componentRestrictions: undefined // Allow worldwide search
-        },
-        (predictions: GooglePrediction[] | null, status: string) => {
-          if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.OK && predictions) {
-            const suggestions: LocationSuggestion[] = predictions.map((prediction) => ({
-              place_id: prediction.place_id,
-              description: prediction.description,
-              structured_formatting: prediction.structured_formatting
-            }));
-            console.log(`✅ Found ${suggestions.length} location suggestions`);
-            resolve(suggestions);
-          } else if (status === googleWindow.google!.maps!.places.PlacesServiceStatus.ZERO_RESULTS) {
-            console.log('No results found');
-            resolve([]);
-          } else {
-            console.warn(`Places API returned status: ${status}, falling back to mock`);
-            // Fallback to mock service on error
-            const mockService = new MockPlacesService();
-            mockService.getPlacePredictions(query).then(resolve).catch(reject);
-          }
-        }
-      );
-    });
+    try {
+      const request: AutocompleteSuggestionRequest = {
+        input: query,
+        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2']
+      };
+
+      const response = await googleWindow.google!.maps!.places.AutocompleteSuggestion!.fetchAutocompleteSuggestions(request);
+      
+      
+      if (response.suggestions && response.suggestions.length > 0) {
+        const suggestions: LocationSuggestion[] = response.suggestions
+          .filter(suggestion => {
+            // Filter out any malformed suggestions
+            // Note: suggestion itself IS the placePrediction according to the API
+            return suggestion.placePrediction && 
+                   suggestion.placePrediction.placeId && 
+                   suggestion.placePrediction.text;
+          })
+          .map((suggestion) => {
+            const pred = suggestion.placePrediction;
+            const mainText = pred.structuredFormat?.mainText?.text || pred.text?.text || '';
+            const secondaryText = pred.structuredFormat?.secondaryText?.text || '';
+            const description = pred.text?.text || `${mainText}${secondaryText ? ', ' + secondaryText : ''}`;
+            
+            return {
+              place_id: pred.placeId,
+              description: description,
+              structured_formatting: {
+                main_text: mainText,
+                secondary_text: secondaryText
+              }
+            };
+          });
+        return suggestions;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.warn('Places API error, falling back to mock:', error);
+      // Fallback to mock service on error
+      const mockService = new MockPlacesService();
+      return mockService.getPlacePredictions(query);
+    }
   }
 }
 

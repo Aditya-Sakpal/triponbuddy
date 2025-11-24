@@ -76,7 +76,6 @@ export const fetchModalImages = async (
   const finalDestination = Array.isArray(destinations) ? destinations[destinations.length - 1] : destinations;
   
   try {
-    console.log('[fetchModalImages] Fetching photos for:', destinations);
     
     // Fetch photos using Google Places API
     const photoUrls = await googlePlacesService.getDestinationPhotos(destinations, 10);
@@ -92,10 +91,8 @@ export const fetchModalImages = async (
       }));
       
       setModalImages(imageData);
-      console.log('[fetchModalImages] Successfully fetched', imageData.length, 'photos');
     } else {
       // Fallback to placeholder images
-      console.log('[fetchModalImages] No photos found, using placeholders');
       setModalImages(getPlaceholderImages(finalDestination));
     }
   } catch (error) {

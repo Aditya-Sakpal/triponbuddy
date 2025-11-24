@@ -5,6 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import { EditModeHeader } from "./components/EditModeHeader";
 import { ItineraryHeader } from "./components/ItineraryHeader";
 import { DayPlanList } from "./components/DayPlanList";
+import { RoadPlacesNotification } from "./RoadPlacesNotification";
 import { useItineraryImages } from "./hooks/useItineraryImages";
 import { useActivityModification } from "./hooks/useActivityModification";
 import { usePendingChanges } from "./hooks/usePendingChanges";
@@ -14,11 +15,15 @@ interface ItineraryTabProps {
   itinerary: Itinerary;
   tripId: string;
   onRefresh?: () => void;
+  transportationMode?: string;
+  onNavigateToTransportation?: () => void;
 }
 
-export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps) => {
+export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode = 'default', onNavigateToTransportation }: ItineraryTabProps) => {
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
   const { user } = useUser();
+  
+  const isRoadMode = transportationMode === 'road';
 
   // Custom hooks
   const { activityImages, loading, error } = useItineraryImages(itinerary);
@@ -79,6 +84,11 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh }: ItineraryTabProps
         destination={itinerary.destination}
         durationDays={itinerary.duration_days}
       />
+
+      {/* Road Places Notification - Only shown in Road mode */}
+      {isRoadMode && onNavigateToTransportation && (
+        <RoadPlacesNotification tripId={tripId} onNavigateToTransportation={onNavigateToTransportation} />
+      )}
 
       {loading && (
         <div className="text-center py-8 text-muted-foreground">Loading images...</div>

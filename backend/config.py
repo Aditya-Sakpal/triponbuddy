@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     # AI Configuration
     google_gemini_api_key: str = Field(..., env="GOOGLE_GEMINI_API_KEY")
+    
+    # Google Maps API Configuration
+    google_maps_api_key: str = Field(..., env="GOOGLE_MAPS_API_KEY")
 
     # CORS Configuration
     cors_origins: str = Field(
@@ -26,16 +29,6 @@ class Settings(BaseSettings):
     # Cache Configuration
     cache_ttl: int = Field(default=3600, env="CACHE_TTL")  # 1 hour
     cache_maxsize: int = Field(default=1000, env="CACHE_MAXSIZE")
-
-    # Image Scraping Configuration
-    image_scrape_timeout: int = Field(default=10, env="IMAGE_SCRAPE_TIMEOUT")
-    max_images_per_location: int = Field(default=50, env="MAX_IMAGES_PER_LOCATION")
-
-    # Unsplash API Configuration
-    unsplash_access_key: str = Field(default="", env="UNSPLASH_ACCESS_KEY")
-    unsplash_api_url: str = Field(default="https://api.unsplash.com", env="UNSPLASH_API_URL")
-    unsplash_timeout: int = Field(default=10, env="UNSPLASH_TIMEOUT")
-    unsplash_per_page: int = Field(default=10, env="UNSPLASH_PER_PAGE")
 
     # Application Configuration
     debug: bool = Field(default=False, env="DEBUG")

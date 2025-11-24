@@ -1,5 +1,7 @@
 // TypeScript types matching backend Pydantic models
 
+export type TransportationMode = 'default' | 'road' | 'train' | 'flight';
+
 // API Response types
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -141,6 +143,7 @@ export interface TripGenerationRequest {
   preferences?: TripPreferences;
   is_international?: boolean;
   max_passengers?: number;
+  transportation_mode?: TransportationMode;
 }
 
 export interface TripGenerationResponse {
@@ -169,6 +172,8 @@ export interface TripDB {
   itinerary_data: Record<string, unknown>;
   tags: string[];
   max_passengers?: number;
+  transportation_mode?: string;
+  distance_km?: number;
   joined_users?: string[];
   joined_users_demographics?: Array<{
     user_id: string;

@@ -6,5 +6,6 @@ export { TravelerInput } from "./TravelerInput";
 export { BudgetInput } from "./BudgetInput";
 export { MaxPassengersInput } from "./MaxPassengersInput";
 export { DestinationList } from "./DestinationList";
+export { TransportationModeSelector } from "./TransportationModeSelector";
 export { useTripPlanning } from "./useTripPlanning";
 export * from "./tripPlanningHelpers";

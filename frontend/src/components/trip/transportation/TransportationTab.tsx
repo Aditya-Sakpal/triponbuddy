@@ -3,6 +3,7 @@ import type { Transportation, TransportationHub, LocalTransportation } from "@/c
 import { TransportationCard } from "./TransportationCard";
 import { TransportationHubCard } from "./TransportationHubCard";
 import { LocalTransportationPanel } from "./LocalTransportationPanel";
+import { RoadMapView } from "./RoadMapView";
 
 interface TransportationTabProps {
   transportation: Transportation;
@@ -12,6 +13,7 @@ interface TransportationTabProps {
   tripId: string;
   userId: string;
   destinationCity: string;
+  transportationMode?: string;
 }
 
 export const TransportationTab = ({
@@ -19,7 +21,10 @@ export const TransportationTab = ({
   transportation_hubs_start,
   transportation_hubs_destination,
   local_transportation,
+  tripId,
+  transportationMode = 'default',
 }: TransportationTabProps) => {
+  const isRoadMode = transportationMode === 'road';
   return (
     <div className="space-y-6">
       <Card>
@@ -40,6 +45,9 @@ export const TransportationTab = ({
           ))}
         </div>
       </div>
+
+      {/* Road Map View - Only visible for Road mode */}
+      <RoadMapView tripId={tripId} isVisible={isRoadMode} />
 
       {/* Transportation Hubs Comparison */}
       {(transportation_hubs_start.length > 0 || transportation_hubs_destination.length > 0) && (

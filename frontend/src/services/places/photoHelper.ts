@@ -32,7 +32,6 @@ export async function getActivityPhoto(
     const { places } = await Place.searchByText(request);
 
     if (!places || places.length === 0) {
-      console.log(`[getActivityPhoto] No results for ${searchQuery}`);
       return undefined;
     }
 
@@ -46,10 +45,8 @@ export async function getActivityPhoto(
         maxWidth: 800, 
         maxHeight: 600 
       });
-      console.log(`[getActivityPhoto] Found photo for ${searchQuery}`);
       return photoUrl;
     } else {
-      console.log(`[getActivityPhoto] No photos found for ${searchQuery}`);
       return undefined;
     }
   } catch (error) {
@@ -82,7 +79,6 @@ export async function getLocationPhotos(
     const { places } = await Place.searchByText(request);
 
     if (!places || places.length === 0) {
-      console.log(`[getLocationPhotos] No results for ${locationName}`);
       return [];
     }
 
@@ -104,7 +100,6 @@ export async function getLocationPhotos(
       }
     }
     
-    console.log(`[getLocationPhotos] Found ${allPhotos.length} photos for ${locationName}`);
     return allPhotos.slice(0, maxPhotos);
   } catch (error) {
     console.error(`[getLocationPhotos] Error fetching photos for ${locationName}:`, error);
@@ -170,12 +165,10 @@ export async function getDestinationPhotos(
   const minPhotos = 6; // Minimum of 6 photos
   const targetPhotos = Math.max(maxPhotos, minPhotos);
 
-  console.log(`[getDestinationPhotos] Fetching photos for:`, destArray);
 
   // If single destination, get photos from multiple search results
   if (destArray.length === 1) {
     const places = await searchPlacesByName(destArray[0]);
-    console.log(`[getDestinationPhotos] Found ${places.length} places for ${destArray[0]}`);
     
     // Collect photos from all places found, prioritizing places with photos
     const placesWithPhotos = places.filter(p => p.photos && p.photos.length > 0);
@@ -196,7 +189,6 @@ export async function getDestinationPhotos(
     // Shuffle and return
     const shuffled = allPhotos.sort(() => Math.random() - 0.5);
     const result = shuffled.slice(0, targetPhotos);
-    console.log(`[getDestinationPhotos] Returning ${result.length} photos`);
     return result;
   }
 
@@ -213,7 +205,6 @@ export async function getDestinationPhotos(
     }
     
     const places = await searchPlacesByName(location);
-    console.log(`[getDestinationPhotos] Found ${places.length} places for ${location}`);
     
     let locationPhotoCount = 0;
     const placesWithPhotos = places.filter(p => p.photos && p.photos.length > 0);
@@ -238,6 +229,5 @@ export async function getDestinationPhotos(
   
   // Return at least minPhotos or up to targetPhotos
   const result = shuffled.slice(0, Math.max(targetPhotos, Math.min(allPhotos.length, minPhotos)));
-  console.log(`[getDestinationPhotos] Returning ${result.length} photos from ${destArray.length} destinations`);
   return result;
 }

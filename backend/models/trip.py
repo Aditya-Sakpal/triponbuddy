@@ -5,7 +5,16 @@ Trip-related Pydantic models
 from typing import List, Optional, Dict, Any
 from datetime import date, datetime, timezone
 from pydantic import BaseModel, Field, model_validator, ConfigDict
+from enum import Enum
 from uuid import uuid4
+
+
+class TransportationMode(str, Enum):
+    """Transportation mode options"""
+    DEFAULT = "default"
+    ROAD = "road"
+    TRAIN = "train"
+    FLIGHT = "flight"
 
 
 class Traveler(BaseModel):
@@ -154,6 +163,7 @@ class TripGenerationRequest(BaseModel):
     preferences: Optional[TripPreferences] = Field(default=None, description="User preferences")
     is_international: bool = Field(default=False, description="International trip flag")
     max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
+    transportation_mode: TransportationMode = Field(default=TransportationMode.DEFAULT, description="Preferred transportation mode")
     
 
 
@@ -198,6 +208,8 @@ class TripDB(BaseModel):
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
+    transportation_mode: str = Field(default="default", description="Selected transportation mode: default, road, train, flight")
+    distance_km: Optional[float] = Field(default=None, description="Distance between start and destination in kilometers")
     joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
     joined_users_demographics: Optional[List[Dict[str, Any]]] = Field(default=None, description="Demographics of joined users (age, gender)")
     is_joined: Optional[bool] = Field(default=False, description="Flag to identify if this is a joined trip copy")

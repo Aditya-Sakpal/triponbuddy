@@ -23,6 +23,7 @@ from models.trip import (
 )
 from services.trip_service import trip_service
 from services.ai_service import ai_service
+from services.google_maps_service import google_maps_service
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +179,66 @@ async def can_edit_trip(
         raise HTTPException(
             status_code=500,
             detail="Failed to check edit permission"
+        )
+
+
+@router.get("/{trip_id}/road-route")
+async def get_road_route(
+    request: Request,
+    trip_id: str,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Get detailed road route with waypoints for a trip"""
+
+    try:
+        # Get trip to verify access and get origin/destination
+        trip_result = await trip_service.get_trip(trip_id, user_id)
+        
+        if not trip_result.get("success"):
+            raise HTTPException(status_code=404, detail="Trip not found")
+        
+        trip = trip_result.get("trip")
+        
+        # Check if trip has transportation_mode set to "road"
+        if trip.transportation_mode != "road":
+            raise HTTPException(
+                status_code=400, 
+                detail="Road route is only available for trips with road transportation mode"
+            )
+        
+        # Get origin and destination
+        origin = trip.start_location
+        destination = trip.destination
+        
+        if not origin or not destination:
+            raise HTTPException(
+                status_code=400,
+                detail="Trip must have both start location and destination"
+            )
+        
+        # Get road route with waypoints
+        route_data = await google_maps_service.get_road_route_with_waypoints(
+            origin, destination
+        )
+        
+        if not route_data:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to compute road route"
+            )
+        
+        return {
+            "success": True,
+            "route": route_data
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting road route: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to get road route"
         )
 
 

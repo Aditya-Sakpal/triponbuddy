@@ -7,6 +7,7 @@ declare global {
 declare namespace google {
   namespace maps {
     namespace places {
+      // Legacy AutocompleteService (deprecated but still supported)
       class AutocompleteService {
         getPlacePredictions(
           request: AutocompletionRequest,
@@ -71,6 +72,54 @@ declare namespace google {
       }
 
       class AutocompleteSessionToken {}
+
+      // New AutocompleteSuggestion API (recommended)
+      namespace AutocompleteSuggestion {
+        function fetchAutocompleteSuggestions(
+          request: AutocompleteSuggestionRequest
+        ): Promise<AutocompleteSuggestionResponse>;
+      }
+
+      interface AutocompleteSuggestionRequest {
+        input: string;
+        includedPrimaryTypes?: string[];
+        includedRegionCodes?: string[];
+        locationBias?: {
+          radius: number;
+          center: { lat: number; lng: number };
+        };
+        locationRestriction?: {
+          north: number;
+          south: number;
+          east: number;
+          west: number;
+        };
+        region?: string;
+        sessionToken?: AutocompleteSessionToken;
+      }
+
+      interface AutocompleteSuggestionResponse {
+        suggestions: PlacePredictionSuggestion[];
+      }
+
+      interface PlacePredictionSuggestion {
+        placePrediction: {
+          place: string;
+          placeId: string;
+          text: {
+            text: string;
+          };
+          structuredFormat: {
+            mainText: {
+              text: string;
+            };
+            secondaryText: {
+              text: string;
+            };
+          };
+          types?: string[];
+        };
+      }
 
       class PlacesService {
         constructor(attrContainer: HTMLDivElement | google.maps.Map);
