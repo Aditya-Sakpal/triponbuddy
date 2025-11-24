@@ -4,7 +4,7 @@ import { MapPin, Clock, IndianRupee, ArrowRight, ExternalLink } from "lucide-rea
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { NeighboringPlace } from "@/constants";
-import { apiClient } from "@/lib/api-client";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 interface NeighboringPlacesProps {
   places: NeighboringPlace[];
@@ -88,11 +88,28 @@ export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesP
       setLoading(true);
       setError(null);
       try {
-        const locations = places.map(place => place.name);
-        if (locations.length === 0) return;
-        // Use backend bulk images endpoint
-        const result = await apiClient.post<{ [key: string]: string[] }>("/api/images/bulk", locations);
-        setImages(result);
+        if (places.length === 0) return;
+        
+        const imageMap: { [key: string]: string[] } = {};
+        
+        // Fetch images for each place with rate limiting
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          try {
+            const photoUrl = await googlePlacesService.getActivityPhoto(place.name);
+            imageMap[place.name] = photoUrl ? [photoUrl] : [];
+          } catch (err) {
+            console.error(`Failed to fetch image for ${place.name}:`, err);
+            imageMap[place.name] = [];
+          }
+          
+          // Add delay between requests to avoid rate limiting
+          if (i < places.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+        }
+        
+        setImages(imageMap);
       } catch (err: unknown) {
         setError((err as Error)?.message || "Failed to fetch images");
       } finally {

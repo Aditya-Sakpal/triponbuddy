@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { TripDB, Itinerary } from "@/constants";
 import { TripCardActions } from "@/components/trip";
 import { JoinedTripCardActions } from "./JoinedTripCardActions";
 import { formatDate, getCalculatedBudget } from "@/utils/tripUtils";
+import { googlePlacesService } from "@/services/googlePlacesService";
 
 interface TripCardProps {
   trip: TripDB;
@@ -15,23 +17,35 @@ interface TripCardProps {
 
 export const TripCard = ({ trip, onTripLeft, onEmergencyNumberSet }: TripCardProps) => {
   const itinerary = trip.itinerary_data as unknown as Itinerary;
-  const isJoinedTrip = (trip as any).is_joined === true;
+  const isJoinedTrip = trip.is_joined === true;
+  const [destinationImage, setDestinationImage] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const photoUrl = await googlePlacesService.getActivityPhoto(trip.destination);
+        if (photoUrl) {
+          setDestinationImage(photoUrl);
+        }
+      } catch (error) {
+        console.error('Failed to fetch destination image:', error);
+      }
+    };
+    fetchImage();
+  }, [trip.destination]);
   
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="flex flex-col gap-4">
           {/* Destination Image */}
-          {trip.destination_image && (
+          {destinationImage && (
             <div className="w-full">
               <img
-                src={trip.destination_image}
+                src={destinationImage}
                 alt={trip.destination}
                 className="w-full h-48 object-cover rounded-lg"
-                onError={(e) => {
-                  console.error('Image failed to load:', trip.destination_image);
-                  e.currentTarget.style.display = 'none';
-                }}
+                loading="lazy"
               />
             </div>
           )}

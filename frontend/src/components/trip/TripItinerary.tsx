@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel, HostTripModal} from "@/components/trip";
-import { apiClient } from "@/lib/api-client";
+import { googlePlacesService } from "@/services/googlePlacesService";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
 import { getCalculatedBudget } from "@/utils/tripUtils";
 
@@ -100,19 +100,15 @@ export const TripItinerary = ({
       
       setImagesLoading(true);
       try {
-        const response = await apiClient.post<{
-          success: boolean;
-          images: ImageData[];
-        }>('/api/images/single', {}, {
-          location: trip.destination,
-          max_images: 5,
-          min_width: 800,
-          min_height: 600
-        });
+        const photoUrls = await googlePlacesService.getLocationPhotos(
+          trip.destination,
+          5,
+          { maxWidth: 1200, maxHeight: 800 }
+        );
         
-        if (response.success && response.images) {
-          setDestinationImages(response.images);
-        }
+        // Convert to ImageData format expected by the component
+        const images: ImageData[] = photoUrls.map(url => ({ url }));
+        setDestinationImages(images);
       } catch (error) {
         console.error('Failed to fetch destination images:', error);
       } finally {

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { TripsApiService, UsersApiService, ImagesApiService, FeedbackApiService } from '../lib/api-services';
+import { TripsApiService, UsersApiService, FeedbackApiService } from '../lib/api-services';
 import { useTripsStore, useUserStore, useUiStore } from '../lib/stores';
 import { queryKeys } from '../constants';
 import type {
@@ -7,8 +7,6 @@ import type {
   TripListParams,
   TripUpdateRequest,
   FeedbackCreate,
-  ImageBulkParams,
-  ImageSingleParams,
   ApiError,
   UserProfileUpdate,
 } from '../constants';
@@ -245,19 +243,6 @@ export const useUpdateUserProfile = () => {
         message,
       });
     },
-  });
-};
-
-// Images Hooks
-export const useBulkImages = () => {
-  return useMutation({
-    mutationFn: (params: ImageBulkParams) => ImagesApiService.fetchBulkImages(params),
-  });
-};
-
-export const useSingleImage = () => {
-  return useMutation({
-    mutationFn: (params: ImageSingleParams) => ImagesApiService.fetchSingleImage(params),
   });
 };
 

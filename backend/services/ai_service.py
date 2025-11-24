@@ -43,8 +43,7 @@ class AIService:
 
             return {
                 "success": True,
-                "itinerary": validated_itinerary,
-                "image_queries": self.itinerary_processor.extract_image_queries(validated_itinerary)
+                "itinerary": validated_itinerary
             }
 
         except Exception as e:

@@ -17,8 +17,7 @@ class TripDataBuilder:
     def build_trip_data(
         user_id: str,
         ai_response: Dict[str, Any],
-        request_data: Dict[str, Any],
-        destination_image: str = None
+        request_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Build trip data from AI response and request data"""
         
@@ -74,7 +73,6 @@ class TripDataBuilder:
             "is_international": request_data.get("is_international"),
             "is_saved": False,
             "is_public": False,
-            "destination_image": destination_image,
             "itinerary_data": itinerary,
             "tags": [],
             "max_passengers": max_passengers,

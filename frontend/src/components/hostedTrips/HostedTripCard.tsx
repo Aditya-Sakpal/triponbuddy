@@ -3,7 +3,7 @@
  * Displays a hosted trip with traveler demographics and join request button
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { TripDB } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +14,16 @@ import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
 import { JoinRequestsModal } from "./JoinRequestsModal";
 import { getCalculatedBudget } from "@/utils/tripUtils";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import { useDestinationImage } from "@/hooks/useDestinationImage";
+import { useTripData } from "@/hooks/useTripData";
+import { usePendingRequests } from "@/hooks/usePendingRequests";
+import {
+  isJoinable,
+  getAvailableSlots,
+  isUserOnTrip,
+  getAllTravelerDemographics,
+  formatTripTitle,
+} from "@/utils/hostedTripUtils";
 
 interface HostedTripCardProps {
   trip: TripDB;
@@ -28,182 +36,39 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const { user } = useUser();
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
-  const [fullTripData, setFullTripData] = useState<TripDB | null>(null);
-  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-  
+
+  // Custom hooks for data fetching
+  const destinationImage = useDestinationImage(trip.destination);
+  const { fullTripData, resetTripData } = useTripData(trip, user?.id);
+  const { pendingRequestsCount, decrementPendingRequests } = usePendingRequests(
+    showPendingRequests,
+    user?.id,
+    trip.user_id,
+    trip.trip_id
+  );
+
+  // Derived data
+  const tripData = fullTripData || trip;
   const formattedStartDate = format(new Date(trip.start_date), "MMM dd, yyyy");
   const formattedEndDate = trip.end_date 
     ? format(new Date(trip.end_date), "MMM dd, yyyy")
     : formattedStartDate;
-  
-  const tripTitle = username 
-    ? `${username}'s trip to ${trip.destination}`
-    : `Trip to ${trip.destination}`;
-
-  // Fetch full trip data - only if user is logged in for accurate joined status
-  useEffect(() => {
-    const fetchTripData = async () => {
-      if (!user) {
-        // If no user, just use the trip prop data
-        return;
-      }
-      
-      try {
-        // If this is a joined trip copy, we need to fetch the ORIGINAL trip to get demographics
-        // Check if trip has original_trip_id (means it's a copy)
-        const tripIdToFetch = (trip as TripDB & { original_trip_id?: string }).original_trip_id || trip.trip_id;
-        
-        const response = await fetch(
-          `${API_BASE_URL}/api/trips/${tripIdToFetch}?user_id=${user.id}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setFullTripData(data.trip);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching trip data:", error);
-      }
-    };
-
-    fetchTripData();
-  }, [trip.trip_id, trip, user]);
-
-  // Fetch pending requests count if this is the user's trip
-  useEffect(() => {
-    const fetchPendingRequestsCount = async () => {
-      if (!showPendingRequests || !user || trip.user_id !== user.id) {
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/join-requests/notifications?user_id=${user.id}`
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            // Count pending requests for this specific trip
-            interface NotificationData {
-              type: string;
-              request_status: string;
-              related_trip_id: string;
-            }
-
-            const count = data.notifications.filter(
-              (notif: NotificationData) =>
-                notif.type === "join_request" &&
-                notif.request_status === "pending" &&
-                notif.related_trip_id === trip.trip_id
-            ).length;
-            
-            setPendingRequestsCount(count);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching pending requests:", error);
-      }
-    };
-
-    fetchPendingRequestsCount();
-  }, [showPendingRequests, user, trip.user_id, trip.trip_id]);
-
-  // Calculate if trip is joinable
-  const isJoinable = () => {
-    // Use fullTripData if available for most accurate info, otherwise use trip prop
-    const tripData = fullTripData || trip;
-    
-    if (!tripData.max_passengers) {
-      return false;
-    }
-    
-    // Can't join your own trip
-    if (user && tripData.user_id === user.id) {
-      return false;
-    }
-    
-    // Check if user has already joined
-    if (user && tripData.joined_users && tripData.joined_users.includes(user.id)) {
-      return false;
-    }
-    
-    const currentTravelers = (tripData.travelers || []).length;
-    const joinedUsers = (tripData.joined_users || []).length;
-    const currentPassengers = 1 + currentTravelers + joinedUsers; // +1 for owner
-    
-    const hasSlots = currentPassengers < tripData.max_passengers;
-    
-    return hasSlots;
-  };
-
-  const getAvailableSlots = () => {
-    const tripData = fullTripData || trip;
-    
-    if (!tripData.max_passengers) return 0;
-    
-    const currentTravelers = (tripData.travelers || []).length;
-    const joinedUsers = (tripData.joined_users || []).length;
-    const currentPassengers = 1 + currentTravelers + joinedUsers;
-    
-    return tripData.max_passengers - currentPassengers;
-  };
-
-  // Check if user is on this trip (either owner or has joined)
-  const isUserOnTrip = () => {
-    if (!user) return false;
-    
-    const tripData = fullTripData || trip;
-    
-    // Check if user is the owner
-    if (tripData.user_id === user.id) {
-      return true;
-    }
-    
-    // Check if user has joined
-    if (tripData.joined_users && tripData.joined_users.includes(user.id)) {
-      return true;
-    }
-    
-    return false;
-  };
-
-  // Get all traveler demographics (original travelers + joined users)
-  const getAllTravelerDemographics = () => {
-    const tripData = fullTripData || trip;
-    const travelers = tripData.travelers || [];
-    const joinedDemographics = tripData.joined_users_demographics || [];
-    
-    const allDemographics = [
-      ...travelers.map((traveler, idx) => ({
-        id: `traveler-${idx}`,
-        age: traveler.age,
-        gender: traveler.gender,
-        type: 'original' as const,
-      })),
-      ...joinedDemographics.map((joined: { user_id: string; age: number; gender: string }) => ({
-        id: `joined-${joined.user_id}`,
-        age: joined.age,
-        gender: joined.gender,
-        type: 'joined' as const,
-      }))
-    ];
-    
-    return allDemographics;
-  };
-
-  const demographics = getAllTravelerDemographics();
+  const tripTitle = formatTripTitle(trip.destination, username);
+  const demographics = getAllTravelerDemographics(tripData);
+  const availableSlots = getAvailableSlots(tripData);
+  const userOnTrip = isUserOnTrip(tripData, user?.id);
+  const tripIsJoinable = isJoinable(tripData, user?.id);
 
   return (
     <Card className="overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-all">
       {/* Trip Image */}
-      {trip.destination_image && (
+      {destinationImage && (
         <div className="relative h-48 w-full overflow-hidden">
           <img
-            src={trip.destination_image}
+            src={destinationImage}
             alt={trip.destination}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-3 right-3">
@@ -216,7 +81,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
 
       <CardContent className="p-4 space-y-3">
         {/* No image fallback */}
-        {!trip.destination_image && (
+        {!destinationImage && (
           <h3 className="text-xl font-bold text-primary">
             {tripTitle}
           </h3>
@@ -255,20 +120,20 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
             <Wallet className="h-4 w-4 text-green-600" />
             <span className="font-semibold text-green-600">
               Budget: {
-                (fullTripData || trip).custom_budget 
-                  ? `₹${(fullTripData || trip).custom_budget?.toLocaleString('en-IN')}`
-                  : getCalculatedBudget(fullTripData || trip)
+                tripData.custom_budget 
+                  ? `₹${tripData.custom_budget?.toLocaleString('en-IN')}`
+                  : getCalculatedBudget(tripData)
               }
             </span>
           </div>
         </div>
 
         {/* Host Comments */}
-        {(fullTripData || trip).host_comments && (
+        {tripData.host_comments && (
           <div className="pt-2 border-t">
             <h4 className="text-sm font-semibold mb-2">Host's Message</h4>
             <p className="text-sm text-muted-foreground italic">
-              "{(fullTripData || trip).host_comments}"
+              "{tripData.host_comments}"
             </p>
           </div>
         )}
@@ -298,7 +163,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
             <Users className="h-4 w-4" />
             <span>
-              {getAvailableSlots()} {getAvailableSlots() === 1 ? 'slot' : 'slots'} available
+              {availableSlots} {availableSlots === 1 ? 'slot' : 'slots'} available
             </span>
             <span className="text-xs text-muted-foreground/70">
               (Max {trip.max_passengers})
@@ -307,7 +172,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
         )}
 
         {/* User Status Message */}
-        {isUserOnTrip() && (
+        {userOnTrip && (
           <div className="pt-2 border-t">
             <div className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 px-3 py-2 rounded-md">
               <UserPlus className="h-4 w-4" />
@@ -326,7 +191,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           </a>
           
           {/* Show join button only if user is not on the trip and slots are available */}
-          {!isUserOnTrip() && getAvailableSlots() > 0 && isJoinable() && (
+          {!userOnTrip && availableSlots > 0 && tripIsJoinable && (
             <Button
               size="sm"
               variant="outline"
@@ -341,25 +206,23 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
       </CardContent>
 
       {/* Join Trip Dialog */}
-      {(fullTripData || trip) && (
-        <JoinTripDialog
-          tripId={trip.trip_id}
-          tripTitle={trip.title}
-          tripDestination={trip.destination}
-          preferredGender={(fullTripData || trip).preferred_gender}
-          ageRangeMin={(fullTripData || trip).age_range_min}
-          ageRangeMax={(fullTripData || trip).age_range_max}
-          isOpen={showJoinDialog}
-          onClose={() => setShowJoinDialog(false)}
-          onSuccess={() => {
-            // Refresh trip data after successful request
-            if (onTripUpdated) {
-              onTripUpdated();
-            }
-            setFullTripData(null);
-          }}
-        />
-      )}
+      <JoinTripDialog
+        tripId={trip.trip_id}
+        tripTitle={trip.title}
+        tripDestination={trip.destination}
+        preferredGender={tripData.preferred_gender}
+        ageRangeMin={tripData.age_range_min}
+        ageRangeMax={tripData.age_range_max}
+        isOpen={showJoinDialog}
+        onClose={() => setShowJoinDialog(false)}
+        onSuccess={() => {
+          // Refresh trip data after successful request
+          if (onTripUpdated) {
+            onTripUpdated();
+          }
+          resetTripData();
+        }}
+      />
 
       {/* Join Requests Modal - Only for trip owner */}
       {showPendingRequests && user && trip.user_id === user.id && (
@@ -370,7 +233,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           onClose={() => setShowRequestsModal(false)}
           onRequestHandled={() => {
             // Refresh pending requests count
-            setPendingRequestsCount((prev) => Math.max(0, prev - 1));
+            decrementPendingRequests();
             
             // Refresh trip data
             if (onTripUpdated) {

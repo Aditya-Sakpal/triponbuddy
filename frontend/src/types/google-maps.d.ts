@@ -210,7 +210,87 @@ declare namespace google {
         PROMINENCE = 0,
         DISTANCE = 1
       }
+
+      // New Place class API types
+      interface PlacesLibrary {
+        Place: typeof Place;
+        SearchNearbyRankPreference: typeof SearchNearbyRankPreference;
+      }
+
+      class Place {
+        id: string;
+        displayName?: string;
+        formattedAddress?: string;
+        location?: LatLng;
+        rating?: number;
+        photos?: Photo[];
+        types?: string[];
+
+        constructor(options: { id: string });
+        
+        static searchNearby(request: SearchNearbyRequest): Promise<SearchNearbyResponse>;
+        static searchByText(request: SearchByTextRequest): Promise<SearchByTextResponse>;
+        
+        fetchFields(request: FetchFieldsRequest): Promise<FetchFieldsResponse>;
+      }
+
+      interface Photo {
+        getURI(options?: PhotoOptions): string;
+        authorAttributions?: AuthorAttribution[];
+      }
+
+      interface AuthorAttribution {
+        displayName?: string;
+        uri?: string;
+        photoUri?: string;
+      }
+
+      interface SearchNearbyRequest {
+        locationRestriction: {
+          center: LatLngLiteral;
+          radius: number;
+        };
+        includedTypes?: string[];
+        excludedTypes?: string[];
+        maxResultCount?: number;
+        rankPreference?: SearchNearbyRankPreference;
+        fields?: string[];
+      }
+
+      interface SearchNearbyResponse {
+        places: Place[];
+      }
+
+      interface SearchByTextRequest {
+        textQuery: string;
+        fields?: string[];
+        includedType?: string;
+        maxResultCount?: number;
+        location?: LatLngLiteral;
+        radius?: number;
+      }
+
+      interface SearchByTextResponse {
+        places: Place[];
+      }
+
+      interface FetchFieldsRequest {
+        fields: string[];
+      }
+
+      interface FetchFieldsResponse {
+        place: Place;
+      }
+
+      enum SearchNearbyRankPreference {
+        RANK_PREFERENCE_UNSPECIFIED = 'RANK_PREFERENCE_UNSPECIFIED',
+        POPULARITY = 'POPULARITY',
+        DISTANCE = 'DISTANCE'
+      }
     }
+
+    function importLibrary(library: 'places'): Promise<google.maps.places.PlacesLibrary>;
+    function importLibrary(library: string): Promise<unknown>;
 
     interface LatLng {
       lat(): number;

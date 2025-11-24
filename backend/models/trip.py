@@ -162,7 +162,6 @@ class TripGenerationResponse(BaseModel):
     success: bool = Field(default=True, description="Success status")
     trip_id: str = Field(description="Unique trip identifier")
     itinerary: "Itinerary" = Field(description="Generated itinerary")
-    image_queries: List[str] = Field(description="Image search queries")
 
     class Config:
         json_encoders = {
@@ -196,7 +195,6 @@ class TripDB(BaseModel):
     is_international: bool = Field(default=False, description="International flag")
     is_saved: bool = Field(default=False, description="Saved status")
     is_public: bool = Field(default=False, description="Public visibility for sharing in community")
-    destination_image: Optional[str] = Field(default=None, description="Destination image URL")
     itinerary_data: Dict[str, Any] = Field(description="Full itinerary data")
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")

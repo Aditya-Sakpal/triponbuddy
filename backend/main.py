@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 
 from config import settings
 from database import mongodb
-from routers import feedback, forum, images, payments, trips, users, upload, join_requests
+from routers import feedback, forum, payments, trips, users, upload, join_requests
 
 from utils.cache import get_cache_info
 
@@ -62,7 +62,6 @@ app.add_middleware(
 # Include routers
 app.include_router(feedback.router)
 app.include_router(forum.router)
-app.include_router(images.router)
 app.include_router(payments.router)
 app.include_router(users.router)
 app.include_router(trips.router)

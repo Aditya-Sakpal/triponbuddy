@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LocationAutocomplete } from "@/components/ui/location-autocomplete";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, X } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { useGenerateTrip, useSingleImage } from "@/hooks/api-hooks";
+import { useGenerateTrip } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
@@ -30,11 +30,9 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   
   const generateTripMutation = useGenerateTrip();
-  const singleImageMutation = useSingleImage();
   
   const preferenceOptions = useMemo(() => [
     { icon: Mountain, label: "Adventure" },
@@ -89,7 +87,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   useEffect(() => {
     if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
       setIsGenerating(false);
-      setModalImages([]);
       onTripUpdated(generateTripMutation.data.trip_id);
       onClose();
       // Reset mutation state
@@ -102,7 +99,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     if (generateTripMutation.isError) {
       console.error('Trip update failed:', generateTripMutation.error);
       setIsGenerating(false);
-      setModalImages([]);
       alert(`Failed to update trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
     }
   }, [generateTripMutation.isError, generateTripMutation.error]);
@@ -162,7 +158,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
     // Reset the mutation state
     generateTripMutation.reset();
     setIsGenerating(false);
-    setModalImages([]);
   };
 
   const handleClose = () => {
@@ -212,7 +207,6 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
         onClose={() => {}} // Can't close while generating
         destination={destinations[destinations.length - 1] || ""}
         onCancel={handleCancelGeneration}
-        preloadedImages={modalImages}
       />
       
       <Dialog open={isOpen && !generateTripMutation.isPending} onOpenChange={handleClose}>

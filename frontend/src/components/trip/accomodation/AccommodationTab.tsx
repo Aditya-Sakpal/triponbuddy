@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Accommodation } from "@/constants";
-import { apiClient } from "@/lib/api-client";
+import { googlePlacesService } from "@/services/googlePlacesService";
 import { AccommodationCard } from "./AccommodationCard";
 
 interface AccommodationTabProps {
@@ -22,11 +22,32 @@ export const AccommodationTab = ({ accommodations }: AccommodationTabProps) => {
       setLoading(true);
       setError(null);
       try {
-        const locations = accommodations.map(acc => acc.location);
-        if (locations.length === 0) return;
-        // Use backend bulk images endpoint
-        const result = await apiClient.post<{ [key: string]: string[] }>("/api/images/bulk", locations);
-        setImages(result);
+        if (accommodations.length === 0) return;
+        
+        const imageMap: { [key: string]: string[] } = {};
+        
+        // Fetch images for each accommodation location with rate limiting
+        for (let i = 0; i < accommodations.length; i++) {
+          const acc = accommodations[i];
+          try {
+            // Use accommodation name and location for better search results
+            const photoUrl = await googlePlacesService.getActivityPhoto(
+              acc.location,
+              acc.name
+            );
+            imageMap[acc.location] = photoUrl ? [photoUrl] : [];
+          } catch (err) {
+            console.error(`Failed to fetch image for ${acc.location}:`, err);
+            imageMap[acc.location] = [];
+          }
+          
+          // Add delay between requests to avoid rate limiting
+          if (i < accommodations.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+        }
+        
+        setImages(imageMap);
       } catch (err: unknown) {
         setError((err as Error)?.message || "Failed to fetch images");
       } finally {

@@ -147,7 +147,6 @@ export interface TripGenerationResponse {
   success: boolean;
   trip_id: string;
   itinerary: Itinerary;
-  image_queries: string[];
 }
 
 export interface TripDB {
@@ -167,7 +166,6 @@ export interface TripDB {
   is_saved: boolean;
   is_joined?: boolean;
   is_public?: boolean;
-  destination_image?: string;
   itinerary_data: Record<string, unknown>;
   tags: string[];
   max_passengers?: number;
@@ -279,17 +277,6 @@ export interface ImageData {
   title: string;
 }
 
-export interface BulkImageResponse {
-  [key: string]: string[];
-}
-
-export interface SingleImageResponse {
-  success: boolean;
-  images: ImageData[];
-  cached: boolean;
-  query: string;
-}
-
 // API Error types
 export interface ApiError {
   code: string;
@@ -303,18 +290,6 @@ export interface TripListParams extends Record<string, unknown> {
   is_saved?: boolean;
   page?: number;
   limit?: number;
-}
-
-export interface ImageBulkParams {
-  locations: string[];
-}
-
-export interface ImageSingleParams extends Record<string, unknown> {
-  location: string;
-  max_images?: number;
-  min_width?: number;
-  min_height?: number;
-  randomize?: boolean;
 }
 
 // Join Request and Notification Types

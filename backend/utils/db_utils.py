@@ -34,7 +34,6 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "is_saved": doc_copy.get("is_saved", False),
         "is_joined": doc_copy.get("is_joined", False),
         "is_public": doc_copy.get("is_public", False),
-        "destination_image": doc_copy.get("destination_image"),
         "itinerary_data": doc_copy.get("itinerary_data", {}),
         "tags": doc_copy.get("tags", []),
         "max_passengers": doc_copy.get("max_passengers"),

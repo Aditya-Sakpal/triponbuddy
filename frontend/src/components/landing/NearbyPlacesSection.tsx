@@ -59,7 +59,7 @@ export const NearbyPlacesSection = () => {
 
     try {
       // Try to get nearby places from Google Places API
-      const nearbyPlaces = await googlePlacesService.getNearbyPlacesFromCurrentLocation(100000, 10);
+      const nearbyPlaces = await googlePlacesService.getNearbyPlacesFromCurrentLocation(50000, 10);
       
       // Transform Google Places data to Destination format
       const destinations: Destination[] = nearbyPlaces.map((place: NearbyPlace) => ({

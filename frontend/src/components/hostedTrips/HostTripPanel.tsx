@@ -3,7 +3,7 @@
  * Allows users to select and host their trips
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,15 +17,20 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2, Share2, Info } from "lucide-react";
-import { TripDB } from "@/constants";
-import { SharedTrip } from "@/types/forum";
 import { useToast } from "@/hooks/use-toast";
-import { getCalculatedBudget } from "@/utils/tripUtils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+import { useUserTrips } from "@/hooks/useUserTrips";
+import { useSelectedTrip } from "@/hooks/useSelectedTrip";
+import { validateHostTripForm } from "@/utils/hostTripValidation";
+import {
+  calculateAgeRange,
+  getPreferredGenderValue,
+  getDefaultFormValues,
+} from "@/utils/hostTripUtils";
+import { hostTrip, type HostTripParams } from "@/services/hostTripService";
+import { getCalculatedBudget } from "@/utils/tripUtils";
 
 interface HostTripPanelProps {
   onTripHosted?: () => void;
@@ -34,207 +39,104 @@ interface HostTripPanelProps {
 export const HostTripPanel = ({ onTripHosted }: HostTripPanelProps) => {
   const { user } = useUser();
   const { toast } = useToast();
-  const [trips, setTrips] = useState<TripDB[]>([]);
-  const [selectedTripId, setSelectedTripId] = useState<string>("");
-  const [maxPassengers, setMaxPassengers] = useState<string>("2");
-  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Gender and age specifications
+  // Custom hooks
+  const { trips, isLoading, error: tripsError } = useUserTrips(user?.id);
+  const {
+    selectedTripId,
+    setSelectedTripId,
+    selectedTrip,
+    calculatedBudget,
+    minBudgetValue,
+    customBudget,
+    setCustomBudget,
+  } = useSelectedTrip(trips);
+
+  // Form state
+  const [maxPassengers, setMaxPassengers] = useState<string>("2");
   const [preferredGender, setPreferredGender] = useState<string>("any");
   const [ageRangeType, setAgeRangeType] = useState<string>("any");
   const [customAgeMin, setCustomAgeMin] = useState<number>(18);
   const [customAgeMax, setCustomAgeMax] = useState<number>(60);
-  const [customBudget, setCustomBudget] = useState<string>("");
 
-  // Fetch user's trips
-  useEffect(() => {
-    const fetchTrips = async () => {
-      if (!user) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/trips?user_id=${user.id}&page=1&limit=100`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            // Show all trips (not just saved ones)
-            setTrips(data.trips);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching trips:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load your trips",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTrips();
-  }, [user, toast]);
-
-  const selectedTrip = trips.find((trip) => trip.trip_id === selectedTripId);
-  
-  // Calculate minimum budget from selected trip activities
-  const calculatedBudget = selectedTrip ? getCalculatedBudget(selectedTrip) : "₹0";
-  const minBudgetValue = parseFloat(calculatedBudget.replace(/[₹,]/g, '')) || 0;
-  
-  // Update custom budget when trip is selected
-  useEffect(() => {
-    if (selectedTrip) {
-      setCustomBudget(minBudgetValue.toString());
-    }
-  }, [selectedTripId, minBudgetValue]);
+  // Show error toast if trips failed to load
+  if (tripsError) {
+    toast({
+      title: "Error",
+      description: tripsError,
+      variant: "destructive",
+    });
+  }
 
   const handleHostTrip = async () => {
-    if (!user || !selectedTrip) {
+    if (!user) return;
+
+    // Validate form
+    const validation = validateHostTripForm(
+      selectedTrip,
+      maxPassengers,
+      customBudget,
+      minBudgetValue,
+      calculatedBudget,
+      ageRangeType,
+      customAgeMin,
+      customAgeMax
+    );
+
+    if (!validation.isValid) {
       toast({
         title: "Error",
-        description: "Please select a trip to host",
+        description: validation.error,
         variant: "destructive",
       });
       return;
     }
 
-    const passengers = parseInt(maxPassengers);
-    if (isNaN(passengers) || passengers < 1 || passengers > 10) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid number of passengers (1-10)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate custom budget
-    const budgetValue = parseFloat(customBudget);
-    if (isNaN(budgetValue) || budgetValue < minBudgetValue) {
-      toast({
-        title: "Error",
-        description: `Budget must be at least ${calculatedBudget} (the calculated trip cost)`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate custom age range if selected
-    if (ageRangeType === "custom") {
-      if (customAgeMin < 18 || customAgeMax > 120 || customAgeMin > customAgeMax) {
-        toast({
-          title: "Error",
-          description: "Please enter a valid age range (min 18, max 120)",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
+    if (!selectedTrip) return;
 
     setIsSubmitting(true);
 
     try {
-      // Calculate age range based on selection
-      let ageRangeMin = null;
-      let ageRangeMax = null;
+      const budgetValue = parseFloat(customBudget);
+      const passengers = parseInt(maxPassengers);
       
-      switch (ageRangeType) {
-        case "18-25":
-          ageRangeMin = 18;
-          ageRangeMax = 25;
-          break;
-        case "26-35":
-          ageRangeMin = 26;
-          ageRangeMax = 35;
-          break;
-        case "above-35":
-          ageRangeMin = 36;
-          ageRangeMax = 120;
-          break;
-        case "custom":
-          ageRangeMin = customAgeMin;
-          ageRangeMax = customAgeMax;
-          break;
-        default:
-          // "any" - no age restrictions
-          break;
-      }
-
-      // First, update the trip to set max_passengers, gender/age preferences, custom budget, and make it public
-      const updateResponse = await fetch(
-        `${API_BASE_URL}/api/trips/${selectedTrip.trip_id}?user_id=${user.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            is_public: true,
-            max_passengers: passengers,
-            preferred_gender: preferredGender === "any" ? null : preferredGender,
-            age_range_min: ageRangeMin,
-            age_range_max: ageRangeMax,
-            custom_budget: budgetValue,
-          }),
-        }
+      // Calculate age range
+      const { ageRangeMin, ageRangeMax } = calculateAgeRange(
+        ageRangeType,
+        customAgeMin,
+        customAgeMax
       );
 
-      if (!updateResponse.ok) {
-        throw new Error("Failed to update trip settings");
-      }
-
-      // Prepare shared trip data for the forum post (use custom budget)
-      const sharedTripData: SharedTrip = {
-        trip_id: selectedTrip.trip_id,
-        destination: selectedTrip.destination,
-        total_cost: `₹${budgetValue.toLocaleString('en-IN')}`,
-        cover_image_url: selectedTrip.destination_image,
-        start_date: selectedTrip.start_date,
-        end_date: selectedTrip.end_date || selectedTrip.start_date,
-        duration_days: selectedTrip.duration_days,
+      // Prepare host trip parameters
+      const hostParams: HostTripParams = {
+        tripId: selectedTrip.trip_id,
+        userId: user.id,
+        maxPassengers: passengers,
+        preferredGender: getPreferredGenderValue(preferredGender),
+        ageRangeMin,
+        ageRangeMax,
+        customBudget: budgetValue,
       };
 
-      // Create forum post to announce the hosted trip with default message
-      const defaultMessage = `Hey everyone! I'm hosting a trip to ${selectedTrip.destination} and looking for travel companions to join me. Check out the details below!`;
-      
-      const postResponse = await fetch(
-        `${API_BASE_URL}/api/forum/posts?user_id=${user.id}&username=${
-          user.username || user.firstName || "Anonymous"
-        }`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            content: defaultMessage,
-            shared_trip: sharedTripData,
-          }),
-        }
-      );
-
-      if (!postResponse.ok) {
-        throw new Error("Failed to create post");
-      }
+      // Host the trip
+      const username = user.username || user.firstName || "Anonymous";
+      await hostTrip(selectedTrip, hostParams, username);
 
       toast({
         title: "Success!",
         description: `Your trip to ${selectedTrip.destination} is now hosted and visible to the community`,
       });
 
-      // Reset form
-      setSelectedTripId("");
-      setMaxPassengers("2");
-      setPreferredGender("any");
-      setAgeRangeType("any");
-      setCustomAgeMin(18);
-      setCustomAgeMax(60);
-      setCustomBudget("");
+      // Reset form to defaults
+      const defaults = getDefaultFormValues();
+      setSelectedTripId(defaults.selectedTripId);
+      setMaxPassengers(defaults.maxPassengers);
+      setPreferredGender(defaults.preferredGender);
+      setAgeRangeType(defaults.ageRangeType);
+      setCustomAgeMin(defaults.customAgeMin);
+      setCustomAgeMax(defaults.customAgeMax);
+      setCustomBudget(defaults.customBudget);
 
       if (onTripHosted) {
         onTripHosted();

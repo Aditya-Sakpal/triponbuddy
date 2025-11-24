@@ -197,29 +197,4 @@ class AIItineraryProcessor:
                 else:
                     plan["theme"] = "Discovery Day"
 
-    @staticmethod
-    def extract_image_queries(itinerary: Dict[str, Any]) -> List[str]:
-        """Extract image search queries from itinerary"""
-        queries = []
 
-        # Add destination query
-        if "destination" in itinerary:
-            queries.append(f"{itinerary['destination']} tourism")
-
-        # Add activity queries
-        if "daily_plans" in itinerary:
-            for plan in itinerary["daily_plans"]:
-                if "activities" in plan:
-                    for activity in plan["activities"]:
-                        if "image_search_query" in activity:
-                            queries.append(activity["image_search_query"])
-
-        # Add neighboring places queries
-        if "neighboring_places" in itinerary:
-            for place in itinerary["neighboring_places"]:
-                if "image_search_query" in place:
-                    queries.append(place["image_search_query"])
-
-        # Remove duplicates and limit
-        unique_queries = list(set(queries))
-        return unique_queries[:10]  # Limit to 10 queries
