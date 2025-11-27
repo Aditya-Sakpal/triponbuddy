@@ -44,7 +44,7 @@ export const DateDurationInputs = ({
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className={`pl-10 ${!startDate ? '[&::-webkit-datetime-edit-fields-wrapper]:opacity-0' : ''} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:w-4 [&::-.-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:opacity-0`}
+            className={`pl-10 w-full appearance-none ${!startDate ? '[&::-webkit-datetime-edit-fields-wrapper]:opacity-0' : ''} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:opacity-0`}
             required
             min={new Date().toISOString().split('T')[0]}
             onFocus={(e) => {
