@@ -9,8 +9,8 @@ import {
   buildTripPreferences, 
   fetchModalImages 
 } from "./tripPlanningHelpers";
-import { tripApi } from "@/services/tripApi";
 import { googlePlacesService } from "@/services/googlePlacesService";
+import { geminiService } from "@/services/geminiService";
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
@@ -89,7 +89,7 @@ export const useTripPlanning = () => {
 
     setIsEstimatingBudget(true);
     try {
-      const response = await tripApi.estimateBudget({
+      const response = await geminiService.estimateBudget({
         destinations: effectiveDestinations,
         duration_days: durationDays,
         start_date: startDate,
@@ -116,7 +116,7 @@ export const useTripPlanning = () => {
     }, 500); // Debounce for 500ms
 
     return () => clearTimeout(timeoutId);
-  }, [destinations, pendingDestination, startDate, durationDays]);
+  }, [estimateBudget]);
 
   const getCurrentUserId = () => {
     if (isLoaded && isSignedIn && user) {

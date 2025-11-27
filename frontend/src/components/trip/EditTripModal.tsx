@@ -6,12 +6,13 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, X } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useGenerateTrip } from "@/hooks/api-hooks";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
 import { TransportationModeSelector } from "@/components/landing/tripPlanning/TransportationModeSelector";
+import { geminiService } from "@/services/geminiService";
 import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
 
 interface EditTripModalProps {
@@ -30,6 +31,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
+  const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
   const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -105,6 +108,43 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
       alert(`Failed to update trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
     }
   }, [generateTripMutation.isError, generateTripMutation.error]);
+
+  // Estimate minimum budget when trip parameters change
+  const estimateBudget = useCallback(async () => {
+    if (destinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
+      return;
+    }
+
+    setIsEstimatingBudget(true);
+    try {
+      const response = await geminiService.estimateBudget({
+        destinations: destinations,
+        duration_days: durationDays,
+        start_date: startDate,
+      });
+
+      if (response.success && response.minimum_budget) {
+        setMinimumBudget(response.minimum_budget);
+        // Auto-populate budget if not set or if current budget is less than minimum
+        if (!budget || budget < response.minimum_budget) {
+          setBudget(response.minimum_budget);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to estimate budget:", error);
+    } finally {
+      setIsEstimatingBudget(false);
+    }
+  }, [destinations, startDate, durationDays, budget]);
+
+  // Trigger budget estimation when relevant parameters change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      estimateBudget();
+    }, 500); // Debounce for 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [destinations, startDate, durationDays]);
 
   const handleToggle = (label: string) => {
     if (selectedPreferences.includes(label)) {
@@ -305,6 +345,8 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
               <BudgetInput
                 budget={budget}
                 setBudget={setBudget}
+                minimumBudget={minimumBudget}
+                isEstimating={isEstimatingBudget}
               />
 
               {/* Transportation Mode Section */}
