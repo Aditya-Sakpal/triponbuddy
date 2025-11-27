@@ -108,6 +108,7 @@ export const TripPlanningSection = () => {
                       onChange={setStartLocation}
                       placeholder="Enter your starting point"
                       icon={<MapPin className="w-4 h-4" />}
+                      isInternational={isInternational}
                     />
                   </div>
                 

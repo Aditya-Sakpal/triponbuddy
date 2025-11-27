@@ -44,6 +44,7 @@ export const LocationInputs = ({
           onChange={setStartLocation}
           placeholder="Enter your starting point"
           icon={<MapPin className="w-4 h-4" />}
+          isInternational={isInternational}
         />
       </div>
 
@@ -57,6 +58,7 @@ export const LocationInputs = ({
           placeholder="Where do you want to go?"
           icon={<MapPin className="w-4 h-4 text-primary" />}
           required
+          isInternational={isInternational}
         />
       </div>
     </div>

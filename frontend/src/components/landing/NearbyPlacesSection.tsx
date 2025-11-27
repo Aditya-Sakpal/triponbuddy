@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NearbyPlacesCard } from "./NearbyPlacesCard";
+import { NearbyCarousel } from "./NearbyCarousel";
 import { destinationList } from "@/content/destinationContent";
 import { googlePlacesService, type NearbyPlace } from "@/services/googlePlacesService";
 
@@ -23,9 +23,6 @@ export const NearbyPlacesSection = () => {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [useGooglePlaces, setUseGooglePlaces] = useState(false);
   const [locationPromptShown, setLocationPromptShown] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const loadFallbackDestinations = useCallback(() => {
     const allDestinations: Destination[] = [];
@@ -38,7 +35,7 @@ export const NearbyPlacesSection = () => {
           name: dest.name,
           state: stateData.state,
           description: dest.description,
-          image: dest.image,
+          image: `https://placehold.co/800x600?text=${encodeURIComponent(dest.name)}`,
           season: dest.season,
           bestTimeToVisit: dest.bestTimeToVisit
         });
@@ -101,148 +98,52 @@ export const NearbyPlacesSection = () => {
     return () => clearTimeout(timer);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Check scroll position to enable/disable buttons
-  const checkScroll = useCallback(() => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
-    }
-  }, []);
-
-  // Scroll left
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
-      scrollContainerRef.current.scrollBy({
-        left: -scrollAmount,
-        behavior: "smooth"
-      });
-    }
-  };
-
-  // Scroll right
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
-      scrollContainerRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: "smooth"
-      });
-    }
-  };
-
-  // Add scroll listener
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", checkScroll);
-      // Initial check
-      checkScroll();
-      return () => container.removeEventListener("scroll", checkScroll);
-    }
-  }, [checkScroll, randomDestinations]);
-
   return (
     <section className="py-12 bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-              {useGooglePlaces ? "Nearby Places" : "Explore Destinations"}
-            </h2>
-          </div>
-          <p className="text-gray-600">
-            {useGooglePlaces 
-              ? "Discover interesting places within 100km of your location"
-              : "Discover hidden gems and popular destinations"}
-          </p>
-          {locationError && !isLoading && !useGooglePlaces && (
-            <div className="flex items-center gap-3 mt-3 flex-wrap">
-              <p className="text-sm text-amber-600">
-                {locationError.includes('denied') 
-                  ? '📍 Enable location access to see places near you'
-                  : `📍 ${locationError}`
-                }
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={fetchNearbyPlaces}
-                className="text-xs"
-              >
-                <MapPin className="h-3 w-3 mr-1" />
-                Enable Location
-              </Button>
-            </div>
-          )}
+      {/* Header */}
+      <div className="container mx-auto px-6 mb-8">
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+            {useGooglePlaces ? "Nearby Places" : "Explore Destinations"}
+          </h2>
         </div>
-
-        {/* Loading State */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-10 w-10 text-bula animate-spin" />
-              <p className="text-gray-600">Finding places near you...</p>
-            </div>
-          </div>
-        ) : (
-          /* Carousel Container */
-          <div className="relative">
-            {/* Left Arrow */}
+        <p className="text-gray-600">
+          {useGooglePlaces 
+            ? "Discover interesting places within 100km of your location"
+            : "Discover hidden gems and popular destinations"}
+        </p>
+        {locationError && !isLoading && !useGooglePlaces && (
+          <div className="flex items-center gap-3 mt-3 flex-wrap">
+            <p className="text-sm text-amber-600">
+              {locationError.includes('denied') 
+                ? '📍 Enable location access to see places near you'
+                : `📍 ${locationError}`
+              }
+            </p>
             <Button
+              size="sm"
               variant="outline"
-              size="icon"
-              className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-white shadow-lg backdrop-blur-sm rounded-full w-10 h-10 transition-all duration-300 ${
-                !canScrollLeft ? "opacity-0 pointer-events-none" : "opacity-100"
-              }`}
-              onClick={scrollLeft}
-              disabled={!canScrollLeft}
+              onClick={fetchNearbyPlaces}
+              className="text-xs"
             >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-
-            {/* Scrollable Container */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-12"
-              style={{ 
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                clipPath: "inset(0 0 0 0)"
-              }}
-            >
-              {randomDestinations.map((destination, index) => (
-                <NearbyPlacesCard
-                  key={destination.id || `${destination.name}-${index}`}
-                  destination={destination}
-                />
-              ))}
-            </div>
-
-            {/* Right Arrow */}
-            <Button
-              variant="outline"
-              size="icon"
-              className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-white shadow-lg backdrop-blur-sm rounded-full w-10 h-10 transition-all duration-300 ${
-                !canScrollRight ? "opacity-0 pointer-events-none" : "opacity-100"
-              }`}
-              onClick={scrollRight}
-              disabled={!canScrollRight}
-            >
-              <ChevronRight className="h-5 w-5" />
+              <MapPin className="h-3 w-3 mr-1" />
+              Enable Location
             </Button>
           </div>
         )}
       </div>
 
-      {/* Hide scrollbar globally for this section */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      {/* Carousel - Full width, no padding */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-10 w-10 text-bula animate-spin" />
+            <p className="text-gray-600">Finding places near you...</p>
+          </div>
+        </div>
+      ) : (
+        <NearbyCarousel places={randomDestinations} />
+      )}
     </section>
   );
 };

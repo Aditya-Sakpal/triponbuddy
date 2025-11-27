@@ -17,9 +17,7 @@ from models.trip import (
     ActivityAlternativesRequest,
     ActivityAlternativesResponse,
     EmergencyNumberSetup,
-    EmergencyNumberResponse,
-    BudgetEstimateRequest,
-    BudgetEstimateResponse
+    EmergencyNumberResponse
 )
 from services.trip_service import trip_service
 from services.ai_service import ai_service
@@ -28,29 +26,6 @@ from services.google_maps_service import google_maps_service
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/trips", tags=["trips"])
-
-
-@router.post("/estimate-budget", response_model=BudgetEstimateResponse)
-async def estimate_budget(
-    request: Request,
-    budget_request: BudgetEstimateRequest
-):
-    """Quickly estimate minimum budget per person for a trip"""
-    
-    try:
-        result = await ai_service.estimate_minimum_budget(
-            destinations=budget_request.destinations,
-            duration_days=budget_request.duration_days,
-            start_date=budget_request.start_date
-        )
-        return BudgetEstimateResponse(**result)
-    
-    except Exception as e:
-        logger.error(f"Error estimating budget: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to estimate budget"
-        )
 
 
 @router.post("/generate", response_model=TripGenerationResponse)
