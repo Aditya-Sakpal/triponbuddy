@@ -10,6 +10,7 @@ import { googleMapsLoader } from "@/lib/google-maps-loader";
 interface AutocompleteSuggestionRequest {
   input: string;
   includedPrimaryTypes?: string[];
+  includedRegionCodes?: string[];
   locationBias?: {
     radius: number;
     center: { lat: number; lng: number };
@@ -78,6 +79,8 @@ interface LocationAutocompleteProps {
   required?: boolean;
   icon?: React.ReactNode;
   id?: string;
+  /** When false (default), restricts results to India only. When true, shows worldwide results. */
+  isInternational?: boolean;
 }
 
 // Mock Google Places service for development/demo
@@ -181,7 +184,7 @@ class MockPlacesService {
     }
   ];
 
-  async getPlacePredictions(query: string): Promise<LocationSuggestion[]> {
+  async getPlacePredictions(query: string, isInternational: boolean = false): Promise<LocationSuggestion[]> {
     
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -190,11 +193,20 @@ class MockPlacesService {
       return [];
     }
     
-    // Filter mock suggestions based on query
-    const results = this.mockSuggestions.filter(suggestion =>
-      suggestion.description.toLowerCase().includes(query.toLowerCase()) ||
-      suggestion.structured_formatting.main_text.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 5); // Limit to 5 results
+    // Filter mock suggestions based on query and international setting
+    const results = this.mockSuggestions.filter(suggestion => {
+      const matchesQuery = suggestion.description.toLowerCase().includes(query.toLowerCase()) ||
+        suggestion.structured_formatting.main_text.toLowerCase().includes(query.toLowerCase());
+      
+      if (!matchesQuery) return false;
+      
+      // If not international, only show India locations
+      if (!isInternational) {
+        return suggestion.description.toLowerCase().includes('india');
+      }
+      
+      return true;
+    }).slice(0, 5); // Limit to 5 results
     
     return results;
   }
@@ -241,7 +253,7 @@ class GooglePlacesService {
     }
   }
 
-  async getPlacePredictions(query: string): Promise<LocationSuggestion[]> {
+  async getPlacePredictions(query: string, isInternational: boolean = false): Promise<LocationSuggestion[]> {
     // Try to initialize service if not already done
     this.ensureServiceInitialized();
     
@@ -249,7 +261,7 @@ class GooglePlacesService {
       // Fallback to mock service if Google Maps is not available
       console.warn('Google Maps not available, using mock service');
       const mockService = new MockPlacesService();
-      return mockService.getPlacePredictions(query);
+      return mockService.getPlacePredictions(query, isInternational);
     }
 
     // Use the new AutocompleteSuggestion API
@@ -257,7 +269,9 @@ class GooglePlacesService {
     try {
       const request: AutocompleteSuggestionRequest = {
         input: query,
-        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2']
+        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2'],
+        // When not international, strictly restrict to India using includedRegionCodes
+        ...(isInternational ? {} : { includedRegionCodes: ['in'] })
       };
 
       const response = await googleWindow.google!.maps!.places.AutocompleteSuggestion!.fetchAutocompleteSuggestions(request);
@@ -295,7 +309,7 @@ class GooglePlacesService {
       console.warn('Places API error, falling back to mock:', error);
       // Fallback to mock service on error
       const mockService = new MockPlacesService();
-      return mockService.getPlacePredictions(query);
+      return mockService.getPlacePredictions(query, isInternational);
     }
   }
 }
@@ -310,7 +324,8 @@ export const LocationAutocomplete = ({
   disabled = false,
   required = false,
   icon,
-  id
+  id,
+  isInternational = false
 }: LocationAutocompleteProps) => {
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -357,7 +372,7 @@ export const LocationAutocomplete = ({
         placesService.reinitialize();
       }
       
-      const results = await placesService.getPlacePredictions(query);
+      const results = await placesService.getPlacePredictions(query, isInternational);
       setSuggestions(results);
       setShowSuggestions(true);
       setSelectedIndex(-1);
@@ -368,7 +383,7 @@ export const LocationAutocomplete = ({
     } finally {
       setIsLoading(false);
     }
-  }, [isGoogleMapsLoaded]);
+  }, [isGoogleMapsLoaded, isInternational]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

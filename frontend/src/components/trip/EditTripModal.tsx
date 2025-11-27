@@ -250,6 +250,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                     onChange={setStartLocation}
                     placeholder="Enter your starting point"
                     icon={<MapPin className="w-4 h-4" />}
+                    isInternational={isInternational}
                   />
                 </div>
                 

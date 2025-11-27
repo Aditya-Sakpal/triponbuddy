@@ -160,6 +160,7 @@ export const DestinationList = ({ destinations, onChange, isInternational, class
               onChange={handleNewDestinationChange}
               placeholder={destinations.length === 0 ? "Enter your first destination" : "Add another destination"}
               icon={<MapPin className="w-4 h-4 text-primary" />}
+              isInternational={isInternational}
             />
           </div>
           <Button
