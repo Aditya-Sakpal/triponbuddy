@@ -103,10 +103,8 @@ export const DestinationList = ({ destinations, onChange, isInternational, class
   };
 
   const handleRemoveDestination = (index: number) => {
-    if (destinations.length > 1) {
-      const updated = destinations.filter((_, i) => i !== index);
-      onChange(updated);
-    }
+    const updated = destinations.filter((_, i) => i !== index);
+    onChange(updated);
   };
 
   return (
@@ -144,7 +142,7 @@ export const DestinationList = ({ destinations, onChange, isInternational, class
                     destination={dest}
                     index={index}
                     onRemove={() => handleRemoveDestination(index)}
-                    canRemove={destinations.length > 1}
+                    canRemove={true}
                   />
                 ))}
               </div>

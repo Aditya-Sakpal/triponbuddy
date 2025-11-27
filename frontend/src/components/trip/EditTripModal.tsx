@@ -5,15 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
-import { MapPin, Calendar, Clock, Mountain, Building, Umbrella, Music, ShoppingBag, Utensils, X } from "lucide-react";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useGenerateTrip } from "@/hooks/api-hooks";
+import { MapPin, Calendar, Clock } from "lucide-react";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
 import { TransportationModeSelector } from "@/components/landing/tripPlanning/TransportationModeSelector";
-import { geminiService } from "@/services/geminiService";
-import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
+import { useEditTrip } from "./edit/useEditTrip";
+import type { TripDB } from "@/constants";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -24,239 +22,51 @@ interface EditTripModalProps {
 }
 
 export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDestination }: EditTripModalProps) => {
-  const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
-  const [destinations, setDestinations] = useState<string[]>([]);
-  const [startLocation, setStartLocation] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [durationDays, setDurationDays] = useState<number>(3);
-  const [isInternational, setIsInternational] = useState(false);
-  const [budget, setBudget] = useState<number | undefined>(undefined);
-  const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
-  const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
-  const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  
-  const generateTripMutation = useGenerateTrip();
-  
-  const preferenceOptions = useMemo(() => [
-    { icon: Mountain, label: "Adventure" },
-    { icon: Building, label: "Culture" },
-    { icon: Umbrella, label: "Relaxation" },
-    { icon: Music, label: "Classical" },
-    { icon: ShoppingBag, label: "Shopping" },
-    { icon: Utensils, label: "Food" },
-  ], []);
+  const {
+    // State
+    selectedPreferences,
+    destinations,
+    startLocation,
+    startDate,
+    durationDays,
+    isInternational,
+    budget,
+    minimumBudget,
+    isEstimatingBudget,
+    transportationMode,
+    isGenerating,
+    modalImages,
+    preferenceOptions,
+    isPending,
 
-  // Initialize form with trip data when modal opens
-  useEffect(() => {
-    if (isOpen && trip) {
-      // Initialize destinations array
-      const tripDestinations = trip.destinations && trip.destinations.length > 0 
-        ? trip.destinations 
-        : (initialDestination || trip.destination ? [initialDestination || trip.destination] : []);
-      setDestinations(tripDestinations);
-      
-      setStartLocation(trip.start_location || "");
-      setStartDate(trip.start_date || "");
-      setDurationDays(trip.duration_days || 3);
-      setIsInternational(trip.is_international || false);
-      setBudget(trip.budget);
-      setTransportationMode((trip.transportation_mode as 'default' | 'road' | 'train' | 'flight') || 'default');
-      
-      // Extract preferences from trip data
-      const itinerary = trip.itinerary_data as unknown as Itinerary;
-      const preferences: string[] = [];
-      
-      // Try to infer preferences from trip tags or set defaults
-      if (trip.tags && trip.tags.length > 0) {
-        trip.tags.forEach(tag => {
-          const matchingPref = preferenceOptions.find(
-            opt => opt.label.toLowerCase() === tag.toLowerCase()
-          );
-          if (matchingPref) {
-            preferences.push(matchingPref.label);
-          }
-        });
-      }
-      
-      // If no preferences found, set default
-      if (preferences.length === 0) {
-        preferences.push('Relaxation');
-      }
-      
-      setSelectedPreferences(preferences);
-    }
-  }, [isOpen, trip, initialDestination, preferenceOptions]);
+    // Setters
+    setDestinations,
+    setStartLocation,
+    setStartDate,
+    setDurationDays,
+    setIsInternational,
+    setBudget,
+    setTransportationMode,
 
-  // Handle trip generation success
-  useEffect(() => {
-    if (generateTripMutation.isSuccess && generateTripMutation.data?.trip_id) {
-      setIsGenerating(false);
-      onTripUpdated(generateTripMutation.data.trip_id);
-      onClose();
-      // Reset mutation state
-      generateTripMutation.reset();
-    }
-  }, [generateTripMutation.isSuccess, generateTripMutation.data, generateTripMutation, onTripUpdated, onClose]);
-
-  // Handle errors
-  useEffect(() => {
-    if (generateTripMutation.isError) {
-      console.error('Trip update failed:', generateTripMutation.error);
-      setIsGenerating(false);
-      alert(`Failed to update trip: ${generateTripMutation.error?.message || 'Unknown error'}`);
-    }
-  }, [generateTripMutation.isError, generateTripMutation.error]);
-
-  // Estimate minimum budget when trip parameters change
-  const estimateBudget = useCallback(async () => {
-    if (destinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
-      return;
-    }
-
-    setIsEstimatingBudget(true);
-    try {
-      const response = await geminiService.estimateBudget({
-        destinations: destinations,
-        duration_days: durationDays,
-        start_date: startDate,
-      });
-
-      if (response.success && response.minimum_budget) {
-        setMinimumBudget(response.minimum_budget);
-        // Auto-populate budget if not set or if current budget is less than minimum
-        if (!budget || budget < response.minimum_budget) {
-          setBudget(response.minimum_budget);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to estimate budget:", error);
-    } finally {
-      setIsEstimatingBudget(false);
-    }
-  }, [destinations, startDate, durationDays, budget]);
-
-  // Trigger budget estimation when relevant parameters change
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      estimateBudget();
-    }, 500); // Debounce for 500ms
-
-    return () => clearTimeout(timeoutId);
-  }, [destinations, startDate, durationDays]);
-
-  const handleToggle = (label: string) => {
-    if (selectedPreferences.includes(label)) {
-      setSelectedPreferences(selectedPreferences.filter(p => p !== label));
-    } else {
-      setSelectedPreferences([...selectedPreferences, label]);
-    }
-  };
-
-  const handleUpdateTrip = () => {
-
-
-    if (!destinations || destinations.length === 0 || !startDate || !durationDays) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    // Build preferences object
-    const userPreferences: TripPreferences = {
-      adventure: selectedPreferences.includes('Adventure'),
-      culture: selectedPreferences.includes('Culture'),
-      relaxation: selectedPreferences.includes('Relaxation'),
-      classical: selectedPreferences.includes('Classical'),
-      shopping: selectedPreferences.includes('Shopping'),
-      food: selectedPreferences.includes('Food'),
-    };
-
-    // Create a new AbortController for this request
-    const controller = new AbortController();
-    setAbortController(controller);
-
-    generateTripMutation.mutate({
-      request: {
-        user_id: trip.user_id,
-        destinations: destinations,
-        start_location: startLocation || undefined,
-        start_date: startDate,
-        duration_days: durationDays,
-        budget: budget,
-        preferences: userPreferences,
-        is_international: isInternational,
-        transportation_mode: transportationMode,
-        // max_passengers removed - can only be set when hosting a trip
-      },
-      signal: controller.signal,
-    });
-  };
-
-  const handleCancelGeneration = () => {
-    // Abort the ongoing request
-    if (abortController) {
-      abortController.abort();
-      setAbortController(null);
-    }
-    // Reset the mutation state
-    generateTripMutation.reset();
-    setIsGenerating(false);
-  };
-
-  const handleClose = () => {
-    if (!generateTripMutation.isPending) {
-      onClose();
-    }
-  };
-
-  // Check if any field has changed
-  const hasChanges = () => {
-    const originalPrefs: string[] = [];
-    if (trip.tags && trip.tags.length > 0) {
-      trip.tags.forEach(tag => {
-        const matchingPref = preferenceOptions.find(
-          opt => opt.label.toLowerCase() === tag.toLowerCase()
-        );
-        if (matchingPref) {
-          originalPrefs.push(matchingPref.label);
-        }
-      });
-    }
-    if (originalPrefs.length === 0) originalPrefs.push('Relaxation');
-
-    const budgetChanged = budget !== trip.budget;
-    
-    // Check destinations array
-    const originalDestinations = trip.destinations && trip.destinations.length > 0 
-      ? trip.destinations 
-      : (trip.destination ? [trip.destination] : []);
-    const destinationsChanged = JSON.stringify(destinations.sort()) !== JSON.stringify(originalDestinations.sort());
-
-    const transportationModeChanged = transportationMode !== (trip.transportation_mode || 'default');
-
-    return (
-      destinationsChanged ||
-      startLocation !== (trip.start_location || "") ||
-      startDate !== (trip.start_date || "") ||
-      durationDays !== (trip.duration_days || 3) ||
-      isInternational !== (trip.is_international || false) ||
-      budgetChanged ||
-      transportationModeChanged ||
-      JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
-    );
-  };
+    // Handlers
+    handleToggle,
+    handleUpdateTrip,
+    handleCancelGeneration,
+    handleClose,
+    hasChanges,
+  } = useEditTrip({ isOpen, onClose, trip, onTripUpdated, initialDestination });
 
   return (
     <>
       <TripGenerationModal 
-        isOpen={isGenerating || generateTripMutation.isPending} 
+        isOpen={isGenerating || isPending} 
         onClose={() => {}} // Can't close while generating
         destination={destinations[destinations.length - 1] || ""}
         onCancel={handleCancelGeneration}
+        preloadedImages={modalImages}
       />
       
-      <Dialog open={isOpen && !generateTripMutation.isPending} onOpenChange={handleClose}>
+      <Dialog open={isOpen && !isPending} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto mt-12">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -393,14 +203,14 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                 <Button 
                   variant="outline" 
                   onClick={handleClose}
-                  disabled={generateTripMutation.isPending}
+                  disabled={isPending}
                 >
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleUpdateTrip}
                   disabled={
-                    generateTripMutation.isPending || 
+                    isPending || 
                     !destinations || 
                     destinations.length === 0 ||
                     !startDate || 
@@ -409,7 +219,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                   }
                   className="min-w-[150px]"
                 >
-                  {generateTripMutation.isPending ? 'Updating...' : 'Update Trip'}
+                  {isPending ? 'Updating...' : 'Update Trip'}
                 </Button>
               </div>
 
