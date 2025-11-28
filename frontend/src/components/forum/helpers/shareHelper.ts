@@ -46,10 +46,29 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
  */
 export const sharePost = async (
   postId: string,
+  title?: string,
+  text?: string,
   onSuccess?: () => void,
   onError?: (url: string) => void
 ): Promise<void> => {
   const postUrl = generatePostUrl(postId);
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title || "Check out this post",
+        text: text || "",
+        url: postUrl,
+      });
+      return;
+    } catch (error) {
+      console.log("Error sharing:", error);
+      // If user cancelled, don't fallback to clipboard
+      if ((error as Error).name === 'AbortError') {
+        return;
+      }
+    }
+  }
 
   const success = await copyToClipboard(postUrl);
 

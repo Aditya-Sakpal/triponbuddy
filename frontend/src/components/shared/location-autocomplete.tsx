@@ -203,10 +203,12 @@ class MockPlacesService {
       // If not international, only show India locations
       if (!isInternational) {
         return suggestion.description.toLowerCase().includes('india');
+      } else {
+        // If international, exclude India locations
+        return !suggestion.description.toLowerCase().includes('india');
       }
       
-      return true;
-    }).slice(0, 5); // Limit to 5 results
+    }).slice(0, 8); // Limit to 8 results
     
     return results;
   }
@@ -269,7 +271,7 @@ class GooglePlacesService {
     try {
       const request: AutocompleteSuggestionRequest = {
         input: query,
-        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2'],
+        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country'],
         // When not international, strictly restrict to India using includedRegionCodes
         ...(isInternational ? {} : { includedRegionCodes: ['in'] })
       };
@@ -282,9 +284,27 @@ class GooglePlacesService {
           .filter(suggestion => {
             // Filter out any malformed suggestions
             // Note: suggestion itself IS the placePrediction according to the API
-            return suggestion.placePrediction && 
-                   suggestion.placePrediction.placeId && 
-                   suggestion.placePrediction.text;
+            if (!suggestion.placePrediction || 
+                !suggestion.placePrediction.placeId || 
+                !suggestion.placePrediction.text) {
+              return false;
+            }
+
+            // Strict filtering based on international toggle
+            const pred = suggestion.placePrediction;
+            const description = (pred.text?.text || '').toLowerCase();
+            
+            // Check if location is India or in India
+            const isIndia = description === 'india' || description.endsWith(', india');
+
+            if (isInternational) {
+              // If international mode is ON, exclude India
+              return !isIndia;
+            } else {
+              // If international mode is OFF, require India
+              // We trust the API's includedRegionCodes: ['in']
+              return true;
+            }
           })
           .map((suggestion) => {
             const pred = suggestion.placePrediction;

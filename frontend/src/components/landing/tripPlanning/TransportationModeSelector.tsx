@@ -11,6 +11,7 @@ interface TransportationModeSelectorProps {
   startLocation?: string;
   destination?: string;
   disabled?: boolean;
+  isInternational?: boolean;
 }
 
 export const TransportationModeSelector = ({ 
@@ -18,7 +19,8 @@ export const TransportationModeSelector = ({
   onChange, 
   startLocation = '',
   destination = '',
-  disabled = false 
+  disabled = false,
+  isInternational = false
 }: TransportationModeSelectorProps) => {
   // Calculate distance in real-time
   const { distanceKm, isCalculating } = useDistanceCalculation({
@@ -29,8 +31,8 @@ export const TransportationModeSelector = ({
 
   // Determine which modes are enabled based on distance
   const isFlightDisabled = distanceKm !== null && distanceKm < 500;
-  const isRoadDisabled = distanceKm !== null && distanceKm > 500;
-  const isTrainDisabled = distanceKm !== null && distanceKm > 2500;
+  const isRoadDisabled = isInternational || (distanceKm !== null && distanceKm > 500);
+  const isTrainDisabled = isInternational || (distanceKm !== null && distanceKm > 2500);
 
   // Use ref to track if we need to reset
   const onChangeRef = useRef(onChange);
@@ -38,8 +40,6 @@ export const TransportationModeSelector = ({
 
   // Auto-reset to default if current selection becomes disabled
   useEffect(() => {
-    if (distanceKm === null) return;
-    
     const shouldReset = 
       (value === 'flight' && isFlightDisabled) ||
       (value === 'road' && isRoadDisabled) ||
@@ -70,10 +70,12 @@ export const TransportationModeSelector = ({
           ? 'Flight (Requires 500+ km)' 
           : 'Flight (500+ km)';
       case 'road':
+        if (isInternational) return 'Road (Unavailable )';
         return isRoadDisabled
           ? 'Road (Only for ≤500 km)' 
           : 'Road (≤500 km)';
       case 'train':
+        if (isInternational) return 'Train (Unavailable)';
         return isTrainDisabled
           ? 'Train (Only for ≤2500 km)' 
           : 'Train (≤2500 km)';

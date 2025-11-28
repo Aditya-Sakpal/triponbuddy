@@ -15,7 +15,7 @@ export const ForumHeroSection = () => {
     >
       <div className="container mx-auto text-center relative z-10">
         <h1 className="font-bold mb-6 text-4xl md:text-5xl text-white">
-          Community Forum
+          My Space
         </h1>
         <p className="text-lg leading-relaxed text-white/90 max-w-3xl mx-auto">
           Share your travel experiences, connect with fellow travelers, and discover amazing 

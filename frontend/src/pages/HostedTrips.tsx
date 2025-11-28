@@ -176,7 +176,7 @@ const HostedTrips = () => {
                     className="rounded-none border-b-2 px-0 pb-2 sm:pb-3 pt-0 font-medium text-gray-600 shadow-none transition-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none hover:text-blue-600 text-sm sm:text-base md:text-lg gap-1 sm:gap-2"
                   >
                     <User className="h-4 w-4" />
-                    <span className="whitespace-nowrap">Your Trips</span>
+                    <span className="whitespace-nowrap">Your Hosted Trips</span>
                   </TabsTrigger>
                 )}
               </TabsList>

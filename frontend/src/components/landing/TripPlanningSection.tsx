@@ -140,6 +140,7 @@ export const TripPlanningSection = () => {
                 onChange={setTransportationMode}
                 startLocation={startLocation}
                 destination={destinations[destinations.length - 1] || ''}
+                isInternational={isInternational}
               />
 
               <TravelPreferences

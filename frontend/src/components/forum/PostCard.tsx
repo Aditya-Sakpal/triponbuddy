@@ -78,6 +78,8 @@ const PostCard = ({
   const handleShare = async () => {
     await sharePost(
       post.post_id,
+      `Post by ${post.username}`,
+      post.content.substring(0, 100) + (post.content.length > 100 ? "..." : ""),
       () => {
         toast({
           title: "Link copied!",

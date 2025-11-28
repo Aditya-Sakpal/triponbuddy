@@ -165,6 +165,7 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                 onChange={setTransportationMode}
                 startLocation={startLocation}
                 destination={destinations[destinations.length - 1] || ''}
+                isInternational={isInternational}
               />
 
               {/* Travel Preferences */}

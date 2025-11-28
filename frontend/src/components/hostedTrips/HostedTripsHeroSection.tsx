@@ -15,7 +15,7 @@ export const HostedTripsHeroSection = () => {
     >
       <div className="container mx-auto text-center relative z-10">
         <h1 className="font-bold mb-6 text-4xl md:text-5xl text-white">
-          Hosted Trips
+          Explore
         </h1>
         <p className="text-lg leading-relaxed text-white/90 max-w-3xl mx-auto">
           Join exciting trips hosted by fellow travelers or share your own journey with the community. 
