@@ -12,7 +12,7 @@ const CORNER_LINE_LEN = Math.sqrt(
   CORNER_CLIP * CORNER_CLIP + CORNER_CLIP * CORNER_CLIP
 );
 
-const ROTATE_DEG = 2.5;
+
 
 const STAGGER = 15;
 const CENTER_STAGGER = -65;
@@ -163,23 +163,20 @@ const PlaceCard = ({ position, place, handleMove, cardSize }: {
       initial={false}
       onClick={handleCardClick}
       className={`
-      absolute left-1/2 top-1/2 cursor-pointer border-black overflow-hidden transition-colors duration-500 ${
+      absolute left-1/2 top-1/2 cursor-pointer overflow-hidden transition-colors duration-500 ${
         isActive ? "z-10 bg-white shadow-2xl" : "z-0 bg-white"
       }
       `}
       style={{
-        borderWidth: BORDER_SIZE,
         clipPath: `polygon(${CORNER_CLIP}px 0%, calc(100% - ${CORNER_CLIP}px) 0%, 100% ${CORNER_CLIP}px, 100% 100%, calc(100% - ${CORNER_CLIP}px) 100%, ${CORNER_CLIP}px 100%, 0 100%, 0 0)`,
       }}
       animate={{
         width: cardSize,
         height: cardSize,
-        x: `calc(-50% + ${position * (cardSize / 1.5)}px)`,
+        x: `calc(-50% + ${position * (cardSize + 40)}px)`,
         y: `calc(-50% + ${
           isActive ? CENTER_STAGGER : position % 2 ? STAGGER : -STAGGER
         }px)`,
-        rotate: isActive ? 0 : position % 2 ? ROTATE_DEG : -ROTATE_DEG,
-        boxShadow: isActive ? "0px 8px 0px 4px black" : "0px 0px 0px 0px black",
       }}
       transition={{
         type: "spring",
@@ -188,16 +185,6 @@ const PlaceCard = ({ position, place, handleMove, cardSize }: {
         damping: 50,
       }}
     >
-      <span
-        className="absolute block origin-top-right rotate-45 bg-black object-cover z-10"
-        style={{
-          right: -BORDER_SIZE,
-          top: CORNER_CLIP - BORDER_SIZE,
-          width: CORNER_LINE_LEN,
-          height: BORDER_SIZE,
-        }}
-      />
-      
       {/* Large image taking most of the card */}
       <div className="relative w-full h-full">
         <img
