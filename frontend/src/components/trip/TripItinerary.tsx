@@ -42,6 +42,9 @@ export const TripItinerary = ({
   // Check if user is the owner of this trip
   const isOwner = currentUserId === trip.user_id;
 
+  // Check if trip is already hosted
+  const isHosted = !!trip.max_passengers && trip.max_passengers > 0;
+
   // Calculate the actual budget from activities (single source of truth)
   const budgetDisplay = getCalculatedBudget(trip);
 
@@ -263,7 +266,7 @@ export const TripItinerary = ({
                 onEditTrip={handleEditTrip}
                 onShare={handleShare}
                 onSaveToggle={handleSaveToggle}
-                onHostTrip={handleHostTrip}
+                onHostTrip={!isHosted ? handleHostTrip : undefined}
                 isLoading={isLoading || checkingPermission}
                 isSaved={trip.is_saved}
                 canEdit={canEdit}
@@ -286,7 +289,7 @@ export const TripItinerary = ({
             onEditTrip={handleEditTrip}
             onShare={handleShare}
             onSaveToggle={handleSaveToggle}
-            onHostTrip={handleHostTrip}
+            onHostTrip={!isHosted ? handleHostTrip : undefined}
             isLoading={isLoading || checkingPermission}
             isSaved={trip.is_saved}
             canEdit={canEdit}
