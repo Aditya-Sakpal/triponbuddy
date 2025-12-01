@@ -54,7 +54,8 @@ async def get_post_feed(
     request: Request,
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Posts per page"),
-    user_id: Optional[str] = Query(None, description="Current user ID for like status")
+    user_id: Optional[str] = Query(None, description="Current user ID for like status"),
+    exclude_own_posts: bool = Query(False, description="Exclude posts by the current user")
 ):
     """
     Get paginated feed of posts
@@ -62,10 +63,13 @@ async def get_post_feed(
     Returns posts in reverse chronological order with like/comment counts
     """
     try:
+        exclude_user_id = user_id if exclude_own_posts and user_id else None
+        
         posts, total_count = await forum_service.get_post_feed(
             page=page,
             page_size=page_size,
-            current_user_id=user_id
+            current_user_id=user_id,
+            exclude_user_id=exclude_user_id
         )
         
         has_more = (page * page_size) < total_count

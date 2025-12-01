@@ -173,7 +173,6 @@ export interface TripDB {
   tags: string[];
   max_passengers?: number;
   transportation_mode?: string;
-  distance_km?: number;
   joined_users?: string[];
   joined_users_demographics?: Array<{
     user_id: string;
@@ -187,6 +186,7 @@ export interface TripDB {
   custom_budget?: number;
   host_comments?: string;
   emergency_contact_number?: string;
+  request_status?: 'pending' | 'accepted' | 'rejected';
   created_at: string;
   updated_at: string;
 }
@@ -204,6 +204,7 @@ export interface TripUpdateRequest {
   custom_budget?: number;
   host_comments?: string;
   emergency_contact_number?: string;
+  itinerary_data?: Record<string, unknown>;
 }
 
 export interface TripListResponse {

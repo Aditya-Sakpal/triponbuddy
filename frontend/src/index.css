@@ -190,7 +190,7 @@ All colors MUST be HSL.
 }
 
 .animate-progress-fill {
-  animation: progress 3s ease-in-out infinite;
+  animation: progress 8s ease-in-out forwards;
 }
 
 /* Custom scrollbar styles */

@@ -14,6 +14,7 @@ class PricingPlan(str, Enum):
 
     STANDARD = "standard"
     GOLD = "gold"
+    PLATINUM = "platinum"
 
 
 class PlanDetails(BaseModel):

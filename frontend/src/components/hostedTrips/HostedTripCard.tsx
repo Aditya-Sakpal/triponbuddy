@@ -58,6 +58,12 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const availableSlots = getAvailableSlots(tripData);
   const userOnTrip = isUserOnTrip(tripData, user?.id);
   const tripIsJoinable = isJoinable(tripData, user?.id);
+  const isOwner = user?.id === trip.user_id;
+
+  // If not owner, not joined, not pending, and no slots, don't show
+  if (!isOwner && !userOnTrip && tripData.request_status !== 'pending' && availableSlots <= 0) {
+    return null;
+  }
 
   return (
     <Card className="overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-all">
@@ -172,11 +178,11 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
         )}
 
         {/* User Status Message */}
-        {userOnTrip && (
+        {userOnTrip && !isOwner && (
           <div className="pt-2 border-t">
             <div className="flex items-center gap-2 text-sm font-medium text-green-600 bg-green-50 px-3 py-2 rounded-md">
               <UserPlus className="h-4 w-4" />
-              <span>You're on this trip!</span>
+              <span>Joined</span>
             </div>
           </div>
         )}
@@ -192,15 +198,27 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           
           {/* Show join button only if user is not on the trip and slots are available */}
           {!userOnTrip && availableSlots > 0 && tripIsJoinable && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="ml-auto"
-              onClick={() => setShowJoinDialog(true)}
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Request to Join
-            </Button>
+            tripData.request_status === 'pending' ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto"
+                disabled
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Requested
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto"
+                onClick={() => setShowJoinDialog(true)}
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Request to Join
+              </Button>
+            )
           )}
         </div>
       </CardContent>

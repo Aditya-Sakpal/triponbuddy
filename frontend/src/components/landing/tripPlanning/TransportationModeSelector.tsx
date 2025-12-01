@@ -66,21 +66,13 @@ export const TransportationModeSelector = ({
   const getModeLabel = (mode: string) => {
     switch (mode) {
       case 'flight':
-        return isFlightDisabled
-          ? 'Flight (Requires 500+ km)' 
-          : 'Flight (500+ km)';
+        return 'Flight';
       case 'road':
-        if (isInternational) return 'Road (Unavailable )';
-        return isRoadDisabled
-          ? 'Road (Only for ≤500 km)' 
-          : 'Road (≤500 km)';
+        return 'Road';
       case 'train':
-        if (isInternational) return 'Train (Unavailable)';
-        return isTrainDisabled
-          ? 'Train (Only for ≤2500 km)' 
-          : 'Train (≤2500 km)';
+        return 'Train';
       default:
-        return 'Default (All modes)';
+        return 'Default';
     }
   };
 
