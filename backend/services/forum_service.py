@@ -76,7 +76,8 @@ class ForumService:
     async def get_post_feed(
         page: int = 1,
         page_size: int = 20,
-        current_user_id: Optional[str] = None
+        current_user_id: Optional[str] = None,
+        exclude_user_id: Optional[str] = None
     ) -> Tuple[List[PostResponse], int]:
         """
         Get paginated feed of posts
@@ -85,23 +86,28 @@ class ForumService:
             page: Page number (1-indexed)
             page_size: Number of posts per page
             current_user_id: Current user ID to check likes
+            exclude_user_id: User ID to exclude posts from
             
         Returns:
             Tuple of (list of posts, total count)
         """
         skip = (page - 1) * page_size
         
+        query = {}
+        if exclude_user_id:
+            query["user_id"] = {"$ne": exclude_user_id}
+        
         # Get posts from database
         posts = await mongodb.find_many(
             "posts",
-            {},
+            query,
             limit=page_size,
             skip=skip,
             sort=[("created_at", -1)]
         )
         
         # Get total count
-        total_count = await mongodb.count_documents("posts", {})
+        total_count = await mongodb.count_documents("posts", query)
         
         # Convert to response models with like status
         post_responses = []

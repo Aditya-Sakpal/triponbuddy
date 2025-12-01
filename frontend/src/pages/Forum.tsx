@@ -5,18 +5,48 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { CreatePost, PostCard, ForumHeroSection, FloatingActionButton } from "@/components/forum";
 import { Button } from "@/components/ui/button";
 import { Loader2, MessageSquare } from "lucide-react";
-import { usePosts } from "@/hooks/useForum";
+import { usePosts, useUserPosts } from "@/hooks/useForum";
 import { FORUM_MESSAGES } from "@/constants/forum";
 
 const Forum = () => {
+  const { user } = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedPostId = searchParams.get("post");
-  const { posts, isLoading, isLoadingMore, hasMore, loadMore, refresh, refreshPost } = usePosts();
+  const [viewMode, setViewMode] = useState<'all' | 'mine'>('all');
   const [showCreatePost, setShowCreatePost] = useState(false);
 
+  // Hook for All Posts (excluding mine)
+  const { 
+    posts: allPosts, 
+    isLoading: isLoadingAll, 
+    isLoadingMore: isLoadingMoreAll, 
+    hasMore: hasMoreAll, 
+    loadMore: loadMoreAll, 
+    refresh: refreshAll, 
+    refreshPost: refreshPostAll 
+  } = usePosts(20, true, viewMode === 'all');
+
+  // Hook for My Posts
+  const { 
+    posts: myPosts, 
+    isLoading: isLoadingMine, 
+    isLoadingMore: isLoadingMoreMine, 
+    hasMore: hasMoreMine, 
+    loadMore: loadMoreMine, 
+    refresh: refreshMine, 
+  } = useUserPosts(user?.id || "", 20, viewMode === 'mine');
+
+  // Determine current data
+  const posts = viewMode === 'all' ? allPosts : myPosts;
+  const isLoading = viewMode === 'all' ? isLoadingAll : isLoadingMine;
+  const isLoadingMore = viewMode === 'all' ? isLoadingMoreAll : isLoadingMoreMine;
+  const hasMore = viewMode === 'all' ? hasMoreAll : hasMoreMine;
+  const loadMore = viewMode === 'all' ? loadMoreAll : loadMoreMine;
+  
   // Scroll to post if URL has post parameter
   useEffect(() => {
     if (selectedPostId && posts.length > 0) {
@@ -28,16 +58,22 @@ const Forum = () => {
   }, [selectedPostId, posts]);
 
   const handlePostCreated = () => {
-    refresh();
+    refreshAll();
+    refreshMine();
     setShowCreatePost(false); // Hide panel after posting
   };
 
   const handlePostDeleted = () => {
-    refresh();
+    refreshAll();
+    refreshMine();
   };
 
   const handleCommentAdded = (postId: string) => {
-    refreshPost(postId);
+    if (viewMode === 'all') {
+      refreshPostAll(postId);
+    } else {
+      refreshMine();
+    }
   };
 
   const handleWritePost = () => {
@@ -51,6 +87,10 @@ const Forum = () => {
     }, 100);
   };
 
+  const handleToggleView = () => {
+    setViewMode(prev => prev === 'all' ? 'mine' : 'all');
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -59,6 +99,14 @@ const Forum = () => {
       {/* Main Content */}
       <div className="min-h-screen bg-gray-200 py-8">
         <div className="container mx-auto max-w-3xl px-4 space-y-6">
+          
+          {/* Your Posts Title */}
+          {viewMode === 'mine' && (
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-800">Your Posts</h2>
+            </div>
+          )}
+
           {/* Create Post - Conditionally Rendered */}
           {showCreatePost && (
             <div id="create-post-panel">
@@ -77,9 +125,13 @@ const Forum = () => {
           {!isLoading && posts.length === 0 && (
             <div className="text-center py-12">
               <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No posts yet</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {viewMode === 'mine' ? "You haven't posted yet" : "No posts yet"}
+              </h3>
               <p className="text-muted-foreground">
-                {FORUM_MESSAGES.EMPTY_STATE.NO_POSTS}
+                {viewMode === 'mine' 
+                  ? "Share your travel experiences with the community!" 
+                  : FORUM_MESSAGES.EMPTY_STATE.NO_POSTS}
               </p>
             </div>
           )}
@@ -120,7 +172,11 @@ const Forum = () => {
       </div>
 
       {/* Floating Action Button */}
-      <FloatingActionButton onWritePost={handleWritePost} />
+      <FloatingActionButton 
+        onWritePost={handleWritePost} 
+        onToggleView={handleToggleView}
+        isMyPostsView={viewMode === 'mine'}
+      />
     </>
   );
 };

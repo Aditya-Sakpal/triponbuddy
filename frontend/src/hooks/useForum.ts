@@ -11,7 +11,7 @@ import { Post, Comment, CreatePostRequest, CreateCommentRequest } from "@/types/
 /**
  * Hook for managing posts feed with pagination
  */
-export const usePosts = (pageSize = 20) => {
+export const usePosts = (pageSize = 20, excludeOwnPosts = true, enabled = true) => {
   const { user } = useUser();
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -29,7 +29,7 @@ export const usePosts = (pageSize = 20) => {
       }
 
       try {
-        const data = await forumApi.getPosts(pageNum, pageSize, user?.id);
+        const data = await forumApi.getPosts(pageNum, pageSize, user?.id, excludeOwnPosts);
 
         if (append) {
           setPosts((prev) => [...prev, ...data.posts]);
@@ -50,12 +50,14 @@ export const usePosts = (pageSize = 20) => {
         setIsLoadingMore(false);
       }
     },
-    [pageSize, user?.id, toast]
+    [pageSize, user?.id, toast, excludeOwnPosts]
   );
 
   useEffect(() => {
-    fetchPosts(1);
-  }, [fetchPosts]);
+    if (enabled) {
+      fetchPosts(1);
+    }
+  }, [fetchPosts, enabled]);
 
   const loadMore = () => {
     const nextPage = page + 1;
@@ -354,7 +356,7 @@ export const useCommentActions = (commentId: string, onDelete?: () => void) => {
 /**
  * Hook for managing user's own posts
  */
-export const useUserPosts = (userId: string, pageSize = 20) => {
+export const useUserPosts = (userId: string, pageSize = 20, enabled = true) => {
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [page, setPage] = useState(1);
@@ -396,10 +398,10 @@ export const useUserPosts = (userId: string, pageSize = 20) => {
   );
 
   useEffect(() => {
-    if (userId) {
+    if (userId && enabled) {
       fetchPosts(1);
     }
-  }, [fetchPosts, userId]);
+  }, [fetchPosts, userId, enabled]);
 
   const loadMore = () => {
     const nextPage = page + 1;

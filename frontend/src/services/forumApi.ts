@@ -9,10 +9,16 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000
 
 export const forumApi = {
   // Posts
-  async getPosts(page: number, pageSize: number, userId?: string): Promise<PostFeedResponse> {
-    const url = userId
-      ? `${API_BASE_URL}/api/forum/posts?page=${page}&page_size=${pageSize}&user_id=${userId}`
-      : `${API_BASE_URL}/api/forum/posts?page=${page}&page_size=${pageSize}`;
+  async getPosts(page: number, pageSize: number, userId?: string, excludeOwnPosts: boolean = false): Promise<PostFeedResponse> {
+    let url = `${API_BASE_URL}/api/forum/posts?page=${page}&page_size=${pageSize}`;
+    
+    if (userId) {
+      url += `&user_id=${userId}`;
+    }
+    
+    if (excludeOwnPosts) {
+      url += `&exclude_own_posts=true`;
+    }
 
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch posts");
