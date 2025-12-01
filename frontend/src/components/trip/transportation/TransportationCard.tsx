@@ -15,6 +15,15 @@ const getTransportIcon = (type: string) => {
 
 export const TransportationCard = ({ transport }: { transport: TravelRoute }) => {
   const Icon = getTransportIcon(transport.type);
+  
+  // Format the display title - replace "local" with "road"
+  const getDisplayTitle = (type: string) => {
+    const typeLower = type.toLowerCase();
+    if (typeLower.includes('local')) {
+      return 'Road';
+    }
+    return formatTitleCase(type);
+  };
 
   return (
     <Card className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border-border/50 hover:border-white/20 overflow-hidden h-full flex flex-col max-w-5xl ">
@@ -25,7 +34,7 @@ export const TransportationCard = ({ transport }: { transport: TravelRoute }) =>
               <Icon className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base leading-tight">{formatTitleCase(transport.type)}</CardTitle>
+              <CardTitle className="text-base leading-tight">{getDisplayTitle(transport.type)}</CardTitle>
             </div>
           </div>
         </div>

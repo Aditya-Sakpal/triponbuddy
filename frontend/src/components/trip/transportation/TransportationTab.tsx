@@ -25,6 +25,34 @@ export const TransportationTab = ({
   transportationMode = 'default',
 }: TransportationTabProps) => {
   const isRoadMode = transportationMode === 'road';
+  
+  // Filter routes based on transportation mode
+  const getFilteredRoutes = () => {
+    if (transportationMode === 'default') {
+      // Show all routes for default mode
+      return transportation.routes;
+    }
+    
+    // Filter routes based on selected mode
+    return transportation.routes.filter(route => {
+      const routeTypeLower = route.type.toLowerCase();
+      
+      if (transportationMode === 'flight') {
+        return routeTypeLower.includes('flight') || routeTypeLower.includes('air');
+      } else if (transportationMode === 'train') {
+        return routeTypeLower.includes('train') || routeTypeLower.includes('rail');
+      } else if (transportationMode === 'road') {
+        return routeTypeLower.includes('car') || routeTypeLower.includes('bus') || 
+               routeTypeLower.includes('road') || routeTypeLower.includes('taxi') || 
+               routeTypeLower.includes('uber') || routeTypeLower.includes('local');
+      }
+      
+      return false;
+    });
+  };
+
+  const filteredRoutes = getFilteredRoutes();
+
   return (
     <div className="space-y-6">
       <Card>
@@ -37,14 +65,16 @@ export const TransportationTab = ({
       </Card>
 
       {/* Travel Routes */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Travel Routes</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {transportation.routes.map((route, index) => (
-            <TransportationCard key={index} transport={route} />
-          ))}
+      {filteredRoutes.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Travel Routes</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredRoutes.map((route, index) => (
+              <TransportationCard key={index} transport={route} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Road Map View - Only visible for Road mode */}
       <RoadMapView tripId={tripId} isVisible={isRoadMode} />
@@ -97,7 +127,7 @@ export const TransportationTab = ({
         </div>
       )}
 
-      {transportation.routes.length === 0 && transportation_hubs_start.length === 0 &&
+      {filteredRoutes.length === 0 && transportation_hubs_start.length === 0 &&
        transportation_hubs_destination.length === 0 && local_transportation.length === 0 && (
         <Card>
           <CardContent className="flex items-center justify-center py-12">
