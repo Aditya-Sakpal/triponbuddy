@@ -4,6 +4,5 @@
  */
 
 export { HostedTripsHeroSection } from "./HostedTripsHeroSection";
-export { HostTripPanel } from "./HostTripPanel";
 export { default as HostedTripCard } from "./HostedTripCard";
 export { JoinRequestsModal } from "./JoinRequestsModal";
