@@ -82,7 +82,6 @@ class TripDataBuilder:
             "tags": [],
             "max_passengers": max_passengers,
             "transportation_mode": transportation_mode,
-            "distance_km": request_data.get("distance_km"),
             "joined_users": [],
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)

@@ -209,7 +209,6 @@ class TripDB(BaseModel):
     tags: List[str] = Field(default_factory=list, description="Trip tags")
     max_passengers: Optional[int] = Field(default=None, description="Maximum number of passengers for trip sharing")
     transportation_mode: str = Field(default="default", description="Selected transportation mode: default, road, train, flight")
-    distance_km: Optional[float] = Field(default=None, description="Distance between start and destination in kilometers")
     joined_users: List[str] = Field(default_factory=list, description="List of user IDs who joined this trip")
     joined_users_demographics: Optional[List[Dict[str, Any]]] = Field(default=None, description="Demographics of joined users (age, gender)")
     is_joined: Optional[bool] = Field(default=False, description="Flag to identify if this is a joined trip copy")
@@ -220,6 +219,7 @@ class TripDB(BaseModel):
     custom_budget: Optional[float] = Field(default=None, description="Custom budget set by host for this trip")
     host_comments: Optional[str] = Field(default=None, description="Comments/remarks from the trip host")
     emergency_contact_number: Optional[str] = Field(default=None, description="Emergency contact number for joined trips")
+    request_status: Optional[str] = Field(default=None, description="Status of join request for the current user: pending, accepted, rejected, or None")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp")
 

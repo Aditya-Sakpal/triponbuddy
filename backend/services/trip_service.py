@@ -37,32 +37,16 @@ class TripService:
             # Log the destinations being processed
             logger.info(f"Generating trip for destinations: {request.destinations}")
             
-            # Calculate distance if start_location and destination are provided
-            distance_km = None
-            if request.start_location and request.destinations:
-                final_destination = request.destinations[-1]
-                logger.info(f"Calculating distance from {request.start_location} to {final_destination}")
-                distance_km = await google_maps_service.calculate_distance(
-                    request.start_location,
-                    final_destination
-                )
-                if distance_km:
-                    logger.info(f"Calculated distance: {distance_km:.2f} km")
-            
             # Generate itinerary using AI
             ai_response = await ai_service.generate_itinerary(request)
 
             # Build trip data using helper
             # Use model_dump() for Pydantic v2 with mode='python' to include None values
             request_data = request.model_dump(mode='python', exclude_none=False)
-            # Add calculated distance to request_data
-            if distance_km:
-                request_data['distance_km'] = distance_km
             
             logger.info(f"Request data received: max_passengers={request_data.get('max_passengers')}, "
                        f"travelers={request_data.get('travelers')}, "
                        f"transportation_mode={request_data.get('transportation_mode')}, "
-                       f"distance_km={distance_km}, "
                        f"full request_data keys: {list(request_data.keys())}")
             
             # Images are now fetched on frontend via Google Places API
@@ -183,6 +167,20 @@ class TripService:
                 try:
                     # Convert to TripDB instance using utility function
                     trip = convert_mongo_doc_to_trip(trip_doc)
+                    
+                    # Check for join request status if user is not owner and not joined
+                    if trip.user_id != user_id and not trip.is_joined:
+                        # Check if user is in joined_users list
+                        if user_id not in trip.joined_users:
+                            request_doc = await mongodb.find_one(
+                                "join_requests",
+                                {
+                                    "trip_id": trip.trip_id,
+                                    "requester_id": user_id
+                                }
+                            )
+                            if request_doc:
+                                trip.request_status = request_doc.get("status")
                     
                     return {
                         "success": True,
