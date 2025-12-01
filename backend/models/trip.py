@@ -237,6 +237,14 @@ class TripUpdateRequest(BaseModel):
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")
     custom_budget: Optional[float] = Field(default=None, description="Custom budget set by host for this trip")
     host_comments: Optional[str] = Field(default=None, description="Comments/remarks from the trip host")
+    itinerary_data: Optional[Dict[str, Any]] = Field(default=None, description="Updated itinerary data including custom tips")
+    
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
+            date: lambda v: v.isoformat() if v else None
+        }
+    )
 
 
 class ActivityReplaceRequest(BaseModel):
@@ -276,11 +284,12 @@ class TripListResponse(BaseModel):
     has_next: bool = Field(default=False, description="Has next page")
     has_prev: bool = Field(default=False, description="Has previous page")
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
+    )
 
 
 class TripResponse(BaseModel):
@@ -288,11 +297,12 @@ class TripResponse(BaseModel):
     success: bool = Field(default=True)
     trip: TripDB = Field(description="Trip data")
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat() if v else None,
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.replace(tzinfo=timezone.utc).isoformat() if v else None,
             date: lambda v: v.isoformat() if v else None
         }
+    )
 
 
 class JoinRequest(BaseModel):

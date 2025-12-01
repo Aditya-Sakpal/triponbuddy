@@ -218,7 +218,7 @@ class TripService:
     ) -> bool:
 
         try:
-            logger.info(f"Updating trip {trip_id} with updates: {updates.model_dump()}")
+            logger.info(f"Updating trip {trip_id}")
             
             # Validate updates
             if updates.title and not validate_trip_title(updates.title):
@@ -226,7 +226,7 @@ class TripService:
 
             # Build update document using helper
             update_doc = self.data_builder.build_update_document(updates)
-            logger.info(f"Built update document: {update_doc}")
+            logger.debug(f"Update document fields: {list(update_doc.keys())}")
 
             if not update_doc:
                 return True  # No updates needed

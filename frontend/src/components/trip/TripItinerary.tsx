@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { Calendar, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, T
 import { googlePlacesService } from "@/services/googlePlacesService";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
 import { getCalculatedBudget } from "@/utils/tripUtils";
+import { apiClient } from "@/lib/api-client";
 
 interface TripItineraryProps {
   trip: TripDB;
@@ -36,8 +38,10 @@ export const TripItinerary = ({
   const [imagesLoading, setImagesLoading] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [checkingPermission, setCheckingPermission] = useState(true);
+  const { user } = useUser();
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
+  const customTips = (trip.itinerary_data as any)?.custom_tips || [];
   
   // Check if user is the owner of this trip
   const isOwner = currentUserId === trip.user_id;
@@ -196,6 +200,32 @@ export const TripItinerary = ({
     navigate(`/trip/${newTripId}`);
   };
 
+  const handleCustomTipsUpdate = async (tips: string[]) => {
+    if (!user?.id) return;
+
+    try {
+      // Update the itinerary_data with custom tips
+      const updatedItineraryData = {
+        ...trip.itinerary_data,
+        custom_tips: tips,
+      };
+
+      // Call API to update trip
+      await apiClient.put(
+        `/api/trips/${trip.trip_id}`,
+        { itinerary_data: updatedItineraryData },
+        { user_id: user.id }
+      );
+
+      // Refresh the trip data
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("Error updating custom tips:", error);
+    }
+  };
+
   const formatDateRange = (startDate: string, durationDays: number) => {
     const start = new Date(startDate);
     const end = new Date(start);
@@ -345,6 +375,9 @@ export const TripItinerary = ({
             <TravelTipsTab 
               tips={itinerary?.travel_tips || []} 
               bestTimeToVisit={itinerary?.best_time_to_visit}
+              tripId={trip.trip_id}
+              customTips={customTips}
+              onCustomTipsUpdate={handleCustomTipsUpdate}
             />
           </TabsContent>
         </Tabs>

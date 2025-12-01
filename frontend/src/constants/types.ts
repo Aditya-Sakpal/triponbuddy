@@ -204,6 +204,7 @@ export interface TripUpdateRequest {
   custom_budget?: number;
   host_comments?: string;
   emergency_contact_number?: string;
+  itinerary_data?: Record<string, unknown>;
 }
 
 export interface TripListResponse {
