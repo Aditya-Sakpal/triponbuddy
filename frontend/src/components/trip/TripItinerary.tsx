@@ -87,18 +87,6 @@ export const TripItinerary = ({
     checkEditPermission();
   }, [trip.trip_id, currentUserId]);
 
-  // Auto-open Host Trip Modal for newly generated trips
-  useEffect(() => {
-    const shouldAutoOpen = searchParams.get('autoHostModal');
-    
-    if (shouldAutoOpen === 'true' && isOwner && !trip.is_public) {
-      setIsHostTripModalOpen(true);
-      // Remove the query parameter after opening
-      searchParams.delete('autoHostModal');
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams, isOwner, trip.is_public]);
-
   useEffect(() => {
     const fetchDestinationImages = async () => {
       if (!trip.destination) return;
