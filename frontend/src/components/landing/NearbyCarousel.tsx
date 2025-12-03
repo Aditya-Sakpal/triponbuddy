@@ -1,23 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { GoArrowLeft, GoArrowRight } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 const CARD_SIZE_LG = 450;
 const CARD_SIZE_SM = 340;
-
-const BORDER_SIZE = 2;
 const CORNER_CLIP = 50;
-const CORNER_LINE_LEN = Math.sqrt(
-  CORNER_CLIP * CORNER_CLIP + CORNER_CLIP * CORNER_CLIP
-);
-
-
-
-const STAGGER = 15;
-const CENTER_STAGGER = -65;
-
 const SECTION_HEIGHT = 600;
+const CARD_GAP = 24;
+
+// Fallback images for when Google Maps API fails
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+  'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80',
+  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+  'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+];
 
 interface Place {
   id?: string;
@@ -36,6 +34,10 @@ interface NearbyCarouselProps {
 
 export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
   const [cardSize, setCardSize] = useState(CARD_SIZE_LG);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const [displayPlaces, setDisplayPlaces] = useState<Place[]>(
     places.map((place, idx) => ({ ...place, tempId: idx }))
@@ -45,28 +47,27 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
     setDisplayPlaces(places.map((place, idx) => ({ ...place, tempId: idx })));
   }, [places]);
 
-  const handleMove = (position: number) => {
-    const copy = [...displayPlaces];
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
 
-    if (position > 0) {
-      for (let i = position; i > 0; i--) {
-        const firstEl = copy.shift();
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
 
-        if (!firstEl) return;
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
-        copy.push({ ...firstEl, tempId: Math.random() });
-      }
-    } else {
-      for (let i = position; i < 0; i++) {
-        const lastEl = copy.pop();
-
-        if (!lastEl) return;
-
-        copy.unshift({ ...lastEl, tempId: Math.random() });
-      }
-    }
-
-    setDisplayPlaces(copy);
+  const handleMouseLeave = () => {
+    setIsDragging(false);
   };
 
   useEffect(() => {
@@ -95,101 +96,98 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
 
   return (
     <div
-      className="relative w-full overflow-hidden bg-gradient-to-b from-white to-gray-50"
+      className="relative w-full bg-gradient-to-b from-white to-gray-50 py-8"
       style={{
         height: SECTION_HEIGHT,
       }}
     >
-      {displayPlaces.map((place, idx) => {
-        let position = 0;
-
-        if (displayPlaces.length % 2) {
-          position = idx - (displayPlaces.length + 1) / 2;
-        } else {
-          position = idx - displayPlaces.length / 2;
-        }
-
-        return (
+      <div
+        ref={scrollContainerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        className="flex gap-6 overflow-x-auto overflow-y-hidden h-full px-8 scrollbar-hide cursor-grab active:cursor-grabbing"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {displayPlaces.map((place, idx) => (
           <PlaceCard
             key={place.tempId}
             place={place}
-            handleMove={handleMove}
-            position={position}
             cardSize={cardSize}
+            index={idx}
           />
-        );
-      })}
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-8">
-        <button
-          onClick={() => handleMove(-1)}
-          className="grid h-14 w-14 place-content-center text-3xl transition-colors hover:bg-black hover:text-white"
-        >
-          <GoArrowLeft />
-        </button>
-        <button
-          onClick={() => handleMove(1)}
-          className="grid h-14 w-14 place-content-center text-3xl transition-colors hover:bg-black hover:text-white"
-        >
-          <GoArrowRight />
-        </button>
+        ))}
       </div>
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
 
-const PlaceCard = ({ position, place, handleMove, cardSize }: {
-  position: number;
+const PlaceCard = ({ place, cardSize, index }: {
   place: Place;
-  handleMove: (position: number) => void;
   cardSize: number;
+  index: number;
 }) => {
   const navigate = useNavigate();
-  const isActive = position === 0;
+  
+  // Check if the image URL is valid/exists, otherwise use fallback immediately
+  const getInitialImage = () => {
+    if (!place.image || place.image.trim() === '' || place.image.includes('maps.googleapis.com')) {
+      // If no image or it's a Google Maps URL (which is failing), use fallback
+      return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+    }
+    return place.image;
+  };
+  
+  const [imgSrc, setImgSrc] = useState(getInitialImage());
+  const [imgError, setImgError] = useState(false);
+
+  const handleImageError = () => {
+    if (!imgError) {
+      setImgError(true);
+      // Use index to deterministically select a fallback image
+      setImgSrc(FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]);
+    }
+  };
 
   const handleCardClick = () => {
-    if (isActive) {
-      // Navigate to home page with destination as query param
-      const params = new URLSearchParams();
-      params.set('destination', place.name);
-      navigate(`/?${params.toString()}`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      handleMove(position);
-    }
+    // Navigate to home page with destination as query param
+    const params = new URLSearchParams();
+    params.set('destination', place.name);
+    navigate(`/?${params.toString()}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <motion.div
-      initial={false}
       onClick={handleCardClick}
-      className={`
-      absolute left-1/2 top-1/2 cursor-pointer overflow-hidden transition-colors duration-500 ${
-        isActive ? "z-10 bg-white shadow-2xl" : "z-0 bg-white"
-      }
-      `}
+      className="flex-shrink-0 cursor-pointer overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300"
       style={{
-        clipPath: `polygon(${CORNER_CLIP}px 0%, calc(100% - ${CORNER_CLIP}px) 0%, 100% ${CORNER_CLIP}px, 100% 100%, calc(100% - ${CORNER_CLIP}px) 100%, ${CORNER_CLIP}px 100%, 0 100%, 0 0)`,
-      }}
-      animate={{
         width: cardSize,
         height: cardSize,
-        x: `calc(-50% + ${position * (cardSize + 40)}px)`,
-        y: `calc(-50% + ${
-          isActive ? CENTER_STAGGER : position % 2 ? STAGGER : -STAGGER
-        }px)`,
+        clipPath: `polygon(${CORNER_CLIP}px 0%, calc(100% - ${CORNER_CLIP}px) 0%, 100% ${CORNER_CLIP}px, 100% 100%, calc(100% - ${CORNER_CLIP}px) 100%, ${CORNER_CLIP}px 100%, 0 100%, 0 0)`,
       }}
+      whileHover={{ scale: 1.02 }}
       transition={{
         type: "spring",
-        mass: 3,
-        stiffness: 400,
-        damping: 50,
+        stiffness: 300,
+        damping: 20,
       }}
     >
       {/* Large image taking most of the card */}
       <div className="relative w-full h-full">
         <img
-          src={place.image}
+          src={imgSrc}
           alt={place.name}
+          onError={handleImageError}
           className="w-full h-full object-cover"
         />
         

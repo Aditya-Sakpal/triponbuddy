@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useRef } from "react";
 
 interface DayPlanHeaderProps {
   day: number;
@@ -9,10 +10,32 @@ interface DayPlanHeaderProps {
 }
 
 export const DayPlanHeader = ({ day, theme, isExpanded, onToggle }: DayPlanHeaderProps) => {
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    if (!isExpanded && headerRef.current) {
+      // If opening this day plan, scroll the header into view with offset for navbar
+      // Use requestAnimationFrame to ensure the DOM has updated
+      requestAnimationFrame(() => {
+        const headerElement = headerRef.current;
+        if (headerElement) {
+          const headerTop = headerElement.getBoundingClientRect().top + window.scrollY;
+          const offset = 80; // Offset for navbar height
+          window.scrollTo({ 
+            top: headerTop - offset, 
+            behavior: 'smooth' 
+          });
+        }
+      });
+    }
+    onToggle();
+  };
+
   return (
     <CardHeader
+      ref={headerRef}
       className="cursor-pointer hover:bg-blue-800 transition-colors duration-300 bg-bula rounded-md"
-      onClick={onToggle}
+      onClick={handleToggle}
     >
       <div className="flex items-center justify-between text-white">
         <CardTitle className="text-md md:text-2xl font-bold">
