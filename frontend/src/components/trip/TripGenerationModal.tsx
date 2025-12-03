@@ -32,8 +32,8 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
   const [messageIndex, setMessageIndex] = useState(0);
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
 
-  // Use preloaded images - this is now the only way images are loaded
   // Images are fetched in useTripPlanning hook using Google Places API
   useEffect(() => {
     if (preloadedImages && preloadedImages.length > 0) {
@@ -70,6 +70,40 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
     }, 5000); // Change tip every 5 seconds
 
     return () => clearInterval(tipInterval);
+  }, [isOpen, generationComplete]);
+
+  // Progress bar animation - stops at 90% until generation is complete
+  useEffect(() => {
+    if (!isOpen) {
+      setProgress(0);
+      return;
+    }
+
+    if (generationComplete) {
+      // Complete to 100% when generation is done
+      setProgress(100);
+      return;
+    }
+
+    // Animate progress to 90% over ~8 seconds
+    const targetProgress = 90;
+    const duration = 8000; // 8 seconds
+    const steps = 60;
+    const increment = targetProgress / steps;
+    const interval = duration / steps;
+
+    let currentStep = 0;
+    const progressInterval = setInterval(() => {
+      currentStep++;
+      const newProgress = Math.min(currentStep * increment, targetProgress);
+      setProgress(newProgress);
+
+      if (newProgress >= targetProgress) {
+        clearInterval(progressInterval);
+      }
+    }, interval);
+
+    return () => clearInterval(progressInterval);
   }, [isOpen, generationComplete]);
 
   const handleCancel = () => {
@@ -152,7 +186,10 @@ export const TripGenerationModal = ({ isOpen, onClose, destination, onCancel, pr
             {/* Progress Bar */}
 
             <div className="w-full max-w-xs bg-gray-200 rounded-full h-1.5 dark:bg-gray-700 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1.5 rounded-full animate-progress-fill"></div>
+              <div 
+                className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-1.5 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
 
             {/* Image Carousel with sliding animation */}
