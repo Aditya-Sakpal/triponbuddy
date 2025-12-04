@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const CARD_SIZE_LG = 450;
 const CARD_SIZE_SM = 340;
 const CORNER_CLIP = 50;
-const SECTION_HEIGHT = 600;
+const SECTION_HEIGHT = 500;
 const CARD_GAP = 24;
 
 // Fallback images for when Google Maps API fails
@@ -38,14 +38,26 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
 
-  const [displayPlaces, setDisplayPlaces] = useState<Place[]>(
-    places.map((place, idx) => ({ ...place, tempId: idx }))
-  );
+  const [displayPlaces, setDisplayPlaces] = useState<Place[]>([]);
 
   useEffect(() => {
-    setDisplayPlaces(places.map((place, idx) => ({ ...place, tempId: idx })));
-  }, [places]);
+    // Create infinite loop by triplicating the places array
+    const basePlaces = places.map((place, idx) => ({ ...place, tempId: idx }));
+    const triplePlaces = [
+      ...basePlaces.map((p, i) => ({ ...p, tempId: i })),
+      ...basePlaces.map((p, i) => ({ ...p, tempId: i + places.length })),
+      ...basePlaces.map((p, i) => ({ ...p, tempId: i + places.length * 2 })),
+    ];
+    setDisplayPlaces(triplePlaces);
+    
+    // Start at middle section
+    if (scrollContainerRef.current && places.length > 0) {
+      const cardWidth = cardSize + CARD_GAP;
+      scrollContainerRef.current.scrollLeft = cardWidth * places.length;
+    }
+  }, [places, cardSize]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current) return;
@@ -66,9 +78,55 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
     setIsDragging(false);
   };
 
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
+  // Handle infinite scroll loop
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || places.length === 0) return;
+    
+    const handleScroll = () => {
+      const cardWidth = cardSize + CARD_GAP;
+      const sectionWidth = cardWidth * places.length;
+      const scrollPos = container.scrollLeft;
+      
+      // If scrolled past the right copy, jump back to middle
+      if (scrollPos >= sectionWidth * 2) {
+        container.scrollLeft = scrollPos - sectionWidth;
+      }
+      // If scrolled before the left copy, jump forward to middle
+      else if (scrollPos <= 0) {
+        container.scrollLeft = scrollPos + sectionWidth;
+      }
+    };
+    
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [places.length, cardSize]);
+
+  // Handle wheel scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      container.scrollLeft += e.deltaY;
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // Lock vertical scroll when hovering
+  useEffect(() => {
+    if (isHovering) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isHovering]);
 
   useEffect(() => {
     const { matches } = window.matchMedia("(min-width: 640px)");
@@ -106,7 +164,11 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => {
+          setIsDragging(false);
+          setIsHovering(false);
+        }}
         className="flex gap-6 overflow-x-auto overflow-y-hidden h-full px-8 scrollbar-hide cursor-grab active:cursor-grabbing"
         style={{
           scrollbarWidth: 'none',

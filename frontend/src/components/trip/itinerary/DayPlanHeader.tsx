@@ -14,8 +14,7 @@ export const DayPlanHeader = ({ day, theme, isExpanded, onToggle }: DayPlanHeade
 
   const handleToggle = () => {
     if (!isExpanded && headerRef.current) {
-      // If opening this day plan, scroll the header into view with offset for navbar
-      // Use requestAnimationFrame to ensure the DOM has updated
+
       requestAnimationFrame(() => {
         const headerElement = headerRef.current;
         if (headerElement) {
