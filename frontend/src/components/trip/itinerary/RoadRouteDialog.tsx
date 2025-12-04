@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Hotel, Coffee, Landmark, ExternalLink } from "lucide-react";
+import { MapPin, Hotel, Coffee, Landmark, ExternalLink, Car } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 import type { RoadRouteResponse } from "@/services/roadRouteApi";
 
@@ -282,6 +283,12 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
                           )}
 
                           <div className="flex-1">
+                            {waypoint.distance_from_prev_km !== undefined && (
+                              <Badge variant="secondary" className="mb-2 text-xs font-normal">
+                                <Car className="w-3 h-3 mr-1" />
+                                {waypoint.distance_from_prev_km} km from {index === 0 ? 'start' : 'previous stop'}
+                              </Badge>
+                            )}
                             <div className="flex items-start justify-between mb-1">
                               <h4 className="font-medium text-base">{waypoint.name}</h4>
                               {waypoint.rating && (
