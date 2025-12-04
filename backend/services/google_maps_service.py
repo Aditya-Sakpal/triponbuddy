@@ -307,7 +307,25 @@ class GoogleMapsService:
                             waypoints.append(place)
             
             # Limit total waypoints to avoid clutter
-            return waypoints[:10]
+            waypoints = waypoints[:10]
+
+            # Calculate distances between consecutive waypoints
+            if waypoints:
+                prev_coords = origin
+                for waypoint in waypoints:
+                    curr_coords = (waypoint['location']['latitude'], waypoint['location']['longitude'])
+                    
+                    # Calculate distance from previous point
+                    dist_meters = await self._compute_route_distance(prev_coords, curr_coords)
+                    
+                    if dist_meters is not None:
+                        waypoint['distance_from_prev_km'] = round(dist_meters / 1000, 1)
+                    else:
+                        waypoint['distance_from_prev_km'] = None
+                        
+                    prev_coords = curr_coords
+
+            return waypoints
             
         except Exception as e:
             logger.error(f"Error finding places along route: {str(e)}")
