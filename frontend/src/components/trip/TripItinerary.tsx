@@ -41,7 +41,7 @@ export const TripItinerary = ({
   const { user } = useUser();
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
-  const customTips = (trip.itinerary_data as any)?.custom_tips || [];
+  const customTips = (itinerary as Itinerary & { custom_tips?: string[] })?.custom_tips || [];
   
   // Check if this is a joined trip (copy created when user joined)
   const isJoinedTripCopy = trip.is_joined === true;
@@ -259,7 +259,7 @@ export const TripItinerary = ({
 
           <div className="flex justify-between items-start gap-8 ">
             <div className="space-y-4 flex-1">
-              <h1 className="text-4xl font-bold">{itinerary?.title || trip.title}</h1>
+              <h1 className="text-4xl font-bold">Your trip to {trip.destination}</h1>
               <div className="flex flex-wrap items-center gap-6 text-black/90">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />

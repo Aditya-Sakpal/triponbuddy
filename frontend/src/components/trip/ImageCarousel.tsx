@@ -42,11 +42,11 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
           {images.map((image, index) => (
             <CarouselItem key={index}>
               <div className="p-2">
-                <div className="relative overflow-hidden rounded-lg shadow-lg">
+                <div className="relative overflow-hidden rounded-lg shadow-lg aspect-[16/8]">
                   <img
                     src={image.url}
                     alt={image.title}
-                    className="w-full h-64 md:h-80 lg:h-96 object-cover transition-transform duration-300 hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     loading="lazy"
                     onError={(e) => {
                       // Hide broken images
