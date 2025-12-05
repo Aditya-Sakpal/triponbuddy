@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-type SortOption = "date-newest" | "date-oldest" | "name-asc" | "name-desc";
+type SortOption = "date-newest" | "date-oldest";
 type TripTypeOption = "all" | "domestic" | "international";
 
 interface TripControlsProps {
@@ -33,8 +33,6 @@ export const TripControls = ({
           <SelectContent>
             <SelectItem value="date-newest">Date (Newest First)</SelectItem>
             <SelectItem value="date-oldest">Date (Oldest First)</SelectItem>
-            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
           </SelectContent>
         </Select>
       </div>

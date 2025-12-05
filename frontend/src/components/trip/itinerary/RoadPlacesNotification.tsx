@@ -63,7 +63,7 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
               </p>
               <div className="flex gap-2">
                 <Button onClick={handleViewPlaces} variant="default" size="sm">
-                  View Places to Explore
+                  View Places to Explore on the Road
                   <MapPin className="w-4 h-4 ml-2" />
                 </Button>
 

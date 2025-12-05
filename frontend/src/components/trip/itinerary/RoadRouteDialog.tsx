@@ -6,6 +6,7 @@ import { MapPin, Hotel, Coffee, Landmark, ExternalLink, Car } from "lucide-react
 import { Badge } from "@/components/ui/badge";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 import type { RoadRouteResponse } from "@/services/roadRouteApi";
+import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 
 interface RoadRouteDialogProps {
   isOpen: boolean;
@@ -218,8 +219,51 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
 
         {loading && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <div className="animate-bounce-slow flex flex-col items-center space-y-4">
+              {/* Floating Logo Animation with Spinning Lines */}
+              <div className="relative flex items-center justify-center w-20 h-20">
+                {/* Spinning circular lines around the logo - 3 separate arcs */}
+                <svg className="absolute inset-0 w-20 h-20 animate-spin-slow" viewBox="0 0 80 80">
+                  {/* Dark Blue Arc */}
+                  <path
+                    d="M 40 10 A 30 30 0 0 1 70 40"
+                    fill="none"
+                    stroke="#2563eb"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  {/* Light Blue Arc */}
+                  <path
+                    d="M 70 40 A 30 30 0 0 1 40 70"
+                    fill="none"
+                    stroke="#60a5fa"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    opacity="0.6"
+                  />
+                  {/* Pink Arc */}
+                  <path
+                    d="M 40 70 A 30 30 0 0 1 10 40"
+                    fill="none"
+                    stroke="#ec4899"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    opacity="0.5"
+                  />
+                </svg>
+
+                <div className="relative z-10">
+                  <img
+                    src={tripBuddyLogo}
+                    alt="TripOnBuddy"
+                    className="w-12 h-12 object-contain drop-shadow-lg"
+                  />
+                  {/* Ripple effect */}
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping"></div>
+                </div>
+              </div>
+
+              {/* Loading text */}
               <p className="text-muted-foreground">Loading places...</p>
             </div>
           </div>
