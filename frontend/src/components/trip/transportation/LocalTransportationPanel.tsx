@@ -5,6 +5,7 @@ import type { LocalTransportation } from "@/constants";
 
 interface LocalTransportationPanelProps {
   localTransportation: LocalTransportation[];
+  hideBookingButtons?: boolean;
 }
 
 const bookingServices = [
@@ -16,7 +17,7 @@ const bookingServices = [
   { name: "Yatra", url: "https://www.yatra.com", icon: Ship },
 ];
 
-export const LocalTransportationPanel = ({ localTransportation }: LocalTransportationPanelProps) => {
+export const LocalTransportationPanel = ({ localTransportation, hideBookingButtons = false }: LocalTransportationPanelProps) => {
   if (localTransportation.length === 0) {
     return null;
   }
@@ -41,22 +42,24 @@ export const LocalTransportationPanel = ({ localTransportation }: LocalTransport
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {bookingServices.map((service) => {
-            const Icon = service.icon;
-            return (
-              <Button
-                key={service.name}
-                size="sm"
-                className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-500 transition-all"
-                onClick={() => window.open(service.url, '_blank')}
-              >
-                <Icon className="w-4 h-4 text-white" />
-                <span className="text-sm font-medium">{service.name}</span>
-              </Button>
-            );
-          })}
-        </div>
+        {!hideBookingButtons && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {bookingServices.map((service) => {
+              const Icon = service.icon;
+              return (
+                <Button
+                  key={service.name}
+                  size="sm"
+                  className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-500 transition-all"
+                  onClick={() => window.open(service.url, '_blank')}
+                >
+                  <Icon className="w-4 h-4 text-white" />
+                  <span className="text-sm font-medium">{service.name}</span>
+                </Button>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -3,7 +3,6 @@ import type { Transportation, TransportationHub, LocalTransportation } from "@/c
 import { TransportationCard } from "./TransportationCard";
 import { TransportationHubCard } from "./TransportationHubCard";
 import { LocalTransportationPanel } from "./LocalTransportationPanel";
-import { RoadMapView } from "./RoadMapView";
 
 interface TransportationTabProps {
   transportation: Transportation;
@@ -14,6 +13,7 @@ interface TransportationTabProps {
   userId: string;
   destinationCity: string;
   transportationMode?: string;
+  hideBookingButtons?: boolean;
 }
 
 export const TransportationTab = ({
@@ -23,6 +23,7 @@ export const TransportationTab = ({
   local_transportation,
   tripId,
   transportationMode = 'default',
+  hideBookingButtons = false,
 }: TransportationTabProps) => {
   const isRoadMode = transportationMode === 'road';
   
@@ -70,14 +71,11 @@ export const TransportationTab = ({
           <h3 className="text-lg font-semibold">Travel Routes</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredRoutes.map((route, index) => (
-              <TransportationCard key={index} transport={route} />
+              <TransportationCard key={index} transport={route} hideBookingButtons={hideBookingButtons} />
             ))}
           </div>
         </div>
       )}
-
-      {/* Road Map View - Only visible for Road mode */}
-      <RoadMapView tripId={tripId} isVisible={isRoadMode} />
 
       {/* Transportation Hubs Comparison */}
       {(transportation_hubs_start.length > 0 || transportation_hubs_destination.length > 0) && (
@@ -123,7 +121,7 @@ export const TransportationTab = ({
       {local_transportation.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Local Transportation at Destination</h3>
-          <LocalTransportationPanel localTransportation={local_transportation} />
+          <LocalTransportationPanel localTransportation={local_transportation} hideBookingButtons={hideBookingButtons} />
         </div>
       )}
 

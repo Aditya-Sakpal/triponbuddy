@@ -259,6 +259,7 @@ export const useTripPlanning = () => {
     // State
     selectedPreferences,
     destinations,
+    pendingDestination,
     startLocation,
     startDate,
     durationDays,

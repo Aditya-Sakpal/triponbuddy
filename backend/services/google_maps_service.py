@@ -7,6 +7,8 @@ import httpx
 from typing import Dict, Any, List, Optional, Tuple
 from config import settings
 
+from services.helpers.google_maps_helper import decode_polyline
+
 logger = logging.getLogger(__name__)
 
 
@@ -262,29 +264,67 @@ class GoogleMapsService:
         
         try:
             # Decode polyline to get intermediate points
-            # For simplicity, we'll search for places at intermediate lat/lng points
-            # In a production app, you'd properly decode the polyline
+            path_points = decode_polyline(encoded_polyline)
             
-            # Calculate midpoint
-            mid_lat = (origin[0] + destination[0]) / 2
-            mid_lng = (origin[1] + destination[1]) / 2
+            # Sample points along the route
+            # We'll take points every ~10% of the route to get a good distribution
+            num_points = len(path_points)
+            if num_points < 3:
+                sample_indices = list(range(num_points))
+            else:
+                # Take up to 10 sample points
+                step = max(1, num_points // 10)
+                sample_indices = list(range(0, num_points, step))
+                if (num_points - 1) not in sample_indices:
+                    sample_indices.append(num_points - 1)
             
-            # Search for hotels and restaurants near midpoint
+            sampled_points = [path_points[i] for i in sample_indices]
+            
+            # Search for hotels and restaurants near sampled points
             place_types = [
                 {"type": "lodging", "category": "hotel"},
                 {"type": "restaurant", "category": "restaurant"},
                 {"type": "tourist_attraction", "category": "attraction"}
             ]
             
-            for place_info in place_types:
-                places = await self._search_nearby_places(
-                    mid_lat, 
-                    mid_lng, 
-                    place_info["type"],
-                    place_info["category"]
-                )
-                waypoints.extend(places[:3])  # Limit to 3 per category
+            seen_place_ids = set()
             
+            for point in sampled_points:
+                for place_info in place_types:
+                    places = await self._search_nearby_places(
+                        point[0], 
+                        point[1], 
+                        place_info["type"],
+                        place_info["category"]
+                    )
+                    
+                    for place in places:
+                        # Use name + location as a rough unique ID since we don't have place_id
+                        place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
+                        
+                        if place_id not in seen_place_ids:
+                            seen_place_ids.add(place_id)
+                            waypoints.append(place)
+            
+            # Limit total waypoints to avoid clutter
+            waypoints = waypoints[:10]
+
+            # Calculate distances between consecutive waypoints
+            if waypoints:
+                prev_coords = origin
+                for waypoint in waypoints:
+                    curr_coords = (waypoint['location']['latitude'], waypoint['location']['longitude'])
+                    
+                    # Calculate distance from previous point
+                    dist_meters = await self._compute_route_distance(prev_coords, curr_coords)
+                    
+                    if dist_meters is not None:
+                        waypoint['distance_from_prev_km'] = round(dist_meters / 1000, 1)
+                    else:
+                        waypoint['distance_from_prev_km'] = None
+                        
+                    prev_coords = curr_coords
+
             return waypoints
             
         except Exception as e:
@@ -312,14 +352,14 @@ class GoogleMapsService:
         """
         try:
             request_body = {
-                "textQuery": f"{place_type} near {latitude},{longitude}",
+                "textQuery": f"{place_type}",
                 "locationBias": {
                     "circle": {
                         "center": {
                             "latitude": latitude,
                             "longitude": longitude
                         },
-                        "radius": 50000.0  # 50km radius
+                        "radius": 5000.0  # 5km radius
                     }
                 }
             }
@@ -327,7 +367,7 @@ class GoogleMapsService:
             headers = {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": self.api_key,
-                "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.rating"
+                "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location,places.rating,places.photos"
             }
             
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -341,13 +381,19 @@ class GoogleMapsService:
                     data = response.json()
                     places = []
                     
-                    for place in data.get("places", [])[:5]:  # Limit to 5
+                    for place in data.get("places", [])[:2]:  # Limit to 2 per point/category
+                        
+                        photo_ref = None
+                        if place.get("photos") and len(place["photos"]) > 0:
+                            photo_ref = place["photos"][0].get("name")
+
                         places.append({
                             "name": place.get("displayName", {}).get("text", "Unknown"),
                             "address": place.get("formattedAddress", ""),
                             "location": place.get("location", {}),
                             "rating": place.get("rating"),
-                            "category": category
+                            "category": category,
+                            "photo_ref": photo_ref
                         })
                     
                     return places

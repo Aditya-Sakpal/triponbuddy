@@ -220,6 +220,7 @@ class TripDB(BaseModel):
     host_comments: Optional[str] = Field(default=None, description="Comments/remarks from the trip host")
     emergency_contact_number: Optional[str] = Field(default=None, description="Emergency contact number for joined trips")
     request_status: Optional[str] = Field(default=None, description="Status of join request for the current user: pending, accepted, rejected, or None")
+    custom_accommodations: List[Accommodation] = Field(default_factory=list, description="Custom accommodations added by trip owner")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Creation timestamp")
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Update timestamp")
 
@@ -391,4 +392,17 @@ class EmergencyNumberSetup(BaseModel):
 class EmergencyNumberResponse(BaseModel):
     """Response model for emergency number operations"""
     success: bool = Field(default=True)
+    message: Optional[str] = None
+
+
+class AccommodationDetailsRequest(BaseModel):
+    """Request model for getting accommodation details from AI"""
+    location: str = Field(description="Location/place name from Google Places")
+    destination: str = Field(description="Main destination for context")
+
+
+class AccommodationDetailsResponse(BaseModel):
+    """Response model for accommodation details"""
+    success: bool = Field(default=True)
+    accommodation: Accommodation = Field(description="Generated accommodation details")
     message: Optional[str] = None

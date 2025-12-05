@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Accommodation } from "@/constants";
 
-export const AccommodationCard = ({ accommodation, imageUrl }: { accommodation: Accommodation, imageUrl?: string }) => {
+export const AccommodationCard = ({ accommodation, imageUrl, hideBookingButtons = false }: { accommodation: Accommodation, imageUrl?: string, hideBookingButtons?: boolean }) => {
   // Generate search URLs for booking platforms
   const locationQuery = encodeURIComponent(`${accommodation.name}, ${accommodation.location}`);
   const bookingComUrl = `https://www.booking.com/search.html?ss=${locationQuery}`;
@@ -66,69 +66,71 @@ export const AccommodationCard = ({ accommodation, imageUrl }: { accommodation: 
                 className={`w-4 h-4 ${i < parseFloat(accommodation.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
               />
             ))}
-            <span className="ml-1 font-semibold text-sm">{accommodation.rating}/5</span>
+            <span className="ml-1 font-semibold text-sm">{parseFloat(accommodation.rating).toFixed(1)}/5</span>
           </div>
         </div>
 
         {/* Booking Section */}
-        <div className="space-y-2 pt-1">
-          <h4 className="font-semibold text-base">Book this accommodation:</h4>
-          
-          {/* 2x2 Grid of Booking Buttons */}
-          <div className="grid grid-cols-2 gap-2">
-            {/* Original Booking Link */}
-            <Button asChild className="w-full" size="sm">
-              <a 
-                href={accommodation.booking_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span className="text-xs">Book Now</span>
-              </a>
-            </Button>
+        {!hideBookingButtons && (
+          <div className="space-y-2 pt-1">
+            <h4 className="font-semibold text-base">Book this accommodation:</h4>
+            
+            {/* 2x2 Grid of Booking Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Original Booking Link */}
+              <Button asChild className="w-full" size="sm">
+                <a 
+                  href={accommodation.booking_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span className="text-xs">Book Now</span>
+                </a>
+              </Button>
 
-            {/* Booking.com */}
-            <Button asChild variant="default" className="w-full bg-[#003580] hover:bg-[#002451]" size="sm">
-              <a 
-                href={bookingComUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1"
-              >
-                <Building className="w-3.5 h-3.5" />
-                <span className="text-xs">Booking.com</span>
-              </a>
-            </Button>
+              {/* Booking.com */}
+              <Button asChild variant="default" className="w-full bg-[#003580] hover:bg-[#002451]" size="sm">
+                <a 
+                  href={bookingComUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1"
+                >
+                  <Building className="w-3.5 h-3.5" />
+                  <span className="text-xs">Booking.com</span>
+                </a>
+              </Button>
 
-            {/* MakeMyTrip */}
-            <Button asChild variant="default" className="w-full bg-[#00a6ff] hover:bg-[#0085cc]" size="sm">
-              <a 
-                href={makeMyTripUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span className="text-xs">MakeMyTrip</span>
-              </a>
-            </Button>
+              {/* MakeMyTrip */}
+              <Button asChild variant="default" className="w-full bg-[#00a6ff] hover:bg-[#0085cc]" size="sm">
+                <a 
+                  href={makeMyTripUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span className="text-xs">MakeMyTrip</span>
+                </a>
+              </Button>
 
-            {/* Agoda */}
-            <Button asChild variant="default" className="w-full bg-[#9b1c8e] hover:bg-[#7a1671]" size="sm">
-              <a 
-                href={agodaUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1"
-              >
-                <Building className="w-3.5 h-3.5" />
-                <span className="text-xs">Agoda</span>
-              </a>
-            </Button>
+              {/* Agoda */}
+              <Button asChild variant="default" className="w-full bg-[#9b1c8e] hover:bg-[#7a1671]" size="sm">
+                <a 
+                  href={agodaUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1"
+                >
+                  <Building className="w-3.5 h-3.5" />
+                  <span className="text-xs">Agoda</span>
+                </a>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

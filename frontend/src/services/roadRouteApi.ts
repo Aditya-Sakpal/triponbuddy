@@ -15,6 +15,8 @@ export interface RoadRouteResponse {
       };
       rating?: number;
       category: string;
+      photo_ref?: string;
+      distance_from_prev_km?: number;
     }>;
     origin: {
       lat: number;

@@ -119,6 +119,37 @@ class AIService:
             logger.error(f"Error generating alternative activities: {str(e)}")
             raise Exception(f"Failed to generate alternatives: {str(e)}")
 
+    async def generate_accommodation_details(
+        self,
+        location: str,
+        destination: str
+    ) -> Dict[str, Any]:
+        """Generate accommodation details for a specific location"""
+
+        prompt = self.prompt_builder.build_accommodation_details_prompt(location, destination)
+
+        try:
+            response = self.client.models.generate_content(
+                model='gemini-flash-latest',
+                contents=prompt
+            )
+            
+            # Check if response has text
+            if not response or not response.text:
+                logger.error("AI response is empty or has no text")
+                raise Exception("AI response is empty")
+            
+            accommodation_data = self.response_parser.parse_json_response(response.text)
+
+            return {
+                "success": True,
+                "accommodation": accommodation_data
+            }
+
+        except Exception as e:
+            logger.error(f"Error generating accommodation details: {str(e)}")
+            raise Exception(f"Failed to generate accommodation details: {str(e)}")
+
 
 # Global AI service instance
 ai_service = AIService()

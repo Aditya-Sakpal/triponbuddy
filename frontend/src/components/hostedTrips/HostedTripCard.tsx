@@ -9,7 +9,7 @@ import { TripDB } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell } from "lucide-react";
+import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell, Car, Train, Plane } from "lucide-react";
 import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
 import { JoinRequestsModal } from "./JoinRequestsModal";
@@ -59,6 +59,24 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const userOnTrip = isUserOnTrip(tripData, user?.id);
   const tripIsJoinable = isJoinable(tripData, user?.id);
   const isOwner = user?.id === trip.user_id;
+
+  // Helper function to get transport icon and label
+  const getTransportInfo = (mode?: string) => {
+    if (!mode || mode === 'default') return null;
+    
+    switch (mode) {
+      case 'road':
+        return { icon: Car, label: 'Road' };
+      case 'train':
+        return { icon: Train, label: 'Train' };
+      case 'flight':
+        return { icon: Plane, label: 'Flight' };
+      default:
+        return null;
+    }
+  };
+
+  const transportInfo = getTransportInfo(tripData.transportation_mode);
 
   // If not owner, not joined, not pending, and no slots, don't show
   if (!isOwner && !userOnTrip && tripData.request_status !== 'pending' && availableSlots <= 0) {
@@ -132,6 +150,14 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
               }
             </span>
           </div>
+
+          {/* Mode of Transport */}
+          {transportInfo && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <transportInfo.icon className="h-4 w-4" />
+              <span>Transport: {transportInfo.label}</span>
+            </div>
+          )}
         </div>
 
         {/* Host Comments */}

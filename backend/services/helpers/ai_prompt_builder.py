@@ -434,3 +434,35 @@ class AIPromptBuilder:
                 prefs.append("food and cuisine")
 
         return f" with focus on: {', '.join(prefs)}" if prefs else ""
+
+    @staticmethod
+    def build_accommodation_details_prompt(location: str, destination: str) -> str:
+        """Build prompt for generating accommodation details for a specific location"""
+
+        return f"""
+        Generate detailed accommodation information for the following hotel/accommodation:
+
+        Location/Place Name: {location}
+        Destination Context: {destination}
+
+        Please provide a JSON response with the following structure:
+        {{
+            "name": "{location}",
+            "type": "[Type: e.g., Hotel, Resort, Boutique Hotel, Guesthouse, Hostel, etc.]",
+            "price_range": "₹[Min]-[Max]/night",
+            "rating": "[Rating out of 5, e.g., 4.5]",
+            "location": "{location}",
+            "booking_url": "[Real booking URL from booking.com, makemytrip.com, or similar platform]",
+            "amenities": ["Amenity 1", "Amenity 2", "Amenity 3", "Amenity 4"]
+        }}
+
+        Important:
+        - Provide realistic pricing based on the accommodation name and location
+        - Include 4-6 relevant amenities
+        - Use actual booking platforms for the URL (booking.com, makemytrip.com, agoda.com, etc.)
+        - Categorize the type appropriately (Budget/Mid-Range/Premium/Luxury based on price)
+        - Rating should be between 3.5 and 5.0
+        - Price range should be realistic for the destination and accommodation type
+
+        Return ONLY the JSON object, no additional text.
+        """

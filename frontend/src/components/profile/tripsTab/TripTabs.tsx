@@ -62,9 +62,9 @@ export const TripTabs = ({
                 {joinedTrips.length}
               </Badge>
             )}
-            {joinedTrips.filter((trip: any) => !trip.emergency_contact_number).length > 0 && (
+            {joinedTrips.filter((trip: TripDB) => !trip.emergency_contact_number).length > 0 && (
               <Badge variant="destructive" className="bg-red-500 text-white text-xs px-1.5 py-0">
-                {joinedTrips.filter((trip: any) => !trip.emergency_contact_number).length}
+                {joinedTrips.filter((trip: TripDB) => !trip.emergency_contact_number).length}
               </Badge>
             )}
           </div>

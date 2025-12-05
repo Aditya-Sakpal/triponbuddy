@@ -41,10 +41,16 @@ export const TripItinerary = ({
   const { user } = useUser();
   
   const itinerary = trip.itinerary_data as unknown as Itinerary;
-  const customTips = (trip.itinerary_data as any)?.custom_tips || [];
+  const customTips = (itinerary as Itinerary & { custom_tips?: string[] })?.custom_tips || [];
   
-  // Check if user is the owner of this trip
-  const isOwner = currentUserId === trip.user_id;
+  // Check if this is a joined trip (copy created when user joined)
+  const isJoinedTripCopy = trip.is_joined === true;
+  
+  // Check if user is the owner of this trip (but NOT if it's a joined copy)
+  const isOwner = currentUserId === trip.user_id && !isJoinedTripCopy;
+
+  // Check if user is a joinee (accepted member of the trip OR viewing a joined copy)
+  const isJoinee = isJoinedTripCopy || !!(currentUserId && trip.joined_users?.includes(currentUserId) && !isOwner);
 
   // Check if trip is already hosted
   const isHosted = !!trip.max_passengers && trip.max_passengers > 0;
@@ -52,10 +58,11 @@ export const TripItinerary = ({
   // Calculate the actual budget from activities (single source of truth)
   const budgetDisplay = getCalculatedBudget(trip);
 
+  // Show all tabs to owner and joinees, but only itinerary and travel-tips to others
   const tabs = [
     { value: "itinerary", label: "Itinerary" },
-    { value: "accommodation", label: "Accommodation" },
-    { value: "transportation", label: "Transportation" },
+    ...(isOwner || isJoinee ? [{ value: "accommodation", label: "Accommodation" }] : []),
+    ...(isOwner || isJoinee ? [{ value: "transportation", label: "Transportation" }] : []),
     { value: "travel-tips", label: "Travel Tips" },
   ];
 
@@ -252,7 +259,7 @@ export const TripItinerary = ({
 
           <div className="flex justify-between items-start gap-8 ">
             <div className="space-y-4 flex-1">
-              <h1 className="text-4xl font-bold">{itinerary?.title || trip.title}</h1>
+              <h1 className="text-4xl font-bold">Your trip to {trip.destination}</h1>
               <div className="flex flex-wrap items-center gap-6 text-black/90">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
@@ -344,18 +351,36 @@ export const TripItinerary = ({
           </TabsList>
 
           <TabsContent value="itinerary" className="space-y-6">
+            {/* Joinee Notice Banner */}
+            {isJoinee && (
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> You are a member of this trip. All bookings will be made by the trip owner. 
+                  Please contact them for any suggestions or revisions to the itinerary.
+                </p>
+              </div>
+            )}
             <ItineraryTab 
               itinerary={itinerary} 
               tripId={trip.trip_id} 
               onRefresh={onRefresh}
               transportationMode={trip.transportation_mode}
               onNavigateToTransportation={() => setActiveTab('transportation')}
+              isOwner={isOwner}
+              isJoinee={isJoinee}
             />
             <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
           </TabsContent>
 
           <TabsContent value="accommodation">
-            <AccommodationTab accommodations={itinerary?.accommodation || []} />
+            <AccommodationTab 
+              accommodations={itinerary?.accommodation || []}
+              customAccommodations={trip.custom_accommodations || []}
+              hideBookingButtons={!isOwner}
+              tripId={trip.trip_id}
+              destination={trip.destination}
+              isOwner={isOwner}
+            />
           </TabsContent>
 
           <TabsContent value="transportation">
@@ -368,6 +393,7 @@ export const TripItinerary = ({
               userId={trip.user_id}
               destinationCity={itinerary?.destination || trip.destination}
               transportationMode={trip.transportation_mode}
+              hideBookingButtons={!isOwner}
             />
           </TabsContent>
 
@@ -378,6 +404,8 @@ export const TripItinerary = ({
               tripId={trip.trip_id}
               customTips={customTips}
               onCustomTipsUpdate={handleCustomTipsUpdate}
+              isOwner={isOwner}
+              isJoinee={isJoinee}
             />
           </TabsContent>
         </Tabs>

@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthButtons } from "./AuthButtons";
 import { navLinks } from "@/constants/nav";
+import { useUser } from "@clerk/clerk-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -29,6 +30,10 @@ const menuVariants = {
 
 export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   const location = useLocation();
+  const { isSignedIn } = useUser();
+
+  // Filter nav links based on authentication state
+  const filteredNavLinks = navLinks.filter(link => !link.requiresAuth || isSignedIn);
 
   return (
     <AnimatePresence>
@@ -46,7 +51,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               <div className="flex space-x-4 pb-4">
                 <AuthButtons />
               </div>
-              {navLinks.map((link) => (
+              {filteredNavLinks.map((link) => (
                 <Link 
                   key={link.to}
                   to={link.to} 

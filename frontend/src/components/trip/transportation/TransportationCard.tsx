@@ -13,7 +13,7 @@ const getTransportIcon = (type: string) => {
   return Car; // Default to car
 };
 
-export const TransportationCard = ({ transport }: { transport: TravelRoute }) => {
+export const TransportationCard = ({ transport, hideBookingButtons = false }: { transport: TravelRoute, hideBookingButtons?: boolean }) => {
   const Icon = getTransportIcon(transport.type);
   
   // Format the display title - replace "local" with "road"
@@ -70,16 +70,18 @@ export const TransportationCard = ({ transport }: { transport: TravelRoute }) =>
           </div>
         </div>
 
-        <Button asChild size="sm" className="w-full mt-auto">
-          <a
-            href={transport.booking_url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book Now
-            <ExternalLink className="w-3 h-3 ml-1" />
-          </a>
-        </Button>
+        {!hideBookingButtons && (
+          <Button asChild size="sm" className="w-full mt-auto">
+            <a
+              href={transport.booking_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Book Now
+              <ExternalLink className="w-3 h-3 ml-1" />
+            </a>
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

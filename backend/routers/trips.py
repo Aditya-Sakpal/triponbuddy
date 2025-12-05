@@ -17,7 +17,9 @@ from models.trip import (
     ActivityAlternativesRequest,
     ActivityAlternativesResponse,
     EmergencyNumberSetup,
-    EmergencyNumberResponse
+    EmergencyNumberResponse,
+    AccommodationDetailsRequest,
+    AccommodationDetailsResponse
 )
 from services.trip_service import trip_service
 from services.ai_service import ai_service
@@ -501,6 +503,80 @@ async def set_emergency_number(
         raise HTTPException(
             status_code=500,
             detail="Failed to set emergency number"
+        )
+
+
+@router.post("/{trip_id}/accommodations/details", response_model=AccommodationDetailsResponse)
+async def get_accommodation_details(
+    request: Request,
+    trip_id: str,
+    accommodation_request: AccommodationDetailsRequest,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Get AI-generated accommodation details for a specific location"""
+    try:
+        # Verify user is the trip owner - check can_user_edit_trip
+        can_edit = await trip_service.can_user_edit_trip(trip_id, user_id)
+        if not can_edit:
+            raise HTTPException(status_code=403, detail="Only trip owner can add custom accommodations")
+
+        # Generate accommodation details using AI
+        result = await ai_service.generate_accommodation_details(
+            location=accommodation_request.location,
+            destination=accommodation_request.destination
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate accommodation details"
+            )
+
+        return {
+            "success": True,
+            "accommodation": result["accommodation"]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting accommodation details: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get accommodation details: {str(e)}"
+        )
+
+
+@router.post("/{trip_id}/accommodations/add", response_model=dict)
+async def add_custom_accommodation(
+    request: Request,
+    trip_id: str,
+    accommodation: dict,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Add a custom accommodation to the trip"""
+    try:
+        result = await trip_service.add_custom_accommodation(
+            trip_id=trip_id,
+            user_id=user_id,
+            accommodation=accommodation
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=result.get("message", "Failed to add custom accommodation")
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding custom accommodation: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to add custom accommodation"
         )
 
 

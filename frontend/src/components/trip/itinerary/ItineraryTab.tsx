@@ -17,9 +17,11 @@ interface ItineraryTabProps {
   onRefresh?: () => void;
   transportationMode?: string;
   onNavigateToTransportation?: () => void;
+  isOwner: boolean;
+  isJoinee: boolean;
 }
 
-export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode = 'default', onNavigateToTransportation }: ItineraryTabProps) => {
+export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode = 'default', onNavigateToTransportation, isOwner, isJoinee }: ItineraryTabProps) => {
   const [expandedDay, setExpandedDay] = useState<number | null>(1);
   const { user } = useUser();
   
@@ -64,13 +66,15 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
 
   return (
     <div className="space-y-6">
-      {/* Build Your Own Trip Panel */}
-      <EditModeHeader
-        isEditMode={editMode.isEditMode}
-        onToggle={editMode.setIsEditMode}
-      />
+      {/* Build Your Own Trip Panel - Only shown to owners and joinees */}
+      {(isOwner || isJoinee) && (
+        <EditModeHeader
+          isEditMode={editMode.isEditMode}
+          onToggle={editMode.setIsEditMode}
+        />
+      )}
 
-      {pendingChanges.length > 0 && (
+      {(isOwner || isJoinee) && pendingChanges.length > 0 && (
         <BuildYourOwnTripPanel
           pendingChanges={pendingChanges}
           onClearChanges={clearChanges}
@@ -85,8 +89,8 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
         durationDays={itinerary.duration_days}
       />
 
-      {/* Road Places Notification - Only shown in Road mode */}
-      {isRoadMode && onNavigateToTransportation && (
+      {/* Road Places Notification - Only shown in Road mode to owners and joinees */}
+      {(isOwner || isJoinee) && isRoadMode && onNavigateToTransportation && (
         <RoadPlacesNotification tripId={tripId} onNavigateToTransportation={onNavigateToTransportation} />
       )}
 
