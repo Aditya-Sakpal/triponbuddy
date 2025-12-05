@@ -187,6 +187,7 @@ export interface TripDB {
   host_comments?: string;
   emergency_contact_number?: string;
   request_status?: 'pending' | 'accepted' | 'rejected';
+  custom_accommodations?: Accommodation[];
   created_at: string;
   updated_at: string;
 }
@@ -350,4 +351,15 @@ export interface NotificationListResponse {
   success: boolean;
   notifications: Notification[];
   unread_count: number;
+}
+
+export interface AccommodationDetailsRequest {
+  location: string;
+  destination: string;
+}
+
+export interface AccommodationDetailsResponse {
+  success: boolean;
+  accommodation: Accommodation;
+  message?: string;
 }

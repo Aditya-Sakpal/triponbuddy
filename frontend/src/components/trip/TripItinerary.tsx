@@ -374,8 +374,12 @@ export const TripItinerary = ({
 
           <TabsContent value="accommodation">
             <AccommodationTab 
-              accommodations={itinerary?.accommodation || []} 
+              accommodations={itinerary?.accommodation || []}
+              customAccommodations={trip.custom_accommodations || []}
               hideBookingButtons={!isOwner}
+              tripId={trip.trip_id}
+              destination={trip.destination}
+              isOwner={isOwner}
             />
           </TabsContent>
 

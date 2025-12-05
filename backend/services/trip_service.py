@@ -721,6 +721,55 @@ class TripService:
             logger.error(f"Error leaving trip: {str(e)}")
             raise
 
+    async def add_custom_accommodation(
+        self,
+        trip_id: str,
+        user_id: str,
+        accommodation: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Add a custom accommodation to the trip"""
+        try:
+            trip = await mongodb.find_one("trips", {"trip_id": trip_id})
+            
+            if not trip:
+                return {"success": False, "message": "Trip not found"}
+
+            # Verify user is the owner
+            if trip["user_id"] != user_id:
+                return {"success": False, "message": "Only trip owner can add custom accommodations"}
+
+            # Initialize custom_accommodations if it doesn't exist
+            if "custom_accommodations" not in trip:
+                trip["custom_accommodations"] = []
+
+            # Add the new accommodation
+            trip["custom_accommodations"].append(accommodation)
+
+            # Update the trip
+            success = await mongodb.update_one(
+                "trips",
+                {"trip_id": trip_id},
+                {
+                    "$set": {
+                        "custom_accommodations": trip["custom_accommodations"],
+                        "updated_at": datetime.now(timezone.utc)
+                    }
+                }
+            )
+
+            if success:
+                return {
+                    "success": True,
+                    "message": "Custom accommodation added successfully",
+                    "custom_accommodations": trip["custom_accommodations"]
+                }
+            else:
+                return {"success": False, "message": "Failed to add custom accommodation"}
+
+        except Exception as e:
+            logger.error(f"Error adding custom accommodation: {str(e)}")
+            raise
+
 
 # Global trip service instance
 trip_service = TripService()

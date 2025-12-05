@@ -1,121 +1,80 @@
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 import type { Accommodation } from "@/constants";
-import { googlePlacesService } from "@/services/googlePlacesService";
+import { useGetAccommodationDetails, useAddCustomAccommodation } from "@/hooks/api-hooks";
+import { useAccommodationSearch } from "@/hooks/useAccommodationSearch";
+import { useAccommodationCategories, useAccommodationImages } from "@/hooks/useAccommodationLogic";
 import { AccommodationCard } from "./AccommodationCard";
 
 interface AccommodationTabProps {
   accommodations: Accommodation[];
+  customAccommodations?: Accommodation[];
   hideBookingButtons?: boolean;
+  tripId?: string;
+  destination?: string;
+  isOwner?: boolean;
 }
 
-export const AccommodationTab = ({ accommodations, hideBookingButtons = false }: AccommodationTabProps) => {
-  const [images, setImages] = useState<{ [location: string]: string[] }>({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const AccommodationTab = ({ 
+  accommodations, 
+  customAccommodations = [],
+  hideBookingButtons = false,
+  tripId,
+  destination,
+  isOwner = false
+}: AccommodationTabProps) => {
+  const { user } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  
+  // Determine which accommodations to show
+  const displayAccommodations = customAccommodations.length > 0 ? customAccommodations : accommodations;
+  
+  // Custom hooks for business logic
+  const accommodationSearch = useAccommodationSearch();
+  const { categories, categoryOptions } = useAccommodationCategories(displayAccommodations);
+  const { images, loading, error } = useAccommodationImages(displayAccommodations);
+  
+  // API hooks
+  const getAccommodationDetails = useGetAccommodationDetails();
+  const addCustomAccommodation = useAddCustomAccommodation();
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        if (accommodations.length === 0) return;
-        
-        const imageMap: { [key: string]: string[] } = {};
-        
-        // Fetch images for each accommodation location with rate limiting
-        for (let i = 0; i < accommodations.length; i++) {
-          const acc = accommodations[i];
-          try {
-            // Use accommodation name and location for better search results
-            const photoUrl = await googlePlacesService.getActivityPhoto(
-              acc.location,
-              acc.name
-            );
-            imageMap[acc.location] = photoUrl ? [photoUrl] : [];
-          } catch (err) {
-            console.error(`Failed to fetch image for ${acc.location}:`, err);
-            imageMap[acc.location] = [];
-          }
-          
-          // Add delay between requests to avoid rate limiting
-          if (i < accommodations.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 200));
-          }
-        }
-        
-        setImages(imageMap);
-      } catch (err: unknown) {
-        setError((err as Error)?.message || "Failed to fetch images");
-      } finally {
-        setLoading(false);
+  // Handle get accommodation details
+  const handleGetDetails = async () => {
+    if (!accommodationSearch.selectedPlace || !tripId || !user?.id || !destination) return;
+
+    const location = accommodationSearch.selectedPlace.name;
+    
+    try {
+      const result = await getAccommodationDetails.mutateAsync({
+        tripId,
+        location,
+        destination,
+        userId: user.id
+      });
+
+      if (result.success && result.accommodation) {
+        // Add the accommodation to the trip
+        await addCustomAccommodation.mutateAsync({
+          tripId,
+          accommodation: result.accommodation,
+          userId: user.id
+        });
+
+        // Reset search
+        accommodationSearch.clearSearch();
       }
-    };
-    fetchImages();
-  }, [accommodations]);
-
-  // Helper function to extract minimum price from price_range string
-  const extractMinPrice = (priceRange: string): number => {
-    // Extract all numbers from the string (e.g., "₹1500-3500/night" -> [1500, 3500])
-    const numbers = priceRange.match(/\d+/g);
-    if (!numbers || numbers.length === 0) return 0;
-    // Return the first (minimum) number
-    return parseInt(numbers[0], 10);
+    } catch (error) {
+      console.error("Error getting accommodation details:", error);
+    }
   };
 
-  // Categorize accommodations by type/budget
-  const categorizeAccommodations = () => {
-    const categories = {
-      all: accommodations,
-      budget: accommodations.filter(acc => {
-        const typeMatch = acc.type?.toLowerCase().includes('budget') || 
-                         acc.type?.toLowerCase().includes('hostel') ||
-                         acc.type?.toLowerCase().includes('guesthouse');
-        const priceMatch = acc.price_range && extractMinPrice(acc.price_range) < 1500;
-        return typeMatch || priceMatch;
-      }),
-      midRange: accommodations.filter(acc => {
-        const typeMatch = acc.type?.toLowerCase().includes('mid') || 
-                         acc.type?.toLowerCase().includes('standard');
-        const minPrice = acc.price_range ? extractMinPrice(acc.price_range) : 0;
-        const priceMatch = minPrice >= 1500 && minPrice < 3500;
-        return typeMatch || priceMatch;
-      }),
-      premium: accommodations.filter(acc => {
-        const typeMatch = acc.type?.toLowerCase().includes('premium') || 
-                         acc.type?.toLowerCase().includes('deluxe');
-        const minPrice = acc.price_range ? extractMinPrice(acc.price_range) : 0;
-        const priceMatch = minPrice >= 3500 && minPrice < 7000;
-        return typeMatch || priceMatch;
-      }),
-      luxury: accommodations.filter(acc => {
-        const typeMatch = acc.type?.toLowerCase().includes('luxury') || 
-                         acc.type?.toLowerCase().includes('resort') ||
-                         acc.type?.toLowerCase().includes('five star') ||
-                         acc.type?.toLowerCase().includes('5 star');
-        const minPrice = acc.price_range ? extractMinPrice(acc.price_range) : 0;
-        const priceMatch = minPrice >= 7000;
-        return typeMatch || priceMatch;
-      })
-    };
-
-    return categories;
-  };
-
-  const categories = categorizeAccommodations();
-
-  const categoryOptions = [
-    { value: "all", label: `All (${categories.all.length})` },
-    { value: "budget", label: `Budget (${categories.budget.length})` },
-    { value: "midRange", label: `Mid-Range (${categories.midRange.length})` },
-    { value: "premium", label: `Premium (${categories.premium.length})` },
-    { value: "luxury", label: `Luxury (${categories.luxury.length})` }
-  ];
-
+  // Render accommodation grid helper
   const renderAccommodationGrid = (accommodationList: Accommodation[]) => {
     if (accommodationList.length === 0) {
       return (
@@ -152,12 +111,83 @@ export const AccommodationTab = ({ accommodations, hideBookingButtons = false }:
         <CardHeader>
           <CardTitle>Where You'll Stay</CardTitle>
           <CardDescription>
-            {accommodations.length > 0 
-              ? `Explore ${accommodations.length} carefully selected accommodations for your comfort and convenience` 
+            {displayAccommodations.length > 0 
+              ? `Explore ${displayAccommodations.length} ${customAccommodations.length > 0 ? 'custom' : 'carefully selected'} accommodations for your comfort and convenience` 
               : 'Accommodation recommendations for your trip'}
           </CardDescription>
         </CardHeader>
       </Card>
+
+      {/* Custom Accommodation Search - Only for trip owner */}
+      {isOwner && tripId && user?.id && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Search Hotels
+            </CardTitle>
+            <CardDescription>
+              Search for hotels and add custom accommodation options to your trip
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Search for hotels (e.g., Taj Hotel Mumbai)"
+                  value={accommodationSearch.searchQuery}
+                  onChange={(e) => accommodationSearch.handleInputChange(e.target.value)}
+                  onFocus={() => accommodationSearch.predictions.length > 0 && accommodationSearch.setShowPredictions(true)}
+                  className="w-full pr-10"
+                />
+                {accommodationSearch.isLoading && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                
+                {/* Autocomplete Predictions Dropdown */}
+                {accommodationSearch.showPredictions && accommodationSearch.predictions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {accommodationSearch.predictions.map((prediction) => (
+                      <button
+                        key={prediction.placeId}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        onClick={() => accommodationSearch.handlePlaceSelect(prediction)}
+                      >
+                        <div className="font-medium">{prediction.mainText}</div>
+                        <div className="text-sm text-gray-500">{prediction.secondaryText}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Button 
+                onClick={handleGetDetails}
+                disabled={!accommodationSearch.selectedPlace || getAccommodationDetails.isPending || addCustomAccommodation.isPending || accommodationSearch.isLoading}
+                className="w-full"
+              >
+                {(getAccommodationDetails.isPending || addCustomAccommodation.isPending) ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Getting Details...
+                  </>
+                ) : accommodationSearch.isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  'Get Details & Add'
+                )}
+              </Button>
+              
+
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {loading && (
         <div className="text-center py-8 text-muted-foreground">Loading images...</div>
@@ -166,7 +196,7 @@ export const AccommodationTab = ({ accommodations, hideBookingButtons = false }:
         <div className="text-center py-8 text-red-500">{error}</div>
       )}
 
-      {accommodations.length > 0 ? (
+      {displayAccommodations.length > 0 ? (
         <div className="space-y-6">
           {/* Mobile: Dropdown Filter */}
           <div className="md:hidden">

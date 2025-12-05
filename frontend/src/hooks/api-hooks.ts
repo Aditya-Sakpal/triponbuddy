@@ -246,6 +246,57 @@ export const useUpdateUserProfile = () => {
   });
 };
 
+// Accommodation Hooks
+export const useGetAccommodationDetails = () => {
+  const { addNotification } = useUiStore();
+
+  return useMutation({
+    mutationFn: ({ tripId, location, destination, userId }: {
+      tripId: string;
+      location: string;
+      destination: string;
+      userId: string;
+    }) => TripsApiService.getAccommodationDetails(tripId, location, destination, userId),
+    onError: (error: ApiError) => {
+      const message = error?.message || 'Failed to get accommodation details';
+      addNotification({
+        type: 'error',
+        message,
+      });
+    },
+  });
+};
+
+export const useAddCustomAccommodation = () => {
+  const queryClient = useQueryClient();
+  const { addNotification } = useUiStore();
+
+  return useMutation({
+    mutationFn: ({ tripId, accommodation, userId }: {
+      tripId: string;
+      accommodation: unknown;
+      userId: string;
+    }) => TripsApiService.addCustomAccommodation(tripId, accommodation, userId),
+    onSuccess: (data, variables) => {
+      // Invalidate trip query to refetch with new custom accommodation
+      queryClient.invalidateQueries({ queryKey: queryKeys.trip(variables.tripId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.trips });
+
+      addNotification({
+        type: 'success',
+        message: data.message || 'Custom accommodation added successfully',
+      });
+    },
+    onError: (error: ApiError) => {
+      const message = error?.message || 'Failed to add custom accommodation';
+      addNotification({
+        type: 'error',
+        message,
+      });
+    },
+  });
+};
+
 // Feedback Hooks
 export const useSubmitFeedback = () => {
   const { addNotification } = useUiStore();

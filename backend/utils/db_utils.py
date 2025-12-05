@@ -48,6 +48,7 @@ def convert_mongo_doc_to_trip(doc: Dict[str, Any]) -> TripDB:
         "host_comments": doc_copy.get("host_comments"),
         "emergency_contact_number": doc_copy.get("emergency_contact_number"),
         "request_status": doc_copy.get("request_status"),
+        "custom_accommodations": doc_copy.get("custom_accommodations", []),
         "created_at": doc_copy.get("created_at"),
         "updated_at": doc_copy.get("updated_at"),
     }

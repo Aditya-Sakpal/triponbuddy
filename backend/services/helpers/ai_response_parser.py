@@ -17,6 +17,10 @@ class AIResponseParser:
     def parse_json_response(response_text: str) -> Dict[str, Any]:
         """Parse the AI response and extract JSON"""
         try:
+            # Check if response_text is None or empty
+            if not response_text:
+                raise ValueError("Response text is None or empty")
+            
             # Clean the response text
             cleaned_text = response_text.strip()
 

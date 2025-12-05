@@ -96,6 +96,34 @@ export class TripsApiService {
       { user_id: userId }
     );
   }
+
+  static async getAccommodationDetails(
+    tripId: string,
+    location: string,
+    destination: string,
+    userId: string
+  ): Promise<{ success: boolean; accommodation: unknown; message?: string }> {
+    return apiClient.post(
+      `/api/trips/${tripId}/accommodations/details`,
+      {
+        location,
+        destination,
+      },
+      { user_id: userId }
+    );
+  }
+
+  static async addCustomAccommodation(
+    tripId: string,
+    accommodation: unknown,
+    userId: string
+  ): Promise<{ success: boolean; custom_accommodations: unknown[]; message: string }> {
+    return apiClient.post(
+      `/api/trips/${tripId}/accommodations/add`,
+      accommodation,
+      { user_id: userId }
+    );
+  }
 }
 
 // Users API Service
