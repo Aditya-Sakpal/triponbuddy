@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const CARD_SIZE_LG = 450;
 const CARD_SIZE_SM = 340;
 const CORNER_CLIP = 50;
-const SECTION_HEIGHT = 500;
+const SECTION_HEIGHT = 550;
 const CARD_GAP = 24;
 
 // Fallback images for when Google Maps API fails
@@ -25,6 +25,7 @@ interface Place {
   description?: string;
   rating?: number;
   types?: string[];
+  distance?: number;
   tempId: number;
 }
 
@@ -254,11 +255,11 @@ const PlaceCard = ({ place, cardSize, index }: {
         />
         
         {/* Gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
         
         {/* Place name at the bottom */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="text-white font-bold text-xl sm:text-2xl leading-tight">
+          <h3 className="text-white font-bold text-xl sm:text-2xl leading-tight drop-shadow-md">
             {place.name}
           </h3>
           {place.state && (
@@ -271,6 +272,11 @@ const PlaceCard = ({ place, cardSize, index }: {
               <span className="text-yellow-400 text-lg">★</span>
               <span className="text-white font-semibold">{place.rating.toFixed(1)}</span>
             </div>
+          )}
+          {place.distance !== undefined && (
+            <p className="text-white font-medium text-sm mt-1 drop-shadow-sm">
+              {place.distance.toFixed(1)} km away
+            </p>
           )}
         </div>
       </div>

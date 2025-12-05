@@ -15,6 +15,24 @@ interface Destination {
   bestTimeToVisit?: string;
   rating?: number;
   types?: string[];
+  distance?: number;
+}
+
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg: number) {
+  return deg * (Math.PI / 180);
 }
 
 export const NearbyPlacesSection = () => {
@@ -55,8 +73,16 @@ export const NearbyPlacesSection = () => {
     setLocationPromptShown(true);
 
     try {
+      // Get current location first so we can calculate distances
+      const location = await googlePlacesService.getCurrentLocation();
+      
       // Try to get nearby places from Google Places API
-      const nearbyPlaces = await googlePlacesService.getNearbyPlacesFromCurrentLocation(50000, 10);
+      const nearbyPlaces = await googlePlacesService.searchNearbyPlaces(
+        location.latitude, 
+        location.longitude, 
+        50000, 
+        10
+      );
       
       // Transform Google Places data to Destination format
       const destinations: Destination[] = nearbyPlaces.map((place: NearbyPlace) => ({
@@ -66,6 +92,12 @@ export const NearbyPlacesSection = () => {
         image: place.photos?.[0] || `https://placehold.co/800x600?text=${encodeURIComponent(place.name)}`,
         rating: place.rating,
         types: place.types,
+        distance: calculateDistance(
+          location.latitude,
+          location.longitude,
+          place.location.lat,
+          place.location.lng
+        ),
       }));
 
       setRandomDestinations(destinations);
