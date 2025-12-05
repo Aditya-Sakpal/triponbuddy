@@ -7,13 +7,18 @@ import { AuthButtons } from "./AuthButtons";
 import { MobileMenu } from "./MobileMenu";
 import { NotificationBell } from "./NotificationBell";
 import { navLinks } from "@/constants/nav";
+import { useUser } from "@clerk/clerk-react";
 
 export const Navigation = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  // Filter nav links based on authentication state
+  const filteredNavLinks = navLinks.filter(link => !link.requiresAuth || isSignedIn);
 
   return (
     <nav className="fixed -top-4 left-0 right-0 z-[70] bg-white shadow-md h-20">
@@ -33,7 +38,7 @@ export const Navigation = () => {
           {/* Center: Navigation Links */}
           <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2">
             <div className="flex items-center space-x-3 xl:space-x-6">
-              {navLinks.map((link) => (
+              {filteredNavLinks.map((link) => (
                 <Link 
                   key={link.to}
                   to={link.to} 

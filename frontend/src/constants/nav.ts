@@ -3,6 +3,6 @@ export const navLinks = [
     { to: "/explore", label: "Destinations" },
     { to: "/hosted-trips", label: "Explore" },
     { to: "/pricing", label: "Pricing" },
-    { to: "/forum", label: "MySpace" },
-    { to: "/profile?tab=trips", label: "Trips" },
+    { to: "/forum", label: "MySpace", requiresAuth: true },
+    { to: "/profile?tab=trips", label: "Trips", requiresAuth: true },
   ];
