@@ -13,6 +13,7 @@ export const TripPlanningSection = () => {
     // State
     selectedPreferences,
     destinations,
+    pendingDestination,
     startLocation,
     startDate,
     durationDays,
@@ -52,7 +53,7 @@ export const TripPlanningSection = () => {
       <TripGenerationModal 
         isOpen={isGenerating || isPending} 
         onClose={() => {}}
-        destination={destinations[destinations.length - 1] || ""}
+        destination={destinations[destinations.length - 1] || pendingDestination || ""}
         onCancel={handleCancelGeneration}
         preloadedImages={modalImages}
       />
