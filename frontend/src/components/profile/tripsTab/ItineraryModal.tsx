@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation, Info } from "lucide-react";
+import { MapPin, Calendar, Clock, IndianRupee, ExternalLink, Car, Bed, Navigation, Info, Download } from "lucide-react";
 import { TripDB, Itinerary, DailyPlan, Activity, Accommodation, TravelRoute, NeighboringPlace, TransportationHub, LocalTransportation } from "@/constants";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { formatTitleCase, getCalculatedBudget } from "@/utils/tripUtils";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface ItineraryModalProps {
   trip: TripDB | null;
@@ -15,12 +17,54 @@ interface ItineraryModalProps {
 }
 
 export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const itinerary = useMemo(() => {
     if (!trip?.itinerary_data) return null;
     return trip.itinerary_data as unknown as Itinerary;
   }, [trip?.itinerary_data]);
 
   if (!trip || !itinerary) return null;
+
+  const handleDownloadPDF = async () => {
+    if (!contentRef.current || !trip) return;
+
+    try {
+      const element = contentRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${trip.title.replace(/\s+/g, '_')}_Itinerary.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -94,6 +138,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto mt-12">
+        <div ref={contentRef} className="p-1">
         <DialogHeader className="border-b border-bula text-bula">
           <DialogTitle className="text-2xl font-bold">{trip.title}</DialogTitle>
           <DialogDescription className="text-lg">
@@ -561,8 +606,13 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
             </Card>
           )}
         </div>
+        </div>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end pt-4 border-t gap-2">
+          <Button variant="outline" onClick={handleDownloadPDF}>
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
+          </Button>
           <Button onClick={onClose}>
             Close
           </Button>
