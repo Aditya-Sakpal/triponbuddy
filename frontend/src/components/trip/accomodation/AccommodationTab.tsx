@@ -9,9 +9,10 @@ import { AccommodationCard } from "./AccommodationCard";
 
 interface AccommodationTabProps {
   accommodations: Accommodation[];
+  hideBookingButtons?: boolean;
 }
 
-export const AccommodationTab = ({ accommodations }: AccommodationTabProps) => {
+export const AccommodationTab = ({ accommodations, hideBookingButtons = false }: AccommodationTabProps) => {
   const [images, setImages] = useState<{ [location: string]: string[] }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -133,7 +134,12 @@ export const AccommodationTab = ({ accommodations }: AccommodationTabProps) => {
         {accommodationList.map((accommodation, index) => {
           const imageUrl = images[accommodation.location]?.[0];
           return (
-            <AccommodationCard key={index} accommodation={accommodation} imageUrl={imageUrl} />
+            <AccommodationCard 
+              key={index} 
+              accommodation={accommodation} 
+              imageUrl={imageUrl}
+              hideBookingButtons={hideBookingButtons}
+            />
           );
         })}
       </div>

@@ -11,6 +11,8 @@ interface TravelTipsTabProps {
   tripId?: string;
   customTips?: string[];
   onCustomTipsUpdate?: (tips: string[]) => void;
+  isOwner?: boolean;
+  isJoinee?: boolean;
 }
 
 export const TravelTipsTab = ({ 
@@ -18,7 +20,9 @@ export const TravelTipsTab = ({
   bestTimeToVisit, 
   tripId,
   customTips: initialCustomTips = [],
-  onCustomTipsUpdate 
+  onCustomTipsUpdate,
+  isOwner = false,
+  isJoinee = false
 }: TravelTipsTabProps) => {
   const [customTips, setCustomTips] = useState<string[]>(initialCustomTips);
   const [showAddTip, setShowAddTip] = useState(false);
@@ -221,19 +225,21 @@ export const TravelTipsTab = ({
         </CardContent>
       </Card>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-20 right-4 z-50">
-        <button
-          onClick={() => setShowAddTip(!showAddTip)}
-          className={`bg-black hover:bg-gray-800 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 ${
-            showAddTip ? "rotate-45" : "rotate-0"
-          }`}
-          aria-label="Add custom tip"
-          title="Add custom tip"
-        >
-          <Plus size={24} />
-        </button>
-      </div>
+      {/* Floating Action Button - Only shown to owners and joinees */}
+      {(isOwner || isJoinee) && (
+        <div className="fixed bottom-20 right-4 z-50">
+          <button
+            onClick={() => setShowAddTip(!showAddTip)}
+            className={`bg-black hover:bg-gray-800 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 ${
+              showAddTip ? "rotate-45" : "rotate-0"
+            }`}
+            aria-label="Add custom tip"
+            title="Add custom tip"
+          >
+            <Plus size={24} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

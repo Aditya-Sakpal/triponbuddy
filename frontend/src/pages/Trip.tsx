@@ -3,7 +3,6 @@ import { useTrip, useSaveTrip, useUnsaveTrip } from "@/hooks/api-hooks";
 import { useUser } from "@clerk/clerk-react";
 import { TripItinerary } from "@/components/trip/TripItinerary";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
 import { LoadingState } from "@/components/shared/LoadingState";
 
 const Trip = () => {
