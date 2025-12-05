@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Hotel, Coffee, Landmark, ExternalLink, Car } from "lucide-react";
+import { MapPin, Hotel, Coffee, Landmark, ExternalLink, Car, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 import type { RoadRouteResponse } from "@/services/roadRouteApi";
@@ -285,7 +285,27 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
 
             {/* Route Summary */}
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-              <h3 className="font-semibold text-lg mb-2">Route Summary</h3>
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="font-semibold text-lg">Route Summary</h3>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    // Build Google Maps URL with origin, destination, and waypoints
+                    const origin = `${routeData.origin.lat},${routeData.origin.lng}`;
+                    const destination = `${routeData.destination.lat},${routeData.destination.lng}`;
+                    const waypoints = routeData.waypoints
+                      ?.map(wp => `${wp.location.latitude},${wp.location.longitude}`)
+                      .join('|') || '';
+                    
+                    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints ? `&waypoints=${waypoints}` : ''}&travelmode=driving`;
+                    window.open(mapsUrl, '_blank');
+                  }}
+                >
+                  <Navigation className="w-4 h-4 mr-2" />
+                  Navigate
+                </Button>
+              </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Distance:</span>
@@ -376,6 +396,13 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
                 <p className="text-muted-foreground">No places found along this route.</p>
               </div>
             )}
+
+            {/* Note */}
+            <div className="border-t pt-4 mt-6">
+              <p className="text-sm text-muted-foreground italic text-center">
+                Note: For a detailed schedule of activities, view your itinerary
+              </p>
+            </div>
 
           </div>
         )}
