@@ -266,21 +266,31 @@ class GoogleMapsService:
             # Decode polyline to get intermediate points
             path_points = decode_polyline(encoded_polyline)
             
-            # Sample points along the route
-            # We'll take points every ~10% of the route to get a good distribution
+            # Sample points evenly along the route for better distribution
+            # Skip first and last 10% to avoid clustering near origin/destination
             num_points = len(path_points)
             if num_points < 3:
                 sample_indices = list(range(num_points))
             else:
-                # Take up to 10 sample points
-                step = max(1, num_points // 10)
-                sample_indices = list(range(0, num_points, step))
-                if (num_points - 1) not in sample_indices:
-                    sample_indices.append(num_points - 1)
+                # Skip first and last 10% of route
+                start_idx = max(1, int(num_points * 0.1))
+                end_idx = min(num_points - 1, int(num_points * 0.9))
+                usable_points = end_idx - start_idx
+                
+                if usable_points < 10:
+                    # For shorter routes, take fewer samples
+                    num_samples = max(3, usable_points)
+                    step = max(1, usable_points // num_samples)
+                    sample_indices = list(range(start_idx, end_idx, step))
+                else:
+                    # For longer routes, take up to 10 evenly-spaced samples
+                    num_samples = 10
+                    step = usable_points // num_samples
+                    sample_indices = [start_idx + (i * step) for i in range(num_samples)]
             
             sampled_points = [path_points[i] for i in sample_indices]
             
-            # Search for hotels and restaurants near sampled points
+            # Place types to search for
             place_types = [
                 {"type": "lodging", "category": "hotel"},
                 {"type": "restaurant", "category": "restaurant"},
@@ -289,25 +299,27 @@ class GoogleMapsService:
             
             seen_place_ids = set()
             
-            for point in sampled_points:
-                for place_info in place_types:
-                    places = await self._search_nearby_places(
-                        point[0], 
-                        point[1], 
-                        place_info["type"],
-                        place_info["category"]
-                    )
+            # For each sampled point, get ONE place, rotating through place types
+            # This ensures even distribution along the route
+            for idx, point in enumerate(sampled_points):
+                # Rotate through place types to get variety
+                place_info = place_types[idx % len(place_types)]
+                
+                places = await self._search_nearby_places(
+                    point[0], 
+                    point[1], 
+                    place_info["type"],
+                    place_info["category"]
+                )
+                
+                # Take only the first unique place from this location
+                for place in places:
+                    place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
                     
-                    for place in places:
-                        # Use name + location as a rough unique ID since we don't have place_id
-                        place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
-                        
-                        if place_id not in seen_place_ids:
-                            seen_place_ids.add(place_id)
-                            waypoints.append(place)
-            
-            # Limit total waypoints to avoid clutter
-            waypoints = waypoints[:10]
+                    if place_id not in seen_place_ids:
+                        seen_place_ids.add(place_id)
+                        waypoints.append(place)
+                        break  # Only take one place per sampled point
 
             # Calculate distances between consecutive waypoints
             if waypoints:
