@@ -259,6 +259,7 @@ class JoinRequestService:
                 "itinerary_data": original_trip["itinerary_data"],
                 "tags": original_trip.get("tags", []),
                 "max_passengers": None,  # Joined trip cannot be shared further
+                "transportation_mode": original_trip.get("transportation_mode", "default"),  # Copy transportation mode
                 "joined_users": [],
                 "joined_users_demographics": [],
                 "original_trip_id": original_trip["trip_id"],  # Reference to original trip

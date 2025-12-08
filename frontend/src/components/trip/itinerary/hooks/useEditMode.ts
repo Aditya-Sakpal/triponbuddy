@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface UseEditModeProps {
   onDisable?: () => void;
@@ -9,12 +9,21 @@ interface UseEditModeProps {
  */
 export const useEditMode = ({ onDisable }: UseEditModeProps = {}) => {
   const [isEditMode, setIsEditMode] = useState(false);
+  const onDisableRef = useRef(onDisable);
+  const prevIsEditMode = useRef(isEditMode);
 
+  // Keep the ref updated with the latest callback
   useEffect(() => {
-    if (!isEditMode) {
-      onDisable?.();
+    onDisableRef.current = onDisable;
+  }, [onDisable]);
+
+  // Only call onDisable when transitioning from edit mode to non-edit mode
+  useEffect(() => {
+    if (prevIsEditMode.current && !isEditMode) {
+      onDisableRef.current?.();
     }
-  }, [isEditMode, onDisable]);
+    prevIsEditMode.current = isEditMode;
+  }, [isEditMode]);
 
   return {
     isEditMode,

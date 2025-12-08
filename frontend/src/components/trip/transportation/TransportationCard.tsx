@@ -19,9 +19,6 @@ export const TransportationCard = ({ transport, hideBookingButtons = false }: { 
   // Format the display title - replace "local" with "road"
   const getDisplayTitle = (type: string) => {
     const typeLower = type.toLowerCase();
-    if (typeLower.includes('local')) {
-      return 'Road';
-    }
     return formatTitleCase(type);
   };
 
