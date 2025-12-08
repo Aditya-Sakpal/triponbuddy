@@ -144,4 +144,4 @@ export const googlePlacesService = new GooglePlacesService();
 export default googlePlacesService;
 
 // Re-export types for convenience
-export type { NearbyPlace, GeolocationCoordinates, PhotoDimensions };
+export type { NearbyPlace, GeolocationCoordinates, PhotoDimensions, GenerativeSummary } from './places/types';

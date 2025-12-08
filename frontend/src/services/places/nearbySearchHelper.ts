@@ -23,7 +23,7 @@ export async function searchByType(
         radius,
       },
       ...(type && { includedTypes: [type] }),
-      fields: ['id', 'displayName', 'photos', 'rating', 'formattedAddress', 'types', 'location'],
+      fields: ['id', 'displayName', 'photos', 'rating', 'formattedAddress', 'types', 'location', 'generativeSummary'],
     };
 
     const { places } = await Place.searchNearby(request);
@@ -52,6 +52,11 @@ export async function searchByType(
           lat: place.location!.lat(),
           lng: place.location!.lng(),
         },
+        generativeSummary: place.generativeSummary ? {
+          overview: place.generativeSummary.overview?.text,
+          overviewFlagContentUri: place.generativeSummary.overviewFlagContentUri,
+          disclaimerText: place.generativeSummary.disclaimerText?.text,
+        } : undefined,
       }));
 
     return nearbyPlaces;

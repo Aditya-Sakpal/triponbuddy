@@ -16,6 +16,10 @@ interface Destination {
   rating?: number;
   types?: string[];
   distance?: number;
+  generativeSummary?: {
+    overview?: string;
+    disclaimerText?: string;
+  };
 }
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -98,6 +102,7 @@ export const NearbyPlacesSection = () => {
           place.location.lat,
           place.location.lng
         ),
+        generativeSummary: place.generativeSummary,
       }));
 
       setRandomDestinations(destinations);
