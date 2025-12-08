@@ -52,16 +52,28 @@ export const TripItinerary = ({
   // Check if user is a joinee (accepted member of the trip OR viewing a joined copy)
   const isJoinee = isJoinedTripCopy || !!(currentUserId && trip.joined_users?.includes(currentUserId) && !isOwner);
 
+  // Debug logging for joinee detection
+  console.log('[TripItinerary] Joinee detection debug:', {
+    currentUserId,
+    tripUserId: trip.user_id,
+    isJoinedTripCopy,
+    tripIsJoined: trip.is_joined,
+    joinedUsers: trip.joined_users,
+    isOwner,
+    isJoinee,
+    transportationMode: trip.transportation_mode
+  });
+
   // Check if trip is already hosted
   const isHosted = !!trip.max_passengers && trip.max_passengers > 0;
 
   // Calculate the actual budget from activities (single source of truth)
   const budgetDisplay = getCalculatedBudget(trip);
 
-  // Show all tabs to owner and joinees, but only itinerary and travel-tips to others
+  // Show all tabs to owner, limited tabs to joinees, and only itinerary and travel-tips to others
   const tabs = [
     { value: "itinerary", label: "Itinerary" },
-    ...(isOwner || isJoinee ? [{ value: "accommodation", label: "Accommodation" }] : []),
+    ...(isOwner ? [{ value: "accommodation", label: "Accommodation" }] : []),
     ...(isOwner || isJoinee ? [{ value: "transportation", label: "Transportation" }] : []),
     { value: "travel-tips", label: "Travel Tips" },
   ];
@@ -369,7 +381,9 @@ export const TripItinerary = ({
               isOwner={isOwner}
               isJoinee={isJoinee}
             />
-            <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
+            {!isJoinee && (
+              <NeighboringPlaces places={itinerary?.neighboring_places || []} onGenerateTrip={handleGenerateTripForPlace} />
+            )}
           </TabsContent>
 
           <TabsContent value="accommodation">

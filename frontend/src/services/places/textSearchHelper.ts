@@ -21,7 +21,7 @@ export async function searchPlacesByName(
       
       const request = {
         textQuery: `${locationName} tourist attractions landmarks monuments`,
-        fields: ['id', 'displayName', 'photos', 'rating', 'formattedAddress', 'types', 'location'],
+        fields: ['id', 'displayName', 'photos', 'rating', 'formattedAddress', 'types', 'location', 'generativeSummary'],
         includedType: 'tourist_attraction',
       };
 
@@ -51,6 +51,11 @@ export async function searchPlacesByName(
             lat: place.location!.lat(),
             lng: place.location!.lng(),
           },
+          generativeSummary: place.generativeSummary ? {
+            overview: place.generativeSummary.overview?.text,
+            overviewFlagContentUri: place.generativeSummary.overviewFlagContentUri,
+            disclaimerText: place.generativeSummary.disclaimerText?.text,
+          } : undefined,
         }));
 
       return nearbyPlaces;

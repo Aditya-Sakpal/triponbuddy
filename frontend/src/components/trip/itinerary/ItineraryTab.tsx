@@ -27,6 +27,16 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
   
   const isRoadMode = transportationMode === 'road';
 
+  // Debug logging for RoadPlacesNotification visibility
+  console.log('[ItineraryTab] RoadPlacesNotification debug:', {
+    isOwner,
+    isJoinee,
+    isRoadMode,
+    transportationMode,
+    hasOnNavigateToTransportation: !!onNavigateToTransportation,
+    shouldShow: (isOwner || isJoinee) && isRoadMode && !!onNavigateToTransportation
+  });
+
   // Custom hooks
   const { activityImages, loading, error } = useItineraryImages(itinerary);
 
@@ -66,15 +76,15 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
 
   return (
     <div className="space-y-6">
-      {/* Build Your Own Trip Panel - Only shown to owners and joinees */}
-      {(isOwner || isJoinee) && (
+      {/* Build Your Own Trip Panel - Only shown to owners */}
+      {isOwner && (
         <EditModeHeader
           isEditMode={editMode.isEditMode}
           onToggle={editMode.setIsEditMode}
         />
       )}
 
-      {(isOwner || isJoinee) && pendingChanges.length > 0 && (
+      {isOwner && pendingChanges.length > 0 && (
         <BuildYourOwnTripPanel
           pendingChanges={pendingChanges}
           onClearChanges={clearChanges}

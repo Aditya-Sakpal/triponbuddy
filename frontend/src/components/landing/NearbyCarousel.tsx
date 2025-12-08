@@ -27,6 +27,10 @@ interface Place {
   types?: string[];
   distance?: number;
   tempId: number;
+  generativeSummary?: {
+    overview?: string;
+    disclaimerText?: string;
+  };
 }
 
 interface NearbyCarouselProps {
@@ -267,15 +271,28 @@ const PlaceCard = ({ place, cardSize, index }: {
               {place.state}
             </p>
           )}
-          {place.rating && (
-            <div className="flex items-center gap-1 mt-2">
-              <span className="text-yellow-400 text-lg">★</span>
-              <span className="text-white font-semibold">{place.rating.toFixed(1)}</span>
-            </div>
+          <div className="flex items-center gap-3 mt-2">
+            {place.rating && (
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-400 text-lg">★</span>
+                <span className="text-white font-semibold">{place.rating.toFixed(1)}</span>
+              </div>
+            )}
+            {place.distance !== undefined && (
+              <p className="text-white font-medium text-sm drop-shadow-sm">
+                {place.distance.toFixed(1)} km away
+              </p>
+            )}
+          </div>
+          {/* AI Summary or Description - shown below distance */}
+          {(place.generativeSummary?.overview || place.description) && (
+            <p className="text-white/85 text-sm mt-3 line-clamp-2 leading-relaxed">
+              {place.generativeSummary?.overview || place.description}
+            </p>
           )}
-          {place.distance !== undefined && (
-            <p className="text-white font-medium text-sm mt-1 drop-shadow-sm">
-              {place.distance.toFixed(1)} km away
+          {place.generativeSummary?.disclaimerText && (
+            <p className="text-white/50 text-xs mt-1 italic">
+              {place.generativeSummary.disclaimerText}
             </p>
           )}
         </div>
