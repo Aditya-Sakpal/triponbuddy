@@ -22,7 +22,7 @@ import { TripDB } from "@/constants";
 import { SharedTrip } from "@/types/forum";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -83,7 +83,7 @@ export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
       const sharedTripData: SharedTrip = {
         trip_id: trip.trip_id,
         destination: trip.destination,
-        total_cost: getCalculatedBudget(trip),
+        total_cost: getBudgetDisplay(trip),
         cover_image_url: undefined,
         start_date: trip.start_date,
         end_date: trip.end_date || trip.start_date,
@@ -157,13 +157,13 @@ export const PostTripDialog = ({ trip, children }: PostTripDialogProps) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="flex items-center gap-1 cursor-help">
-                      💰 {getCalculatedBudget(trip)}
+                      💰 {getBudgetDisplay(trip)}
                       <Info className="h-3 w-3" />
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="max-w-xs text-xs">
-                      Sum of estimated activity costs. Actual costs may be higher.
+                      Budget specified during trip generation. Actual costs may vary.
                     </p>
                   </TooltipContent>
                 </Tooltip>

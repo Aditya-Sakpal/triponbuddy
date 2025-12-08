@@ -54,6 +54,21 @@ const parsePrice = (priceString: string): number => {
 };
 
 /**
+ * Returns the budget to display for a trip
+ * Uses the original budget field passed during trip generation, falling back to calculated budget
+ * @param trip - The trip object containing the budget field
+ * @returns The original budget as a formatted string, or calculated budget as fallback
+ */
+export const getBudgetDisplay = (trip: TripDB | { budget?: number; itinerary_data?: Record<string, unknown> }): string => {
+  // Use the original budget field if it exists and is valid
+  if ('budget' in trip && trip.budget && trip.budget > 0) {
+    return `₹${trip.budget.toLocaleString('en-IN')}`;
+  }
+  // Fallback to calculated budget
+  return getCalculatedBudget(trip);
+};
+
+/**
  * Calculates the total estimated cost from all activities in a trip's itinerary
  * This is the single source of truth for budget calculation across the app
  * @param trip - The trip object or itinerary data containing daily plans with activities

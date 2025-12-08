@@ -6,7 +6,7 @@ import { Calendar, MapPin, Clock, BookmarkCheck, Info } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
 import { TripCardActions } from "@/components/trip";
 import { JoinedTripCardActions } from "./JoinedTripCardActions";
-import { formatDate, getCalculatedBudget } from "@/utils/tripUtils";
+import { formatDate, getBudgetDisplay } from "@/utils/tripUtils";
 import { googlePlacesService } from "@/services/googlePlacesService";
 
 interface TripCardProps {
@@ -111,15 +111,15 @@ export const TripCard = ({ trip, onTripLeft, onEmergencyNumberSet }: TripCardPro
                 <TooltipTrigger asChild>
                   <div className="flex items-center gap-1 w-fit">
                     <Badge variant="secondary" className="text-xs">
-                      Total Cost: {getCalculatedBudget(trip)}
+                      Total Cost: {getBudgetDisplay(trip)}
                     </Badge>
                     <Info className="h-3 w-3 text-gray-500" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-xs">
-                    This is the sum of estimated costs for all activities in the itinerary. 
-                    Actual costs may be higher and can vary based on choices and unforeseen expenses.
+                    This is the budget specified during trip generation. 
+                    Actual costs may vary based on choices and unforeseen expenses.
                   </p>
                 </TooltipContent>
               </Tooltip>

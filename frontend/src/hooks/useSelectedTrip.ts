@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { TripDB } from "@/constants";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 
 /**
  * Hook to manage selected trip state and derived data
@@ -15,7 +15,7 @@ export const useSelectedTrip = (trips: TripDB[]) => {
   );
 
   const calculatedBudget = useMemo(
-    () => (selectedTrip ? getCalculatedBudget(selectedTrip) : "₹0"),
+    () => (selectedTrip ? getBudgetDisplay(selectedTrip) : "₹0"),
     [selectedTrip]
   );
 

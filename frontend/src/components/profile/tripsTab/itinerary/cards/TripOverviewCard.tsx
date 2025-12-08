@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Info } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 import { formatDate } from "../utils/formatters";
 
 interface TripOverviewCardProps {
@@ -41,13 +41,13 @@ export const TripOverviewCard = ({ trip, itinerary }: TripOverviewCardProps) => 
                       <Info className="h-3 w-3" />
                     </p>
                     <p className="text-lg font-semibold text-green-600">
-                      {getCalculatedBudget(trip)}
+                      {getBudgetDisplay(trip)}
                     </p>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-xs">
-                    Sum of estimated activity costs. Actual costs may be higher.
+                    Budget specified during trip generation. Actual costs may vary.
                   </p>
                 </TooltipContent>
               </Tooltip>

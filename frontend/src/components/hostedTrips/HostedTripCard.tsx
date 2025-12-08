@@ -13,7 +13,7 @@ import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell, Car, Train, 
 import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
 import { JoinRequestsModal } from "./JoinRequestsModal";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 import { useDestinationImage } from "@/hooks/useDestinationImage";
 import { useTripData } from "@/hooks/useTripData";
 import { usePendingRequests } from "@/hooks/usePendingRequests";
@@ -146,7 +146,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
               Budget: {
                 tripData.custom_budget 
                   ? `₹${tripData.custom_budget?.toLocaleString('en-IN')}`
-                  : getCalculatedBudget(tripData)
+                  : getBudgetDisplay(tripData)
               }
             </span>
           </div>

@@ -36,7 +36,7 @@ import { Loader2, Share2, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TripDB } from "@/constants";
 import { SharedTrip } from "@/types/forum";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -67,7 +67,7 @@ export const HostTripModal = ({
   const [comments, setComments] = useState<string>("");
 
   // Calculate minimum budget from trip activities
-  const calculatedBudget = getCalculatedBudget(trip);
+  const calculatedBudget = getBudgetDisplay(trip);
   const minBudgetValue = parseFloat(calculatedBudget.replace(/[₹,]/g, '')) || 0;
 
   // Initialize custom budget to calculated budget
