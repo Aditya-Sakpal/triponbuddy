@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ItineraryTab, TripActionButtons, AccommodationTab, TransportationTab, TravelTipsTab, NeighboringPlaces, EditTripModal, ImageCarousel, HostTripModal} from "@/components/trip";
 import { googlePlacesService } from "@/services/googlePlacesService";
 import type { TripDB, Itinerary, ImageData } from "@/constants";
-import { getCalculatedBudget } from "@/utils/tripUtils";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 import { apiClient } from "@/lib/api-client";
 
 interface TripItineraryProps {
@@ -67,8 +67,8 @@ export const TripItinerary = ({
   // Check if trip is already hosted
   const isHosted = !!trip.max_passengers && trip.max_passengers > 0;
 
-  // Calculate the actual budget from activities (single source of truth)
-  const budgetDisplay = getCalculatedBudget(trip);
+  // Get the budget to display (uses original budget from trip generation)
+  const budgetDisplay = getBudgetDisplay(trip);
 
   // Show all tabs to owner, limited tabs to joinees, and only itinerary and travel-tips to others
   const tabs = [
@@ -289,8 +289,8 @@ export const TripItinerary = ({
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-xs text-xs">
-                          This is the sum of estimated costs for all activities in the itinerary. 
-                          Actual costs may be higher and can vary based on choices and unforeseen expenses.
+                          This is the budget specified during trip generation. 
+                          Actual costs may vary based on choices and unforeseen expenses.
                         </p>
                       </TooltipContent>
                     </Tooltip>
