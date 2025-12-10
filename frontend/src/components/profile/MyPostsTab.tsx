@@ -2,12 +2,14 @@ import { useUser } from "@clerk/clerk-react";
 import { useUserPosts } from "@/hooks/useForum";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, MessageSquare, Heart, Calendar, Trash2, ExternalLink } from "lucide-react";
+import { Loader2, MessageSquare, Heart, Calendar, Trash2, ExternalLink, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { forumApi } from "@/services/forumApi";
 import { useToast } from "@/hooks/use-toast";
+import { useDestinationImage } from "@/hooks/useDestinationImage";
+import { SharedTrip } from "@/types/forum";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +20,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+// Small component to display shared trip with destination image
+const SharedTripPreview = ({ sharedTrip }: { sharedTrip: SharedTrip }) => {
+  const destinationImage = useDestinationImage(sharedTrip.destination);
+  
+  return (
+    <div className="mb-3 flex items-center gap-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+      {/* Destination Image */}
+      <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-blue-100">
+        {destinationImage ? (
+          <img
+            src={destinationImage}
+            alt={sharedTrip.destination}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <MapPin className="h-6 w-6 text-blue-400" />
+          </div>
+        )}
+      </div>
+      {/* Trip Info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-blue-700">Shared Trip</p>
+        <p className="text-sm font-medium text-blue-900 truncate">
+          {sharedTrip.destination}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 export const MyPostsTab = () => {
   const { user } = useUser();
@@ -103,7 +136,7 @@ export const MyPostsTab = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">My Posts ({posts.length})</h3>
           <Button onClick={() => navigate("/forum")} variant="outline" size="sm">
-            View Forum
+            View MySpace
           </Button>
         </div>
 
@@ -176,12 +209,7 @@ export const MyPostsTab = () => {
 
                 {/* Shared Trip */}
                 {post.shared_trip && (
-                  <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-xs font-semibold text-blue-700">Shared Trip</p>
-                    <p className="text-sm font-medium text-blue-900">
-                      {post.shared_trip.destination}
-                    </p>
-                  </div>
+                  <SharedTripPreview sharedTrip={post.shared_trip} />
                 )}
 
                 {/* Stats */}
