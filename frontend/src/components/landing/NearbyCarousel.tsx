@@ -8,13 +8,20 @@ const CORNER_CLIP = 50;
 const SECTION_HEIGHT = 550;
 const CARD_GAP = 24;
 
-// Fallback images for when Google Maps API fails
+// Fallback images for when Google Maps API fails or location access is denied
 const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-  'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80',
-  'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
-  'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
+  'https://images.unsplash.com/photo-1536295243470-d7cba4efab7b?q=80', // Mountains
+  'https://plus.unsplash.com/premium_photo-1697729603596-90888a05a6bc?w=800&q=80', // Beach
+  'https://plus.unsplash.com/premium_photo-1697730426664-f04d9916f700?w=800&q=80', // Mountain peak
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80', // Forest lake
+  'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80', // Valley
+  'https://images.unsplash.com/photo-1704916902292-2d9eae6cd667?w=800&q=80', // Tropical beach
+
+  'https://plus.unsplash.com/premium_photo-1680260413569-7e28013a3d8a?w=800&q=80', // Lake mountains
+  'https://plus.unsplash.com/premium_photo-1678593494392-20a8f9f076e6?w=800&q=80', // Scenic road
+
+  'https://images.unsplash.com/photo-1733805569204-41768c7d8c0f?w=800&q=80', // Japanese temple
+  'https://plus.unsplash.com/premium_photo-1689962255099-9c6998f30154?w=800&q=80', // Snowy mountain
 ];
 
 interface Place {
@@ -207,8 +214,14 @@ const PlaceCard = ({ place, cardSize, index }: {
   
   // Check if the image URL is valid/exists, otherwise use fallback immediately
   const getInitialImage = () => {
-    if (!place.image || place.image.trim() === '' || place.image.includes('maps.googleapis.com')) {
-      // If no image or it's a Google Maps URL (which is failing), use fallback
+    if (
+      !place.image || 
+      place.image.trim() === '' || 
+      place.image.includes('maps.googleapis.com') ||
+      place.image.includes('placehold.co') ||
+      place.image.includes('placeholder')
+    ) {
+      // If no image, it's a Google Maps URL, or a placeholder - use Unsplash fallback
       return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
     }
     return place.image;
