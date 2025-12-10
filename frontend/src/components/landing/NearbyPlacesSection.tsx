@@ -57,16 +57,15 @@ export const NearbyPlacesSection = () => {
           name: dest.name,
           state: stateData.state,
           description: dest.description,
-          image: `https://placehold.co/800x600?text=${encodeURIComponent(dest.name)}`,
+          image: '', // NearbyCarousel handles Unsplash fallback images
           season: dest.season,
           bestTimeToVisit: dest.bestTimeToVisit
         });
       });
     });
 
-    // Shuffle and pick 10 random destinations
-    const shuffled = [...allDestinations].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, 10);
+    // Pick first 10 destinations (consistent order for matching Unsplash images)
+    const selected = allDestinations.slice(0, 10);
     setRandomDestinations(selected);
     setUseGooglePlaces(false);
   }, []);
@@ -93,7 +92,7 @@ export const NearbyPlacesSection = () => {
         id: place.id,
         name: place.name,
         description: place.vicinity || `${place.types[0]?.replace(/_/g, ' ')} in your area`,
-        image: place.photos?.[0] || `https://placehold.co/800x600?text=${encodeURIComponent(place.name)}`,
+        image: place.photos?.[0] || '', // NearbyCarousel handles Unsplash fallback images
         rating: place.rating,
         types: place.types,
         distance: calculateDistance(
@@ -136,7 +135,7 @@ export const NearbyPlacesSection = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <section className="py-12 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-4 pt-8 bg-gradient-to-b from-white to-gray-50">
       {/* Header */}
       <div className="container mx-auto px-6 mb-8">
         <div className="flex items-center gap-3 mb-2 flex-wrap">

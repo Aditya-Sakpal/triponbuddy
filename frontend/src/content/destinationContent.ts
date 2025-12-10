@@ -567,7 +567,7 @@
           bestTimeToVisit: "Nov - Mar"
         },
         {
-          name: "Kaziranga National Park",
+          name: "Kaziranga Park",
           description: "UNESCO World Heritage Site famous for the one-horned rhinoceros and tiger reserve. Home to diverse wildlife and bird species.",
 
           bestTimeToVisit: "Nov - Mar"
@@ -580,7 +580,7 @@
       count: 5,
       destinations: [
         {
-          name: "Mahabodhi Temple, Bodh Gaya",
+          name: "Mahabodhi Temple",
           description: "The place where Lord Buddha attained enlightenment. Home to the sacred Mahabodhi Temple and numerous Buddhist monasteries.",
 
           bestTimeToVisit: "Oct - Mar"
@@ -604,7 +604,7 @@
             "bestTimeToVisit": "Oct - Mar"
         },
         {
-              name: "Nalanda University Ruins",
+              name: "Nalanda Ruins",
               description: "Site of the ancient Nalanda University, one of the world's oldest universities. A significant archaeological site.",
 
               bestTimeToVisit: "Oct - Mar"
@@ -616,7 +616,7 @@
       count: 5,
       destinations: [
             {
-      name: "Kanger Valley National Park",
+      name: "Kanger Valley",
       description: "Biodiversity hotspot with caves and waterfalls.",
 
       bestTimeToVisit: "Oct - Mar"
@@ -755,13 +755,13 @@
       bestTimeToVisit: "Nov - Feb"
     },
         {
-          name: "North Goa (Baga Beach)",
+          name: "Baga Beach",
           description: "Known for its lively beaches, water sports, vibrant nightlife, and Portuguese heritage.",
 
           bestTimeToVisit: "Nov - May"
         },
         {
-          name: "South Goa (Palolem Beach)",
+          name: "Palolem Beach",
           description: "Features more relaxed and less crowded beaches, luxury resorts, and pristine natural beauty. Perfect for a peaceful getaway.",
 
           bestTimeToVisit: "Nov - May"
@@ -856,12 +856,6 @@
           description: "Beautiful Mughal garden complex with fountains and historic structures.",
 
           bestTimeToVisit: "Oct - Mar"
-        },
-        {
-          name: "Sultanpur Bird Sanctuary",
-          description: "Haven for migratory birds, ideal for birdwatching and nature walks.",
-
-          bestTimeToVisit: "Nov - Feb"
         },
         {
           name: "Morni Hills",
@@ -1107,7 +1101,7 @@
       count: 2,
       destinations: [
             {
-      name: "Keibul Lamjao National Park",
+      name: "Keibul Lamjao",
       description: "World’s only floating national park, home to Sangai deer.",
 
       bestTimeToVisit: "Nov - Apr"
@@ -1179,7 +1173,7 @@
       count: 5,
       destinations: [
             {
-      name: "Phawngpui (Blue Mountain)",
+      name: "Phawngpui",
       description: "Highest peak of Mizoram with rich biodiversity.",
 
       bestTimeToVisit: "Oct - Mar"
@@ -1257,7 +1251,7 @@
       count: 5,
       destinations: [
         {
-          name: "Konark Sun Temple",
+          name: "Konark Temple",
           description: "UNESCO World Heritage Site shaped like a giant chariot.",
 
           bestTimeToVisit: "Oct - Mar"
@@ -1269,7 +1263,7 @@
           bestTimeToVisit: "Nov - Feb"
         },
         {
-          name: "Udayagiri & Khandagiri Caves",
+          name: "Khandagiri Caves",
           description: "Ancient rock-cut caves with Jain heritage.",
 
           bestTimeToVisit: "Oct - Mar"
@@ -1353,7 +1347,7 @@
           bestTimeToVisit: "Oct - Mar"
         },
         {
-          name: "Akshardham Temple",
+          name: "Akshardham",
           description: "Grand Hindu temple showcasing Indian culture and spirituality.",
 
           bestTimeToVisit: "Oct - Mar"
@@ -1564,7 +1558,7 @@
       bestTimeToVisit: "Oct - Mar"
     },
     {
-      name: "Sepahijala Wildlife Sanctuary",
+      name: "Sepahijala Sanctuary",
       description: "Biodiversity hotspot with primates, birds, and lakes.",
 
       bestTimeToVisit: "Oct - Mar"
@@ -1662,7 +1656,7 @@
       count: 6,
       destinations: [
         {
-          name: "Kolkata Victoria Memorial",
+          name: "Victoria Memorial",
           description: "Iconic marble building symbolizing British India’s legacy.",
 
           bestTimeToVisit: "Oct - Mar"

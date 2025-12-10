@@ -6,8 +6,9 @@
 
 import { SharedTrip } from "@/types/forum";
 import { Card, CardContent } from "@/components/ui/card";
-import { CalendarDays, MapPin, Wallet } from "lucide-react";
+import { CalendarDays, MapPin, Wallet, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
+import { useDestinationImage } from "@/hooks/useDestinationImage";
 
 interface ForumTripCardProps {
   trip: SharedTrip;
@@ -19,34 +20,36 @@ const ForumTripCard = ({ trip, username }: ForumTripCardProps) => {
   const formattedEndDate = format(new Date(trip.end_date), "MMM dd, yyyy");
   
   const tripTitle = `${username}'s trip to ${trip.destination}`;
+  
+  // Fetch destination image if cover_image_url is not provided
+  const fetchedImage = useDestinationImage(trip.destination);
+  const displayImage = trip.cover_image_url || fetchedImage;
 
   return (
     <Card className="overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-all">
-      {/* Trip Image */}
-      {trip.cover_image_url && (
-        <div className="relative h-48 w-full overflow-hidden">
+      {/* Trip Image - Always shown */}
+      <div className="relative h-48 w-full overflow-hidden bg-muted">
+        {displayImage ? (
           <img
-            src={trip.cover_image_url}
+            src={displayImage}
             alt={trip.destination}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-xl font-bold text-white drop-shadow-lg">
-              {tripTitle}
-            </h3>
+        ) : (
+          // Loading/fallback placeholder while image is being fetched
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
           </div>
-        </div>
-      )}
-
-      <CardContent className="p-4 space-y-3">
-        {/* No image fallback */}
-        {!trip.cover_image_url && (
-          <h3 className="text-xl font-bold text-primary">
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-3 left-3 right-3">
+          <h3 className="text-xl font-bold text-white drop-shadow-lg">
             {tripTitle}
           </h3>
-        )}
+        </div>
+      </div>
 
+      <CardContent className="p-4 space-y-3">
         {/* Trip Details */}
         <div className="grid gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
