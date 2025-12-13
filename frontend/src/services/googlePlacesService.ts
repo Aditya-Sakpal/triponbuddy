@@ -7,7 +7,7 @@
 
 import { googleMapsLoader } from '@/lib/google-maps-loader';
 import { NearbyPlace, GeolocationCoordinates, PhotoDimensions } from './places/types';
-import { getCurrentLocation, isLocationInIndia } from './places/locationHelper';
+import { getCurrentLocation, isLocationInIndia, reverseGeocodeToCity } from './places/locationHelper';
 import { searchNearbyPlaces } from './places/nearbySearchHelper';
 import { searchPlacesByName } from './places/textSearchHelper';
 import {
@@ -52,6 +52,29 @@ class GooglePlacesService {
    */
   async getCurrentLocation(): Promise<GeolocationCoordinates> {
     return getCurrentLocation();
+  }
+
+  /**
+   * Reverse geocode coordinates to get city, state, country
+   */
+  async reverseGeocodeToCity(latitude: number, longitude: number): Promise<string | null> {
+    await this.ensureInitialized();
+    return reverseGeocodeToCity(latitude, longitude);
+  }
+
+  /**
+   * Get user's current city location (city, state, country format)
+   * Returns null if location permissions are denied or unavailable
+   */
+  async getCurrentCityLocation(): Promise<string | null> {
+    try {
+      const coords = await getCurrentLocation();
+      await this.ensureInitialized();
+      return reverseGeocodeToCity(coords.latitude, coords.longitude);
+    } catch {
+      // Location permissions denied or unavailable - return null silently
+      return null;
+    }
   }
 
   // ===== Nearby Search Methods =====

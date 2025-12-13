@@ -76,6 +76,26 @@ export const useTripPlanning = () => {
     }
   }, [searchParams]);
 
+  // Auto-populate start location from user's current location
+  useEffect(() => {
+    const populateStartLocation = async () => {
+      // Only populate if start location is not already set
+      if (startLocation) return;
+      
+      try {
+        const cityLocation = await googlePlacesService.getCurrentCityLocation();
+        if (cityLocation) {
+          setStartLocation(cityLocation);
+        }
+      } catch {
+        // Silently fail - no fallback needed per user requirement
+      }
+    };
+
+    populateStartLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
+
   // Estimate minimum budget when trip parameters change
   const estimateBudget = useCallback(async () => {
     const effectiveDestinations = destinations.length > 0 
