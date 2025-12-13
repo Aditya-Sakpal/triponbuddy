@@ -92,3 +92,76 @@ export async function isLocationInIndia(locationName: string): Promise<boolean> 
     return false;
   }
 }
+
+/**
+ * Reverse geocode coordinates to get city, state, country
+ * @param latitude Latitude coordinate
+ * @param longitude Longitude coordinate
+ * @returns Formatted location string (City, State, Country) or null if unavailable
+ */
+export async function reverseGeocodeToCity(
+  latitude: number,
+  longitude: number
+): Promise<string | null> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(window.google?.maps as any)?.Geocoder) {
+      throw new Error('Google Geocoder not available');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const geocoder = new (window.google.maps as any).Geocoder();
+
+    return new Promise((resolve) => {
+      geocoder.geocode(
+        { location: { lat: latitude, lng: longitude } },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (results: any, status: any) => {
+          if (status === 'OK' && results && results.length > 0) {
+            // Find the best result for city-level information
+            // Priority: locality > administrative_area_level_2 > administrative_area_level_1
+            let city = '';
+            let state = '';
+            let country = '';
+
+            // Use the first result which typically has the most complete address
+            const result = results[0];
+            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            result.address_components?.forEach((component: any) => {
+              const types = component.types;
+              
+              if (types.includes('locality')) {
+                city = component.long_name;
+              } else if (types.includes('administrative_area_level_2') && !city) {
+                // Fallback to district if city not found
+                city = component.long_name;
+              }
+              
+              if (types.includes('administrative_area_level_1')) {
+                state = component.long_name;
+              }
+              
+              if (types.includes('country')) {
+                country = component.long_name;
+              }
+            });
+
+            // Build location string with available components
+            const parts = [city, state, country].filter(Boolean);
+            if (parts.length > 0) {
+              resolve(parts.join(', '));
+            } else {
+              resolve(null);
+            }
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error reverse geocoding:', error);
+    return null;
+  }
+}
