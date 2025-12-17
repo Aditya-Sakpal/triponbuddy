@@ -7,6 +7,8 @@ const CARD_SIZE_SM = 340;
 const CORNER_CLIP = 50;
 const SECTION_HEIGHT = 550;
 const CARD_GAP = 24;
+const AUTO_SCROLL_SPEED = 1; // pixels per frame
+const AUTO_SCROLL_INTERVAL = 0; // ms between frames
 
 // Fallback images for when Google Maps API fails or location access is denied
 const FALLBACK_IMAGES = [
@@ -139,6 +141,21 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
       document.body.style.overflow = '';
     };
   }, [isHovering]);
+
+  // Auto-scroll effect
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || places.length === 0) return;
+
+    // Don't auto-scroll when user is interacting
+    if (isHovering || isDragging) return;
+
+    const intervalId = setInterval(() => {
+      container.scrollLeft += AUTO_SCROLL_SPEED;
+    }, AUTO_SCROLL_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [places.length, isHovering, isDragging]);
 
   useEffect(() => {
     const { matches } = window.matchMedia("(min-width: 640px)");
