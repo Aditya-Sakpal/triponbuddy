@@ -290,11 +290,19 @@ class GoogleMapsService:
             
             sampled_points = [path_points[i] for i in sample_indices]
             
-            # Place types to search for
+            # Place types to search for - prioritize viewpoints/attractions over hotels/restaurants
+            # Distribution: ~60% attractions/viewpoints, ~20% restaurants, ~20% hotels
             place_types = [
-                {"type": "lodging", "category": "hotel"},
+                {"type": "tourist_attraction", "category": "attraction"},
+                {"type": "viewpoint scenic point", "category": "viewpoint"},
+                {"type": "tourist_attraction", "category": "attraction"},
                 {"type": "restaurant", "category": "restaurant"},
-                {"type": "tourist_attraction", "category": "attraction"}
+                {"type": "historical landmark monument", "category": "attraction"},
+                {"type": "natural park garden", "category": "attraction"},
+                {"type": "tourist_attraction", "category": "attraction"},
+                {"type": "lodging", "category": "hotel"},
+                {"type": "museum cultural site", "category": "attraction"},
+                {"type": "temple shrine religious site", "category": "attraction"}
             ]
             
             seen_place_ids = set()
