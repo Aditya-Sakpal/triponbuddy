@@ -50,7 +50,7 @@ export const LocalTransportationPanel = ({ localTransportation, hideBookingButto
                 <Button
                   key={service.name}
                   size="sm"
-                  className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-500 transition-all"
+                  className="flex items-center gap-2 hover:bg-blue-700 transition-all"
                   onClick={() => window.open(service.url, '_blank')}
                 >
                   <Icon className="w-4 h-4 text-white" />

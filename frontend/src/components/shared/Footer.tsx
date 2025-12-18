@@ -10,6 +10,7 @@ export const Footer = () => {
     { to: "/", label: "Home" },
     { to: "/explore", label: "Destinations" },
     { to: "/profile?tab=trips", label: "My Trips" },
+    { to: "/pricing", label: "Pricing" },
     { to: "/contact", label: "Contact" },
     { to: "/privacy", label: "Privacy Policy" },
   ];
