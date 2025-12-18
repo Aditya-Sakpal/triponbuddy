@@ -4,57 +4,76 @@ import tripBuddyLogo from "@/assets/triponbuddylogo.png";
 import { AuthButtons } from "./AuthButtons";
 import { NotificationBell } from "./NotificationBell";
 import { navLinks } from "@/constants/nav";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import Dock, { type DockItemData } from "./MobileDock";
 
 export const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
 
   // Filter nav links based on authentication state
   const filteredNavLinks = navLinks.filter(link => !link.requiresAuth || isSignedIn);
 
-  // Mobile dock items in specific order: Destinations, Explore, Home (logo), MySpace, Profile
-  const mobileDockItems: DockItemData[] = [
-    {
-      icon: <Compass className="h-5 w-5 text-white" />,
-      label: "Destinations",
-      onClick: () => navigate("/explore"),
-      className: location.pathname === "/explore" ? "ring-2 ring-white" : "",
-    },
-    {
-      icon: <Map className="h-5 w-5 text-white" />,
-      label: "Explore",
-      onClick: () => navigate("/hosted-trips"),
-      className: location.pathname === "/hosted-trips" ? "ring-2 ring-white" : "",
-    },
-    {
-      icon: <img src={tripBuddyLogo} alt="Home" className="h-16 w-16 object-contain" />,
-      label: "Home",
-      onClick: () => navigate("/"),
-      className: location.pathname === "/" ? "ring-2 ring-white" : "",
-      isCenter: true,
-    },
-    {
-      icon: <MessageCircle className="h-5 w-5 text-white" />,
-      label: "MySpace",
-      onClick: () => navigate("/forum"),
-      className: location.pathname === "/forum" ? "ring-2 ring-white" : "",
-    },
-    {
-      icon: <User className="h-5 w-5 text-white" />,
-      label: "Profile",
-      onClick: () => navigate("/profile"),
-      className: location.pathname === "/profile" ? "ring-2 ring-white" : "",
-    },
-  ].filter(item => {
-    // Filter MySpace based on auth
-    if (item.label === "MySpace" || item.label === "Profile") {
-      return isSignedIn;
-    }
-    return true;
-  });
+  // Mobile dock items - different based on authentication state
+  const mobileDockItems: DockItemData[] = isSignedIn
+    ? [
+        // Authenticated user: Destinations, Explore, Home, MySpace, Profile
+        {
+          icon: <Compass className="h-5 w-5 text-white" />,
+          label: "Destinations",
+          onClick: () => navigate("/explore"),
+          className: location.pathname === "/explore" ? "ring-2 ring-white" : "",
+        },
+        {
+          icon: <Map className="h-5 w-5 text-white" />,
+          label: "Explore",
+          onClick: () => navigate("/hosted-trips"),
+          className: location.pathname === "/hosted-trips" ? "ring-2 ring-white" : "",
+        },
+        {
+          icon: <img src={tripBuddyLogo} alt="Home" className="h-16 w-16 object-contain" />,
+          label: "Home",
+          onClick: () => navigate("/"),
+          className: location.pathname === "/" ? "ring-2 ring-white" : "",
+          isCenter: true,
+        },
+        {
+          icon: <MessageCircle className="h-5 w-5 text-white" />,
+          label: "MySpace",
+          onClick: () => navigate("/forum"),
+          className: location.pathname === "/forum" ? "ring-2 ring-white" : "",
+        },
+        {
+          icon: <User className="h-5 w-5 text-white" />,
+          label: "Profile",
+          onClick: () => navigate("/profile"),
+          className: location.pathname === "/profile" ? "ring-2 ring-white" : "",
+        },
+      ]
+    : [
+        // Non-authenticated user: Explore, Home (center), Sign In
+        {
+          icon: <Compass className="h-5 w-5 text-white" />,
+          label: "Explore",
+          onClick: () => navigate("/explore"),
+          className: location.pathname === "/explore" ? "ring-2 ring-white" : "",
+        },
+        {
+          icon: <img src={tripBuddyLogo} alt="Home" className="h-16 w-16 object-contain" />,
+          label: "Home",
+          onClick: () => navigate("/"),
+          className: location.pathname === "/" ? "ring-2 ring-white" : "",
+          isCenter: true,
+        },
+        {
+          icon: <User className="h-5 w-5 text-white" />,
+          label: "Sign In",
+          onClick: () => openSignIn(),
+          className: "",
+        },
+      ];
 
   return (
     <>

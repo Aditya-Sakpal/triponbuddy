@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignOutButton } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
 import { useUserStats, useUserProfile, useUpdateUserProfile } from "@/hooks/api-hooks";
 import { UserProfile } from "@clerk/clerk-react";
 import { useState } from "react";
-import { Edit, Mail, Calendar, MapPin, User, AlertCircle, Save } from "lucide-react";
+import { Edit, Mail, Calendar, MapPin, User, AlertCircle, Save, LogOut } from "lucide-react";
 
 export const ProfileTab = () => {
   const { user } = useUser();
@@ -337,6 +337,18 @@ export const ProfileTab = () => {
             </div>
           )}
 
+        </CardContent>
+      </Card>
+
+      {/* Logout Section - Visible on mobile */}
+      <Card className="md:hidden">
+        <CardContent className="pt-6">
+          <SignOutButton>
+            <Button variant="destructive" className="w-full gap-2">
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </SignOutButton>
         </CardContent>
       </Card>
     </div>
