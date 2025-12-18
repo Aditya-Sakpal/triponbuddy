@@ -7,7 +7,7 @@ const CARD_SIZE_SM = 340;
 const CORNER_CLIP = 50;
 const SECTION_HEIGHT = 550;
 const CARD_GAP = 24;
-const AUTO_SCROLL_SPEED = 1; // pixels per frame
+const AUTO_SCROLL_SPEED = 0.5; // pixels per frame
 const AUTO_SCROLL_INTERVAL = 4; // ms between frames
 
 // Fallback images for when Google Maps API fails or location access is denied
