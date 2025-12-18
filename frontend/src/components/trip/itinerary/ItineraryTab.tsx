@@ -22,7 +22,7 @@ interface ItineraryTabProps {
 }
 
 export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode = 'default', onNavigateToTransportation, isOwner, isJoinee }: ItineraryTabProps) => {
-  const [expandedDay, setExpandedDay] = useState<number | null>(1);
+  const [expandedDay, setExpandedDay] = useState<number | null>(null);
   const { user } = useUser();
   
   const isRoadMode = transportationMode === 'road';

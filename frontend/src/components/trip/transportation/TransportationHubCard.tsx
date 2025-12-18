@@ -4,6 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import type { TransportationHub } from "@/constants";
 import { formatTitleCase } from "@/utils/tripUtils";
 
+const sanitizeDistance = (distance: string): string => {
+  const match = distance.match(/(\d+(?:\.\d+)?)\s*km/i);
+  return match ? `${match[1]} km` : distance;
+};
+
 const getHubIcon = (type: string) => {
   const typeLower = type.toLowerCase();
   if (typeLower.includes('airport')) return Building;
@@ -20,8 +25,8 @@ export const TransportationHubCard = ({ hub }: { hub: TransportationHub }) => {
       <CardHeader className="pb-3 text-black">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors duration-300">
-              <Icon className="w-5 h-5 text-white" />
+            <div className="p-2 bg-white/10 rounded-lg">
+              <Icon className="w-5 h-5 text-bula" />
             </div>
             <div className="min-w-0 flex-1">
               <CardTitle className="text-base leading-tight">{hub.name}</CardTitle>
@@ -31,8 +36,8 @@ export const TransportationHubCard = ({ hub }: { hub: TransportationHub }) => {
               </CardDescription>
             </div>
           </div>
-          <Badge variant="outline" className="group-hover:bg-white/10 transition-colors duration-300 text-xs px-2 py-0.5 text-white">
-            {hub.distance_from_city}
+          <Badge className="text-xs px-2 py-0.5 text-white text-center">
+            {sanitizeDistance(hub.distance_from_city)}
           </Badge>
         </div>
       </CardHeader>

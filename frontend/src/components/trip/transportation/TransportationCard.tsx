@@ -1,7 +1,6 @@
 import { ExternalLink, Plane, Car, Train, Clock, IndianRupee, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { TravelRoute } from "@/constants";
 import { formatTitleCase } from "@/utils/tripUtils";
 
