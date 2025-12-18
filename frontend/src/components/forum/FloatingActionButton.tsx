@@ -24,7 +24,7 @@ export const FloatingActionButton = ({ onWritePost, onToggleView, isMyPostsView 
 
   return (
     <>
-      <div className="fixed bottom-36 right-4 z-50 flex items-center gap-3">
+      <div className="fixed bottom-40 right-4 z-50 flex items-center gap-3">
         {/* Action Buttons - Show when expanded */}
         <div
           className={`flex items-center gap-3 transition-all duration-300 ${
@@ -65,7 +65,7 @@ export const FloatingActionButton = ({ onWritePost, onToggleView, isMyPostsView 
       </div>
 
       {/* Toggle View Button - Below FAB */}
-      <div className="fixed bottom-20 right-4 z-50">
+      <div className="fixed bottom-24 right-4 z-50">
         <button
           onClick={onToggleView}
           className="bg-white hover:bg-gray-100 text-black border border-gray-200 rounded-full p-3 shadow-lg transition-all duration-200 hover:scale-110"

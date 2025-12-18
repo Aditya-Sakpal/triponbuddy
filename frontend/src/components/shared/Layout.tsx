@@ -37,7 +37,7 @@ export const Layout = ({ children }: LayoutProps) => {
       
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-20 left-4 lg:bottom-4 lg:left-auto lg:right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-opacity duration-700 z-50 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed bottom-24 left-4 lg:bottom-4 lg:left-auto lg:right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-lg transition-opacity duration-700 z-50 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
         aria-label="Scroll to top"
       >
         <ChevronUp size={24} />
