@@ -81,12 +81,9 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
     try {
       const element = contentRef.current;
       
-      // Show PDF-only elements and hide browser-only elements before capture
+      // Hide browser-only elements before capture
       const pdfHideElements = element.querySelectorAll('.pdf-hide');
-      const pdfShowElements = element.querySelectorAll('.pdf-show');
-      
       pdfHideElements.forEach(el => (el as HTMLElement).style.display = 'none');
-      // Don't show pdf-show elements in the image - we'll add links as PDF text
       
       // Use lower scale and JPEG for smaller file size
       const canvas = await html2canvas(element, {
@@ -108,54 +105,73 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
         compress: true
       });
 
-      // Add padding from all sides (10mm margin)
+      // Page dimensions
       const margin = 10;
       const pageWidth = 210;
       const pageHeight = 297;
       
-      // Add clickable links as a footer on each page
+      // URLs for links
       const tripUrl = getTripUrl();
       const contactUrl = getContactUrl();
       
-      const addFooterLinks = () => {
-        const footerY = pageHeight - 8;
-        pdf.setFontSize(9);
-        pdf.setTextColor(37, 99, 235); // Blue color
+      // Add header with trip info and clickable links at the top of each page
+      const addHeader = () => {
+        let yPos = margin;
         
-        // View in Browser link
-        pdf.textWithLink('View in Browser', margin, footerY, { url: tripUrl });
-        
-        // Talk to Us link
-        pdf.textWithLink('Talk to Us', margin + 50, footerY, { url: contactUrl });
-        
-        // Reset text color
+        // Trip title
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(0, 0, 0);
+        pdf.text(trip.title, margin, yPos + 5);
+        yPos += 10;
+        
+        // Destination and duration
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(` ${trip.destination}  •   ${trip.duration_days} ${trip.duration_days === 1 ? 'day' : 'days'}`, margin, yPos + 5);
+        yPos += 8;
+        
+        // Clickable links
+        pdf.setTextColor(37, 99, 235); // Blue color
+        pdf.textWithLink('View in Browser', margin, yPos + 5, { url: tripUrl });
+        pdf.textWithLink('Talk to Us', margin + 45, yPos + 5, { url: contactUrl });
+        yPos += 10;
+        
+        // Separator line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, yPos, pageWidth - margin, yPos);
+        
+        return yPos + 5; // Return the Y position where content should start
       };
       
+      const headerHeight = 35; // Height reserved for header
       const contentWidth = pageWidth - (margin * 2);
-      const contentHeight = pageHeight - (margin * 2) - 15; // Leave space for footer
+      const contentAreaHeight = pageHeight - margin - headerHeight - margin; // Available height for image per page
       const imgHeight = (canvas.height * contentWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = margin;
-
-      pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, imgHeight);
-      addFooterLinks();
       
-      heightLeft -= contentHeight;
+      let heightLeft = imgHeight;
+      
+      // First page
+      const contentStartY = addHeader();
+      pdf.addImage(imgData, 'JPEG', margin, contentStartY, contentWidth, imgHeight);
+      heightLeft -= contentAreaHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + margin;
+      // Additional pages
+      while (heightLeft > 0) {
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, imgHeight);
-        addFooterLinks();
-        heightLeft -= contentHeight;
+        const headerY = addHeader();
+        // Calculate the offset to show the next portion of the image
+        const yOffset = headerY - (imgHeight - heightLeft);
+        pdf.addImage(imgData, 'JPEG', margin, yOffset, contentWidth, imgHeight);
+        heightLeft -= contentAreaHeight;
       }
 
       pdf.save(`${trip.title.replace(/\s+/g, '_')}_Itinerary.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
-  }, [trip]);
+  }, [trip, getTripUrl, getContactUrl]);
 
   if (!trip || !itinerary) return null;
 
@@ -163,7 +179,7 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto mt-12">
         <div ref={contentRef} className="p-4">
-          <DialogHeader className="border-b border-bula text-bula pb-4">
+          <DialogHeader className="border-b border-bula text-bula pb-4 pdf-hide">
             <DialogTitle className="text-2xl font-bold">{trip.title}</DialogTitle>
             <div className="text-lg text-muted-foreground">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
