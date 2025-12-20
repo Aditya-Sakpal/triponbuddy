@@ -38,7 +38,7 @@ const TransportationRouteItem = ({ route }: TransportationRouteItemProps) => {
         )}
       </div>
       {route.booking_url && (
-        <Button size="sm" className="mt-2" asChild>
+        <Button size="sm" className="mt-2 pdf-hide" asChild>
           <a href={route.booking_url} target="_blank" rel="noopener noreferrer">
             Book Now
             <ExternalLink className="w-3 h-3 ml-1" />
