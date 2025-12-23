@@ -22,10 +22,10 @@ const ActivityItem = ({ activity, imageUrl }: ActivityItemProps) => {
   return (
     <div className="px-4 py-2">
       <div className="flex gap-4">
-        {/* Activity Image - Small card on the left */}
-        <div className="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+        {/* Activity Image - Larger card on the left */}
+        <div className="w-32 h-32 flex-shrink-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
           <img
-            src={imageUrl || `https://placehold.co/100x100?text=${encodeURIComponent(activity.image_search_query || activity.activity)}`}
+            src={imageUrl || `https://placehold.co/150x150?text=${encodeURIComponent(activity.image_search_query || activity.activity)}`}
             alt={activity.activity}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -63,7 +63,7 @@ const ActivityItem = ({ activity, imageUrl }: ActivityItemProps) => {
       </div>
       
       {activity.booking_info?.required && (
-        <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded text-sm mt-2">
+        <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded text-sm mt-2 pdf-hide">
           <div className="flex items-center justify-between">
             <div>
               <span className="font-medium text-blue-800 dark:text-blue-200">

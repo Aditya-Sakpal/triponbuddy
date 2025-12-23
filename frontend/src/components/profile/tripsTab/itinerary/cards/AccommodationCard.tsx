@@ -24,10 +24,10 @@ const AccommodationItem = ({ acc, imageUrl }: AccommodationItemProps) => {
   return (
     <div className="border rounded-lg p-3">
       <div className="flex gap-4">
-        {/* Accommodation Image - Small card on the left */}
-        <div className="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+        {/* Accommodation Image - Larger card on the left */}
+        <div className="w-32 h-32 flex-shrink-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
           <img
-            src={imageUrl || `https://placehold.co/100x100?text=${encodeURIComponent(acc.name)}`}
+            src={imageUrl || `https://placehold.co/150x150?text=${encodeURIComponent(acc.name)}`}
             alt={acc.name}
             className="w-full h-full object-cover"
             loading="lazy"

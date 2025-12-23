@@ -219,6 +219,46 @@ async def get_road_route(
         )
 
 
+@router.get("/{trip_id}/summary")
+async def get_trip_summary(
+    request: Request,
+    trip_id: str,
+    user_id: str = Query(..., description="User ID from Clerk")
+):
+    """Generate an AI summary for the trip (under 200 words)"""
+
+    try:
+        # Get trip to verify access
+        trip_result = await trip_service.get_trip(trip_id, user_id)
+        
+        if not trip_result.get("success"):
+            raise HTTPException(status_code=404, detail="Trip not found")
+        
+        trip = trip_result.get("trip")
+        
+        # Generate summary using AI
+        summary = await ai_service.generate_trip_summary(
+            trip_title=trip.title,
+            destination=trip.destination,
+            duration_days=trip.duration_days,
+            itinerary_data=trip.itinerary_data
+        )
+        
+        return {
+            "success": True,
+            "summary": summary
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating trip summary: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate trip summary"
+        )
+
+
 @router.put("/{trip_id}", response_model=dict)
 async def update_trip(
     request: Request,

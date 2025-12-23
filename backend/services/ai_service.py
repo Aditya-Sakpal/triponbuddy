@@ -150,6 +150,56 @@ class AIService:
             logger.error(f"Error generating accommodation details: {str(e)}")
             raise Exception(f"Failed to generate accommodation details: {str(e)}")
 
+    async def generate_trip_summary(
+        self,
+        trip_title: str,
+        destination: str,
+        duration_days: int,
+        itinerary_data: Dict[str, Any]
+    ) -> str:
+        """Generate a concise trip summary (under 200 words)"""
+
+        prompt = f"""Generate a concise, engaging summary of this trip in under 200 words. 
+The summary should capture the essence of the trip, highlighting key experiences and destinations.
+
+Trip Details:
+- Title: {trip_title}
+- Destination: {destination}
+- Duration: {duration_days} days
+
+Daily Plans Summary:
+"""
+        # Add brief overview of daily plans
+        if "daily_plans" in itinerary_data:
+            for day in itinerary_data["daily_plans"][:3]:  # Include first 3 days
+                day_num = day.get("day", "")
+                activities = day.get("activities", [])
+                activity_names = ", ".join([a.get("name", "") for a in activities[:2]])
+                prompt += f"\n- Day {day_num}: {activity_names}"
+
+        prompt += "\n\nWrite an engaging summary that would excite travelers about this trip. Focus on the experiences, culture, and highlights."
+
+        try:
+            response = self.client.models.generate_content(
+                model='gemini-flash-latest',
+                contents=prompt
+            )
+            
+            if not response or not response.text:
+                logger.error("AI response is empty or has no text")
+                return "Experience an unforgettable journey filled with adventure, culture, and memorable moments."
+            
+            # Strip word count pattern like "(89 words)" from the end
+            summary = response.text.strip()
+            import re
+            summary = re.sub(r'\s*\(\d+\s+words?\)\s*$', '', summary, flags=re.IGNORECASE)
+            
+            return summary
+
+        except Exception as e:
+            logger.error(f"Error generating trip summary: {str(e)}")
+            return "Experience an unforgettable journey filled with adventure, culture, and memorable moments."
+
 
 # Global AI service instance
 ai_service = AIService()
