@@ -2,10 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const CARD_SIZE_LG = 450;
-const CARD_SIZE_SM = 340;
-const CORNER_CLIP = 50;
-const SECTION_HEIGHT = 550;
+const CARD_SIZE_LG = 350;
+const CARD_SIZE_SM = 250;
+const SECTION_HEIGHT_LG = 450;
+const SECTION_HEIGHT_SM = 350;
 const CARD_GAP = 24;
 const AUTO_SCROLL_SPEED = 0.5; // pixels per frame
 const AUTO_SCROLL_INTERVAL = 10; // ms between frames
@@ -48,6 +48,7 @@ interface NearbyCarouselProps {
 
 export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
   const [cardSize, setCardSize] = useState(CARD_SIZE_LG);
+  const [sectionHeight, setSectionHeight] = useState(SECTION_HEIGHT_LG);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -162,8 +163,10 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
 
     if (matches) {
       setCardSize(CARD_SIZE_LG);
+      setSectionHeight(SECTION_HEIGHT_LG);
     } else {
       setCardSize(CARD_SIZE_SM);
+      setSectionHeight(SECTION_HEIGHT_SM);
     }
 
     const handleSetCardSize = () => {
@@ -171,8 +174,10 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
 
       if (matches) {
         setCardSize(CARD_SIZE_LG);
+        setSectionHeight(SECTION_HEIGHT_LG);
       } else {
         setCardSize(CARD_SIZE_SM);
+        setSectionHeight(SECTION_HEIGHT_SM);
       }
     };
 
@@ -185,7 +190,7 @@ export const NearbyCarousel = ({ places }: NearbyCarouselProps) => {
     <div
       className="relative w-full bg-gradient-to-b from-white to-gray-50 py-8"
       style={{
-        height: SECTION_HEIGHT,
+        height: sectionHeight,
       }}
     >
       <div
@@ -270,7 +275,7 @@ const PlaceCard = ({ place, cardSize, index }: {
       style={{
         width: cardSize,
         height: cardSize,
-        clipPath: `polygon(${CORNER_CLIP}px 0%, calc(100% - ${CORNER_CLIP}px) 0%, 100% ${CORNER_CLIP}px, 100% 100%, calc(100% - ${CORNER_CLIP}px) 100%, ${CORNER_CLIP}px 100%, 0 100%, 0 0)`,
+        borderRadius: 5,
       }}
       whileHover={{ scale: 1.02 }}
       transition={{
