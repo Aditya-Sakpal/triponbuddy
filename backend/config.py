@@ -51,6 +51,13 @@ class Settings(BaseSettings):
     # Upload Configuration
     max_upload_size_mb: int = Field(default=10, env="MAX_UPLOAD_SIZE_MB")  # Max file size in MB
 
+    # Email (SMTP/Gmail) Configuration
+    gmail_user: str = Field(default="triponbuddy@gmail.com", env="GMAIL_USER")
+    gmail_app_password: str = Field(default="", env="GMAIL_APP_PASSWORD")
+    gmail_from_email: str = Field(default="triponbuddy@gmail.com", env="GMAIL_FROM_EMAIL")
+    smtp_server: str = Field(default="smtp.gmail.com", env="SMTP_SERVER")
+    smtp_port: int = Field(default=587, env="SMTP_PORT")
+    dev_team_email: str = Field(default="devteam@example.com", env="DEV_TEAM_EMAIL")
     class Config:
         env_file = ".env"
         case_sensitive = False

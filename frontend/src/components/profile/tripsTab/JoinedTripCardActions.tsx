@@ -10,6 +10,7 @@ import { useUser } from "@clerk/clerk-react";
 import { TripDB } from "@/constants";
 import { useNavigate } from "react-router-dom";
 import { ItineraryModal } from "./ItineraryModal";
+import { IssueReportModal } from "@/components/shared/IssueReportModal";
 import { useToast } from "@/hooks/use-toast";
 import { SafetyToolkitModal } from "../../shared/SafetyToolkitModal";
 import { EmergencyNumberModal } from "../../shared/EmergencyNumberModal";
@@ -41,6 +42,7 @@ export const JoinedTripCardActions = ({ trip, onTripLeft, onEmergencyNumberSet }
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const hasEmergencyNumber = trip.emergency_contact_number;
 
@@ -157,12 +159,20 @@ export const JoinedTripCardActions = ({ trip, onTripLeft, onEmergencyNumberSet }
           <LifeBuoy className="w-4 h-4 mr-1" />
           Help
         </Button>
-
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setShowReportModal(true)}
+          className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black"
+        >
+          <AlertCircle className="w-4 h-4 mr-1" />
+          Report Issue
+        </Button>
         <Button
           variant="destructive"
           size="sm"
           onClick={() => setShowLeaveDialog(true)}
-          className="flex-1"
+          className="flex-1 col-span-2"
           aria-label="Leave this trip"
         >
           <LogOut className="w-4 h-4 mr-1" />
@@ -199,6 +209,13 @@ export const JoinedTripCardActions = ({ trip, onTripLeft, onEmergencyNumberSet }
             onEmergencyNumberSet();
           }
         }}
+      />
+
+      <IssueReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        tripId={trip.trip_id}
+        isOwner={false}
       />
 
       {/* Leave Trip Confirmation Dialog */}

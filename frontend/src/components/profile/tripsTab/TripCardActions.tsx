@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ItineraryModal } from "./ItineraryModal";
 import { DeleteTripDialog } from "../../trip/DeleteTripDialog";
 import { PostTripDialog } from "./PostTripDialog";
+import { IssueReportModal } from "@/components/shared/IssueReportModal";
 import { useToast } from "@/hooks/use-toast";
 
 interface TripCardActionsProps {
@@ -19,6 +20,7 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const saveTrip = useSaveTrip();
   const unsaveTrip = useUnsaveTrip();
 
@@ -105,19 +107,34 @@ export const TripCardActions = ({ trip }: TripCardActionsProps) => {
           <Button 
             variant="destructive" 
             size="sm" 
-            className="flex-1 col-span-2"
+            className="flex-1"
             aria-label={`Delete ${trip.title}`}
           >
             <Trash2 className="w-4 h-4 mr-1" />
             Delete
           </Button>
         </DeleteTripDialog>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setShowReportModal(true)}
+          className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black"
+        >
+          Report Issue
+        </Button>
       </div>
 
       <ItineraryModal
         trip={trip}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <IssueReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        tripId={trip.trip_id}
+        isOwner={true}
       />
     </>
   );
