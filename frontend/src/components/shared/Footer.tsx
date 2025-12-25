@@ -8,7 +8,7 @@ export const Footer = () => {
 
   const quickLinks = [
     { to: "/", label: "Home" },
-    { to: "/explore", label: "Destinations" },
+    { to: "/destinations", label: "Destinations" },
     { to: "/profile?tab=trips", label: "My Trips" },
     { to: "/pricing", label: "Pricing" },
     { to: "/contact", label: "Contact" },

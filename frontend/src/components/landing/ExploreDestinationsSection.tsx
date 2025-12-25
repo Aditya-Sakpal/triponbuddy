@@ -15,7 +15,7 @@ export const ExploreDestinationsSection = () => {
           size="lg" 
           variant="outline" 
           className="px-8 py-4 text-lg bg-white text-bula border-white hover:bg-white/90 font-latin"
-          onClick={() => window.location.href = '/explore'}
+          onClick={() => window.location.href = '/destinations'}
         >
           Explore Destinations
         </Button>

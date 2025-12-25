@@ -1,6 +1,6 @@
 export const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/explore", label: "Destinations", },
+    { to: "/destinations", label: "Destinations", },
     { to: "/hosted-trips", label: "Explore", requiresAuth: true },
     { to: "/pricing", label: "Pricing" },
     { to: "/forum", label: "MySpace", requiresAuth: true },

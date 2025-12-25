@@ -46,7 +46,7 @@ export const WhyTriponBuddySection = () => {
             Be part of India's fastest-growing travel community. Let TriponBuddy be your trip buddy for unforgettable adventures!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button onClick={() => navigate('/explore')} className="bg-bula hover:bg-bula text-white px-6 py-2 font-latin">
+            <Button onClick={() => navigate('/destinations')} className="bg-bula hover:bg-bula text-white px-6 py-2 font-latin">
               Explore Destinations
             </Button>
             <SignedOut>
