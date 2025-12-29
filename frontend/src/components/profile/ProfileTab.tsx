@@ -156,9 +156,9 @@ export const ProfileTab = () => {
             
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <Mail className="h-5 w-5 text-bula" />
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-600">Email</p>
-                <p className="text-base font-semibold">{user.primaryEmailAddress?.emailAddress || "Not provided"}</p>
+                <p className="text-base font-semibold max-w-[18rem] truncate">{user.primaryEmailAddress?.emailAddress || "Not provided"}</p>
               </div>
             </div>
             

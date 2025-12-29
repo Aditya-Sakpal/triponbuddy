@@ -61,12 +61,17 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
                 Discover hotels, restaurants, and attractions along your road journey. 
                 View detailed route information with recommended stops.
               </p>
-              <div className="flex gap-2">
-                <Button onClick={handleViewPlaces} variant="default" size="sm">
-                  View Places to Explore on the Road
+              <div className="flex gap-2 w-full">
+                <Button
+                  onClick={handleViewPlaces}
+                  variant="default"
+                  size="sm"
+                  className="w-full sm:w-auto flex items-center justify-center whitespace-normal text-center px-3 py-2 text-sm sm:text-base"
+                >
+                  <span className="hidden sm:inline">View Places to Explore on the Road</span>
+                  <span className="inline sm:hidden">Explore Road Places</span>
                   <MapPin className="w-4 h-4 ml-2" />
                 </Button>
-
               </div>
             </div>
           </div>
