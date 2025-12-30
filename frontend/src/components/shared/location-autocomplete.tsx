@@ -194,20 +194,24 @@ class MockPlacesService {
     }
     
     // Filter mock suggestions based on query and international setting
+    // When `isInternational` is false (India-only), trust the restriction and
+    // return any matching suggestions. When true, exclude suggestions that
+    // explicitly mention 'india' in their description/secondary text.
     const results = this.mockSuggestions.filter(suggestion => {
       const matchesQuery = suggestion.description.toLowerCase().includes(query.toLowerCase()) ||
         suggestion.structured_formatting.main_text.toLowerCase().includes(query.toLowerCase());
-      
+
       if (!matchesQuery) return false;
-      
-      // If not international, only show India locations
+
       if (!isInternational) {
-        return suggestion.description.toLowerCase().includes('india');
+        // India-only mode: accept matches (mock simulates API's region restriction)
+        return true;
       } else {
-        // If international, exclude India locations
-        return !suggestion.description.toLowerCase().includes('india');
+        // Worldwide mode: exclude places that explicitly contain 'india'
+        return !suggestion.description.toLowerCase().includes('india') &&
+               !suggestion.structured_formatting.secondary_text.toLowerCase().includes('india');
       }
-      
+
     }).slice(0, 8); // Limit to 8 results
     
     return results;
@@ -271,47 +275,28 @@ class GooglePlacesService {
     try {
       const request: AutocompleteSuggestionRequest = {
         input: query,
-        includedPrimaryTypes: ['locality', 'administrative_area_level_1', 'administrative_area_level_2', 'country'],
-        // When not international, strictly restrict to India using includedRegionCodes
+        // Do not restrict primary types so parks, points of interest, and establishments
+        // (e.g., "Pench National Park") are returned. Keep only the region restriction
+        // when not international.
         ...(isInternational ? {} : { includedRegionCodes: ['in'] })
       };
 
       const response = await googleWindow.google!.maps!.places.AutocompleteSuggestion!.fetchAutocompleteSuggestions(request);
-      
-      
+
       if (response.suggestions && response.suggestions.length > 0) {
-        const suggestions: LocationSuggestion[] = response.suggestions
-          .filter(suggestion => {
-            // Filter out any malformed suggestions
-            // Note: suggestion itself IS the placePrediction according to the API
-            if (!suggestion.placePrediction || 
-                !suggestion.placePrediction.placeId || 
-                !suggestion.placePrediction.text) {
-              return false;
-            }
-
-            // Strict filtering based on international toggle
-            const pred = suggestion.placePrediction;
-            const description = (pred.text?.text || '').toLowerCase();
-            
-            // Check if location is India or in India
-            const isIndia = description === 'india' || description.endsWith(', india');
-
-            if (isInternational) {
-              // If international mode is ON, exclude India
-              return !isIndia;
-            } else {
-              // If international mode is OFF, require India
-              // We trust the API's includedRegionCodes: ['in']
-              return true;
-            }
-          })
+        // Minimal behavior:
+        // - If `isInternational` is false, we passed includedRegionCodes: ['in'] in the request
+        //   so the API will return India-only suggestions — return them as-is.
+        // - If `isInternational` is true, do not perform any complex filtering. We only
+        //   remove suggestions that explicitly mention 'India' in the description/secondary text.
+        const mapped: LocationSuggestion[] = response.suggestions
+          .filter(suggestion => suggestion.placePrediction && suggestion.placePrediction.placeId)
           .map((suggestion) => {
             const pred = suggestion.placePrediction;
             const mainText = pred.structuredFormat?.mainText?.text || pred.text?.text || '';
             const secondaryText = pred.structuredFormat?.secondaryText?.text || '';
             const description = pred.text?.text || `${mainText}${secondaryText ? ', ' + secondaryText : ''}`;
-            
+
             return {
               place_id: pred.placeId,
               description: description,
@@ -321,10 +306,15 @@ class GooglePlacesService {
               }
             };
           });
-        return suggestions;
-      } else {
-        return [];
+
+        if (isInternational) {
+          return mapped.filter(s => !s.description.toLowerCase().includes('india') &&
+                                   !s.structured_formatting.secondary_text.toLowerCase().includes('india')).slice(0, 8);
+        }
+
+        return mapped.slice(0, 8);
       }
+      return [];
     } catch (error) {
       console.warn('Places API error, falling back to mock:', error);
       // Fallback to mock service on error
@@ -517,14 +507,15 @@ export const LocationAutocomplete = ({
 
       {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="absolute z-50 w-full mt-1 max-h-60 overflow-auto border shadow-lg bg-background">
+        <Card className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto overflow-x-hidden border shadow-lg bg-background">
           <div className="py-1">
             {suggestions.map((suggestion, index) => (
               <Button
                 key={suggestion.place_id}
+                title={suggestion.description}
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start px-3 py-2 h-auto text-left font-normal",
+                  "w-full justify-start px-3 py-2 h-auto text-left font-normal min-w-0 overflow-hidden",
                   "hover:bg-accent hover:text-accent-foreground",
                   selectedIndex === index && "bg-accent text-accent-foreground"
                 )}
@@ -533,11 +524,17 @@ export const LocationAutocomplete = ({
               >
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">
+                  <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+                    <span
+                      title={suggestion.structured_formatting.main_text}
+                      className="font-medium block w-full truncate whitespace-nowrap"
+                    >
                       {suggestion.structured_formatting.main_text}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span
+                      title={suggestion.structured_formatting.secondary_text || suggestion.description}
+                      className="text-sm text-muted-foreground block w-full truncate whitespace-nowrap"
+                    >
                       {suggestion.structured_formatting.secondary_text}
                     </span>
                   </div>
