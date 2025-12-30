@@ -193,10 +193,6 @@ class MockPlacesService {
       return [];
     }
     
-    // Filter mock suggestions based on query and international setting
-    // When `isInternational` is false (India-only), trust the restriction and
-    // return any matching suggestions. When true, exclude suggestions that
-    // explicitly mention 'india' in their description/secondary text.
     const results = this.mockSuggestions.filter(suggestion => {
       const matchesQuery = suggestion.description.toLowerCase().includes(query.toLowerCase()) ||
         suggestion.structured_formatting.main_text.toLowerCase().includes(query.toLowerCase());
@@ -275,20 +271,14 @@ class GooglePlacesService {
     try {
       const request: AutocompleteSuggestionRequest = {
         input: query,
-        // Do not restrict primary types so parks, points of interest, and establishments
-        // (e.g., "Pench National Park") are returned. Keep only the region restriction
-        // when not international.
+
         ...(isInternational ? {} : { includedRegionCodes: ['in'] })
       };
 
       const response = await googleWindow.google!.maps!.places.AutocompleteSuggestion!.fetchAutocompleteSuggestions(request);
 
       if (response.suggestions && response.suggestions.length > 0) {
-        // Minimal behavior:
-        // - If `isInternational` is false, we passed includedRegionCodes: ['in'] in the request
-        //   so the API will return India-only suggestions — return them as-is.
-        // - If `isInternational` is true, do not perform any complex filtering. We only
-        //   remove suggestions that explicitly mention 'India' in the description/secondary text.
+
         const mapped: LocationSuggestion[] = response.suggestions
           .filter(suggestion => suggestion.placePrediction && suggestion.placePrediction.placeId)
           .map((suggestion) => {
@@ -499,11 +489,6 @@ export const LocationAutocomplete = ({
           </div>
         )}
       </div>
-
-      {/* Debug info */}
-
-
-
 
       {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
