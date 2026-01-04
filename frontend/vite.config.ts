@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "localhost", // Use localhost for geolocation API to work
-    port: 8080,
+    port: 5173,
   },
   plugins: [
     react(),
