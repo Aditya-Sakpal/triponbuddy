@@ -14,7 +14,6 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-
 class MongoDB:
     """MongoDB client wrapper with async operations."""
 
