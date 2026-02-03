@@ -117,9 +117,9 @@ export const useTripPlanning = () => {
       if (response.success && response.minimum_budget) {
         setMinimumBudget(response.minimum_budget);
         // Auto-populate budget if not set or if current budget is less than minimum
-        if (!budget || budget < response.minimum_budget) {
-          setBudget(response.minimum_budget);
-        }
+        // Always update budget when minimum budget changes due to parameter updates
+        // This ensures budget decreases when days decrease, and increases when days increase
+        setBudget(response.minimum_budget);
       }
     } catch (error) {
       console.error("Failed to estimate budget:", error);

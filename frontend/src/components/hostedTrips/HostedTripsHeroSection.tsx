@@ -18,7 +18,7 @@ export const HostedTripsHeroSection = () => {
           Explore
         </h1>
         <p className="text-lg leading-relaxed text-white/90 max-w-3xl mx-auto">
-          Join exciting trips hosted by fellow travelers or share your own journey with the community. 
+          Join exciting trips hosted by fellow travelers or share your own journey with the community.
           Find travel companions and create unforgettable memories together!
         </p>
       </div>

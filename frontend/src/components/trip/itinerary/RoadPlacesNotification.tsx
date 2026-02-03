@@ -20,13 +20,13 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
 
   const fetchRoadRoute = async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await roadRouteApi.getRoadRoute(tripId, user.id);
-      
+
       if (response.success && response.route) {
         setRouteData(response.route);
       } else {
@@ -41,10 +41,13 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
   };
 
   const handleViewPlaces = () => {
+    console.log("RoadPlacesNotification: View Places clicked! Fetching data...");
     setIsModalOpen(true);
-    if (!routeData) {
-      fetchRoadRoute();
-    }
+    // FORCE FETCH DEBUGGING: Always fetch, do not check for existing data
+    // if (!routeData) {
+    setRouteData(null); // Clear previous data to show loading state
+    fetchRoadRoute();
+    // }
   };
 
   return (
@@ -58,7 +61,7 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
             <div className="flex-1">
               <h3 className="font-semibold text-lg mb-2">Road Places</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Discover hotels, restaurants, and attractions along your road journey. 
+                Discover hotels, restaurants, and attractions along your road journey.
                 View detailed route information with recommended stops.
               </p>
               <div className="flex gap-2 w-full">
@@ -78,7 +81,7 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
         </CardContent>
       </Card>
 
-      <RoadRouteDialog 
+      <RoadRouteDialog
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
         routeData={routeData}

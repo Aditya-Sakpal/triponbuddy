@@ -366,13 +366,14 @@ class AIPromptBuilder:
         
         if mode_value == "road":
             return """
-        IMPORTANT - TRANSPORTATION MODE: ROAD ONLY
-        - In the transportation.routes array, ONLY include road/car/bus transportation options
-        - DO NOT include flight or train options in the routes
-        - Focus on highways, state roads, and scenic routes
-        - Include realistic driving times and distances
-        - Suggest stops along the way for food, rest, and sightseeing
-        - Provide information about road conditions and toll costs if applicable"""
+        IMPORTANT - TRANSPORTATION MODE: ROAD TRIP (STRICT GEOGRAPHIC ENFORCEMENT)
+        - This is a ROAD TRIP. The itinerary MUST focus on the journey between the start location and the destination.
+        - STRICTLY LIMIT suggested stops and activities to places that are geographically located ON THE ROUTE between the start location and destination.
+        - DO NOT suggest places that are significantly beyond the destination or in the opposite direction.
+        - If the total distance is short (e.g., 50km), only suggest stops within that specific 50km range.
+        - In the transportation.routes array, ONLY include road/car/bus options.
+        - Suggest scenic stops, highway restaurants (dhabas), and viewpoints that are actually on the way.
+        - For 'neighboring_places', interpret them as "En-route Stops" rather than places near the final destination."""
         elif mode_value == "train":
             return """
         IMPORTANT - TRANSPORTATION MODE: TRAIN ONLY

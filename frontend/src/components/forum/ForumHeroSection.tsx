@@ -18,7 +18,7 @@ export const ForumHeroSection = () => {
           My Space
         </h1>
         <p className="text-lg leading-relaxed text-white/90 max-w-3xl mx-auto">
-          Share your travel experiences, connect with fellow travelers, and discover amazing 
+          Share your travel experiences, connect with fellow travelers, and discover amazing
           stories from around the world. Join our vibrant community of adventure seekers!
         </p>
       </div>

@@ -288,10 +288,12 @@ class GoogleMapsService:
                     step = usable_points // num_samples
                     sample_indices = [start_idx + (i * step) for i in range(num_samples)]
             
+            # Define sampled_points first
             sampled_points = [path_points[i] for i in sample_indices]
             
-            # Place types to search for - prioritize viewpoints/attractions over hotels/restaurants
-            # Distribution: ~60% attractions/viewpoints, ~20% restaurants, ~20% hotels
+            # Log the sampling details
+            logger.info(f"Finding places along route: {len(sampled_points)} points sampled")
+            logger.info(f"Using Strict Search Radius: 20000.0 meters")
             place_types = [
                 {"type": "tourist_attraction", "category": "attraction"},
                 {"type": "viewpoint scenic point", "category": "viewpoint"},
@@ -320,11 +322,25 @@ class GoogleMapsService:
                     place_info["category"]
                 )
                 
-                # Take only the first unique place from this location
+                # Take only the first unique place from this location that is actually close by road
                 for place in places:
                     place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
                     
                     if place_id not in seen_place_ids:
+                        # VALIDATION: Check actual driving distance from highway point to the place
+                        # This prevents "air distance" vs "road distance" discrepancies in mountains
+                        place_coords = (place['location']['latitude'], place['location']['longitude'])
+                        detour_meters = await self._compute_route_distance(point, place_coords)
+                        
+                        logger.info(f"Checking place: {place['name']} - Detour: {detour_meters}m")
+
+                        # If driving distance is > 10km (10000 meters) from the highway, skip it
+                        if detour_meters is None or detour_meters > 20000:
+                            logger.info(f"SKIPPED {place['name']} - Too far from highway (>10km)")
+                            continue
+                        
+                        logger.info(f"ACCEPTED {place['name']} - On route")
+                            
                         seen_place_ids.add(place_id)
                         waypoints.append(place)
                         break  # Only take one place per sampled point
@@ -379,7 +395,7 @@ class GoogleMapsService:
                             "latitude": latitude,
                             "longitude": longitude
                         },
-                        "radius": 5000.0  # 5km radius
+                        "radius": 10000.0  # 5km radius bias
                     }
                 }
             }
