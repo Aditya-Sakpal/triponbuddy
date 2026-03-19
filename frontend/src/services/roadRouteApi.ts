@@ -33,11 +33,18 @@ export interface RoadRouteResponse {
 export const roadRouteApi = {
   async getRoadRoute(tripId: string, userId: string): Promise<RoadRouteResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/trips/${tripId}/road-route?user_id=${encodeURIComponent(userId)}`, {
+      const url = new URL(`${API_BASE_URL}/api/trips/${tripId}/road-route`);
+      url.searchParams.set("user_id", userId);
+      url.searchParams.set("_ts", Date.now().toString()); // avoid stale cached responses
+
+      const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
         },
+        cache: 'no-store',
       });
       
       if (!response.ok) {

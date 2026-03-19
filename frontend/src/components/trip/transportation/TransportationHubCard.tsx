@@ -23,8 +23,8 @@ export const TransportationHubCard = ({ hub }: { hub: TransportationHub }) => {
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-white/20 overflow-hidden h-full flex flex-col">
       <CardHeader className="pb-3 text-black">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
+        <div className="grid grid-cols-[1fr_auto] items-start gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="p-2 bg-white/10 rounded-lg">
               <Icon className="w-5 h-5 text-bula" />
             </div>
@@ -36,7 +36,7 @@ export const TransportationHubCard = ({ hub }: { hub: TransportationHub }) => {
               </CardDescription>
             </div>
           </div>
-          <Badge className="text-xs px-2 py-0.5 text-white text-center">
+          <Badge className="text-xs px-2 py-0.5 text-white text-center justify-self-end whitespace-nowrap shrink-0">
             {sanitizeDistance(hub.distance_from_city)}
           </Badge>
         </div>

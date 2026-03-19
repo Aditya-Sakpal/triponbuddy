@@ -7,6 +7,12 @@ import jsPDF from 'jspdf';
 import { fetchActivityImages } from "@/components/trip/itinerary/helpers/imageHelpers";
 import { useAccommodationImages } from "@/hooks/useAccommodationLogic";
 import { API_BASE_URL } from "@/constants/api";
+import { formatTitleCase } from "@/utils/tripUtils";
+
+const sanitizeDistance = (distance: string): string => {
+  const match = distance.match(/(\d+(?:\.\d+)?)\s*km/i);
+  return match ? `${match[1]} km` : distance;
+};
 
 // Import modular card components
 import {
@@ -435,6 +441,207 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
           yPos = Math.max(currentYPos, yPos + imageHeight + 2);
           yPos += 3;
         }
+      }
+
+      // Transportation Routes Section
+      if (itinerary.transportation?.routes && itinerary.transportation.routes.length > 0) {
+        addSectionHeader('Transportation');
+
+        for (const route of itinerary.transportation.routes) {
+          checkPageBreak(20);
+
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(0, 0, 0);
+          pdf.text(formatTitleCase(route.type), margin, yPos);
+          yPos += 5;
+
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(60, 60, 60);
+
+          if (route.from && route.to) {
+            const fromToLines = pdf.splitTextToSize(`${route.from} → ${route.to}`, contentWidth);
+            pdf.text(fromToLines, margin, yPos);
+            yPos += fromToLines.length * 4;
+          }
+
+          if (route.duration) {
+            pdf.text(`Duration: ${route.duration}`, margin, yPos);
+            yPos += 4;
+          }
+
+          if (route.estimated_cost) {
+            pdf.text(`Estimated cost: ${route.estimated_cost}`, margin, yPos);
+            yPos += 4;
+          }
+
+          if (route.details) {
+            const detailsLines = pdf.splitTextToSize(route.details, contentWidth);
+            pdf.text(detailsLines, margin, yPos);
+            yPos += detailsLines.length * 4;
+          }
+
+          yPos += 6;
+        }
+      }
+
+      // Transportation Hubs helper
+      const addTransportationHubsSection = (title: string, hubs: any[] | undefined) => {
+        if (!hubs || hubs.length === 0) return;
+        addSectionHeader(title);
+
+        for (const hub of hubs) {
+          checkPageBreak(26);
+
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(0, 0, 0);
+          const hubNameLines = pdf.splitTextToSize(String(hub.name || ''), contentWidth);
+          pdf.text(hubNameLines, margin, yPos);
+          yPos += hubNameLines.length * 5;
+
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+
+          const meta: string[] = [];
+          if (hub.type) meta.push(String(hub.type));
+          if (hub.location) meta.push(String(hub.location));
+          if (meta.length) {
+            const metaLines = pdf.splitTextToSize(meta.join(' • '), contentWidth);
+            pdf.text(metaLines, margin, yPos);
+            yPos += metaLines.length * 4;
+          }
+
+          if (hub.distance_from_city) {
+            pdf.text(`Distance: ${sanitizeDistance(String(hub.distance_from_city))}`, margin, yPos);
+            yPos += 4;
+          }
+
+          if (hub.estimated_cost_to_reach) {
+            pdf.text(`Cost to reach: ${hub.estimated_cost_to_reach}`, margin, yPos);
+            yPos += 4;
+          }
+
+          if (hub.transportation_options && Array.isArray(hub.transportation_options) && hub.transportation_options.length > 0) {
+            const optsLines = pdf.splitTextToSize(`Options: ${hub.transportation_options.join(', ')}`, contentWidth);
+            pdf.text(optsLines, margin, yPos);
+            yPos += optsLines.length * 4;
+          }
+
+          yPos += 6;
+        }
+      };
+
+      // Transportation Hubs (Start / Destination)
+      addTransportationHubsSection('Transportation Hubs (Starting Point)', itinerary.transportation_hubs_start as any);
+      addTransportationHubsSection('Transportation Hubs (Destination)', itinerary.transportation_hubs_destination as any);
+
+      // Local Transportation Section
+      if (itinerary.local_transportation && itinerary.local_transportation.length > 0) {
+        addSectionHeader('Local Transportation');
+
+        for (const lt of itinerary.local_transportation) {
+          checkPageBreak(18);
+
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(0, 0, 0);
+          pdf.text(String(lt.type || 'Option'), margin, yPos);
+          yPos += 5;
+
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+
+          if (lt.description) {
+            const descLines = pdf.splitTextToSize(String(lt.description), contentWidth);
+            pdf.text(descLines, margin, yPos);
+            yPos += descLines.length * 4;
+          }
+          if (lt.estimated_cost) {
+            pdf.text(`Estimated cost: ${lt.estimated_cost}`, margin, yPos);
+            yPos += 4;
+          }
+          if (lt.availability) {
+            pdf.text(`Availability: ${lt.availability}`, margin, yPos);
+            yPos += 4;
+          }
+          if (lt.coverage_area) {
+            const covLines = pdf.splitTextToSize(`Coverage: ${lt.coverage_area}`, contentWidth);
+            pdf.text(covLines, margin, yPos);
+            yPos += covLines.length * 4;
+          }
+          if (lt.booking_info) {
+            const bookLines = pdf.splitTextToSize(`Booking info: ${lt.booking_info}`, contentWidth);
+            pdf.text(bookLines, margin, yPos);
+            yPos += bookLines.length * 4;
+          }
+
+          yPos += 6;
+        }
+      }
+
+      // Neighboring Places Section
+      if (itinerary.neighboring_places && itinerary.neighboring_places.length > 0) {
+        addSectionHeader('Neighboring Places');
+
+        for (const place of itinerary.neighboring_places) {
+          checkPageBreak(20);
+
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(0, 0, 0);
+          const nameLines = pdf.splitTextToSize(String(place.name || ''), contentWidth);
+          pdf.text(nameLines, margin, yPos);
+          yPos += nameLines.length * 5;
+
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+
+          const bits: string[] = [];
+          if (place.distance) bits.push(`${place.distance} away`);
+          if (place.time_to_reach) bits.push(`~${place.time_to_reach}`);
+          if (place.best_known_for) bits.push(`Known for: ${place.best_known_for}`);
+          if (bits.length) {
+            const bitsLines = pdf.splitTextToSize(bits.join(' • '), contentWidth);
+            pdf.text(bitsLines, margin, yPos);
+            yPos += bitsLines.length * 4;
+          }
+
+          if (place.estimated_cost) {
+            pdf.text(`Estimated cost: ${place.estimated_cost}`, margin, yPos);
+            yPos += 4;
+          }
+
+          if (place.description) {
+            const descLines = pdf.splitTextToSize(String(place.description), contentWidth);
+            pdf.text(descLines, margin, yPos);
+            yPos += descLines.length * 4;
+          }
+
+          yPos += 6;
+        }
+      }
+
+      // Travel Tips Section
+      if (itinerary.travel_tips && itinerary.travel_tips.length > 0) {
+        addSectionHeader('Travel Tips');
+
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(60, 60, 60);
+
+        for (const tip of itinerary.travel_tips) {
+          const tipLines = pdf.splitTextToSize(`• ${tip}`, contentWidth);
+          checkPageBreak(tipLines.length * 4 + 4);
+          pdf.text(tipLines, margin, yPos);
+          yPos += tipLines.length * 4 + 2;
+        }
+
+        yPos += 4;
       }
 
       pdf.save(`trip_${trip.destination.replace(/\s+/g, '_')}_${trip.title.replace(/\s+/g, '_')}.pdf`);

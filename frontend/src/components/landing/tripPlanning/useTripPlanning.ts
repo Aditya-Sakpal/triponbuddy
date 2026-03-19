@@ -21,6 +21,7 @@ export const useTripPlanning = () => {
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [isBudgetManuallySet, setIsBudgetManuallySet] = useState(false);
   const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
   const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
   const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
@@ -116,8 +117,8 @@ export const useTripPlanning = () => {
 
       if (response.success && response.minimum_budget) {
         setMinimumBudget(response.minimum_budget);
-        // Auto-populate budget if not set or if current budget is less than minimum
-        if (!budget || budget < response.minimum_budget) {
+        // Auto-populate budget only if the user hasn't manually edited it yet
+        if (!isBudgetManuallySet && budget === undefined) {
           setBudget(response.minimum_budget);
         }
       }
@@ -126,7 +127,7 @@ export const useTripPlanning = () => {
     } finally {
       setIsEstimatingBudget(false);
     }
-  }, [destinations, pendingDestination, startDate, durationDays, budget]);
+  }, [destinations, pendingDestination, startDate, durationDays, budget, isBudgetManuallySet]);
 
   // Trigger budget estimation when relevant parameters change
   useEffect(() => {
@@ -217,11 +218,7 @@ export const useTripPlanning = () => {
       return;
     }
 
-    // Validate budget against minimum
-    if (budget !== undefined && minimumBudget !== undefined && budget < minimumBudget) {
-      alert(`Budget should be at least ₹${minimumBudget.toLocaleString('en-IN')} for this trip`);
-      return;
-    }
+    // Budget is a recommendation; allow user overrides (we'll still show a warning in the UI)
 
     // Check if any destination is outside India when worldwide toggle is off
     if (!isInternational) {
@@ -300,7 +297,10 @@ export const useTripPlanning = () => {
     setStartDate,
     setDurationDays,
     setIsInternational,
-    setBudget,
+    setBudget: (nextBudget: number | undefined) => {
+      setIsBudgetManuallySet(true);
+      setBudget(nextBudget);
+    },
     setTransportationMode,
     
     // Actions

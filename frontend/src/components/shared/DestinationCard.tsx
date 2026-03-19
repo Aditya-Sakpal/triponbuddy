@@ -110,11 +110,17 @@ export const DestinationCard = ({
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-4 left-4 text-white">
-          <h3 className="text-xl font-semibold">{destination.name}</h3>
-        </div>
-        <div className="absolute bottom-4 right-4 text-white text-sm text-right">
-          <h3 className="font-semibold">{destination.bestTimeToVisit}</h3>
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <h3 className="text-xl font-semibold leading-tight min-w-0 sm:pr-3">
+              <span className="block truncate">{destination.name}</span>
+            </h3>
+            {destination.bestTimeToVisit && (
+              <div className="text-sm sm:text-right whitespace-nowrap self-start sm:self-auto">
+                <span className="font-semibold">{destination.bestTimeToVisit}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <CardContent className="p-6 flex-1 flex flex-col">

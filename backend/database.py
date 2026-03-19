@@ -5,6 +5,7 @@ MongoDB connection and database operations for TripOnBuddy
 import logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
+import certifi
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.collection import AsyncCollection
 from pymongo.asynchronous.database import AsyncDatabase
@@ -24,7 +25,12 @@ class MongoDB:
     async def connect(self) -> None:
         """Establish connection to MongoDB."""
         try:
-            self.client = AsyncMongoClient(settings.mongodb_url)
+            # Use certifi CA bundle to avoid SSL certificate issues on some local Python installs (macOS).
+            # If your MongoDB URL already configures TLS options, this is still safe.
+            self.client = AsyncMongoClient(
+                settings.mongodb_url,
+                tlsCAFile=certifi.where(),
+            )
             self.database = self.client[settings.mongodb_db_name]
 
             # Test connection

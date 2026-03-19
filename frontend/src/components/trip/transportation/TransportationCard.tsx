@@ -57,12 +57,16 @@ export const TransportationCard = ({ transport, hideBookingButtons = false }: { 
         </div>
 
         <div className="bg-muted/50 p-3 rounded-lg">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-medium max-w-[80px]">{transport.from}</span>
+          <div className="flex items-center justify-between text-xs min-w-0">
+            <span className="font-medium max-w-[120px] min-w-0 truncate">
+              {transport.from}
+            </span>
             <div className="flex-1 border-t border-dashed border-muted-foreground/30 mx-2 relative">
               <Icon className="w-3 h-3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-background text-muted-foreground rounded-full p-0.5" />
             </div>
-            <span className="font-medium max-w-[80px]">{transport.to}</span>
+            <span className="font-medium max-w-[120px] min-w-0 truncate text-right">
+              {transport.to}
+            </span>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ interface TransportationModeSelectorProps {
   destination?: string;
   disabled?: boolean;
   isInternational?: boolean;
+  ignoreDistanceRules?: boolean;
 }
 
 export const TransportationModeSelector = ({ 
@@ -20,19 +21,31 @@ export const TransportationModeSelector = ({
   startLocation = '',
   destination = '',
   disabled = false,
-  isInternational = false
+  isInternational = false,
+  ignoreDistanceRules = false
 }: TransportationModeSelectorProps) => {
+  const safeValue: TransportationMode =
+    value === 'default' || value === 'road' || value === 'train' || value === 'flight'
+      ? value
+      : 'default';
+
+  // If parent accidentally passes an invalid value (e.g. legacy "local"), coerce to default
+  useEffect(() => {
+    if (safeValue !== value) onChange(safeValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Calculate distance in real-time
   const { distanceKm, isCalculating } = useDistanceCalculation({
     startLocation,
     destination,
-    enabled: !disabled && !!startLocation && !!destination,
+    enabled: !ignoreDistanceRules && !disabled && !!startLocation && !!destination,
   });
 
   // Determine which modes are enabled based on distance
-  const isFlightDisabled = distanceKm !== null && distanceKm < 500;
-  const isRoadDisabled = isInternational || (distanceKm !== null && distanceKm > 500);
-  const isTrainDisabled = isInternational || (distanceKm !== null && distanceKm > 2500);
+  const isFlightDisabled = !ignoreDistanceRules && distanceKm !== null && distanceKm < 500;
+  const isRoadDisabled = !ignoreDistanceRules && (isInternational || (distanceKm !== null && distanceKm > 500));
+  const isTrainDisabled = !ignoreDistanceRules && (isInternational || (distanceKm !== null && distanceKm > 2500));
 
   // Use ref to track if we need to reset
   const onChangeRef = useRef(onChange);
@@ -40,6 +53,7 @@ export const TransportationModeSelector = ({
 
   // Auto-reset to default if current selection becomes disabled
   useEffect(() => {
+    if (ignoreDistanceRules) return;
     const shouldReset = 
       (value === 'flight' && isFlightDisabled) ||
       (value === 'road' && isRoadDisabled) ||
@@ -48,7 +62,7 @@ export const TransportationModeSelector = ({
     if (shouldReset) {
       onChangeRef.current('default');
     }
-  }, [distanceKm, value, isFlightDisabled, isRoadDisabled, isTrainDisabled]);
+  }, [distanceKm, value, isFlightDisabled, isRoadDisabled, isTrainDisabled, ignoreDistanceRules]);
 
   const getModeIcon = (mode: string) => {
     switch (mode) {
@@ -92,42 +106,58 @@ export const TransportationModeSelector = ({
           Distance: {distanceKm.toFixed(0)} km
         </p>
       )}
-      <Select 
-        value={value} 
-        onValueChange={onChange}
-        disabled={disabled || isCalculating}
-      >
-        <SelectTrigger id="transportation-mode" className="w-full">
-          <SelectValue placeholder="Select transportation mode" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="default">
-            <div className="flex items-center">
-              {getModeIcon('default')}
-              {getModeLabel('default')}
-            </div>
-          </SelectItem>
-          <SelectItem value="road" disabled={isRoadDisabled}>
-            <div className="flex items-center">
-              {getModeIcon('road')}
-              {getModeLabel('road')}
-            </div>
-          </SelectItem>
-          <SelectItem value="train" disabled={isTrainDisabled}>
-            <div className="flex items-center">
-              {getModeIcon('train')}
-              {getModeLabel('train')}
-            </div>
-          </SelectItem>
-          <SelectItem value="flight" disabled={isFlightDisabled}>
-            <div className="flex items-center">
-              {getModeIcon('flight')}
-              {getModeLabel('flight')}
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
-      {distanceKm && (
+      {ignoreDistanceRules ? (
+        // Native select is more reliable inside dialogs on mobile; we keep the same options.
+        <select
+          id="transportation-mode"
+          className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={safeValue}
+          onChange={(e) => onChange(e.target.value as TransportationMode)}
+          disabled={disabled}
+        >
+          <option value="default">Default</option>
+          <option value="road">Road</option>
+          <option value="train">Train</option>
+          <option value="flight">Flight</option>
+        </select>
+      ) : (
+        <Select 
+          value={safeValue} 
+          onValueChange={(v) => onChange(v as TransportationMode)}
+          disabled={disabled || isCalculating}
+        >
+          <SelectTrigger id="transportation-mode" className="w-full">
+            <SelectValue placeholder="Select transportation mode" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">
+              <div className="flex items-center">
+                {getModeIcon('default')}
+                {getModeLabel('default')}
+              </div>
+            </SelectItem>
+            <SelectItem value="road" disabled={isRoadDisabled}>
+              <div className="flex items-center">
+                {getModeIcon('road')}
+                {getModeLabel('road')}
+              </div>
+            </SelectItem>
+            <SelectItem value="train" disabled={isTrainDisabled}>
+              <div className="flex items-center">
+                {getModeIcon('train')}
+                {getModeLabel('train')}
+              </div>
+            </SelectItem>
+            <SelectItem value="flight" disabled={isFlightDisabled}>
+              <div className="flex items-center">
+                {getModeIcon('flight')}
+                {getModeLabel('flight')}
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+      {distanceKm && !ignoreDistanceRules && (
         <p className="text-xs text-muted-foreground">
           Options are enabled/disabled based on the distance between start and destination
         </p>

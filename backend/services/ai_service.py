@@ -1,6 +1,5 @@
 import logging
 from typing import Dict, Any
-from google import genai
 from config import settings
 from models.trip import TripGenerationRequest
 from utils.cache import cache_result
@@ -13,10 +12,24 @@ from services.helpers.ai_response_parser import (
 
 logger = logging.getLogger(__name__)
 
+try:
+    # Provided by the `google-genai` package
+    from google import genai  # type: ignore
+except Exception as e:
+    genai = None
+    logger.warning(f"google-genai not available; AI features disabled. Import error: {e}")
+
 
 class AIService:
 
     def __init__(self):
+        if settings.disable_ai:
+            raise RuntimeError("AI is disabled (DISABLE_AI=true).")
+        if genai is None:
+            raise RuntimeError("google-genai SDK not installed or failed to import.")
+        if not settings.google_gemini_api_key:
+            raise RuntimeError("GOOGLE_GEMINI_API_KEY is not set.")
+
         self.client = genai.Client(api_key=settings.google_gemini_api_key)
         self.prompt_builder = AIPromptBuilder()
         self.response_parser = AIResponseParser()
@@ -202,4 +215,8 @@ Daily Plans Summary:
 
 
 # Global AI service instance
-ai_service = AIService()
+try:
+    ai_service = AIService()
+except Exception as e:
+    logger.warning(f"AIService not initialized (running without AI): {e}")
+    ai_service = None

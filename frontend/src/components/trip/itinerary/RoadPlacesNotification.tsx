@@ -42,9 +42,8 @@ export const RoadPlacesNotification = ({ tripId, onNavigateToTransportation }: R
 
   const handleViewPlaces = () => {
     setIsModalOpen(true);
-    if (!routeData) {
-      fetchRoadRoute();
-    }
+    // Always fetch latest route stops so backend filtering changes are reflected immediately.
+    fetchRoadRoute();
   };
 
   return (

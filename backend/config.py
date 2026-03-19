@@ -2,7 +2,7 @@
 Configuration settings for TripOnBuddy Backend
 """
 
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field
 
@@ -11,18 +11,23 @@ class Settings(BaseSettings):
     """Application settings with validation"""
 
     # MongoDB Configuration
-    mongodb_url: str = Field(..., env="MONGODB_URL")
+    # Leave empty to disable DB in local dev (or set DISABLE_DB=true)
+    mongodb_url: str = Field(default="", env="MONGODB_URL")
     mongodb_db_name: str = Field(default="triponbuddy", env="MONGODB_DB_NAME")
+    disable_db: bool = Field(default=False, env="DISABLE_DB")
 
     # AI Configuration
-    google_gemini_api_key: str = Field(..., env="GOOGLE_GEMINI_API_KEY")
+    google_gemini_api_key: str = Field(default="", env="GOOGLE_GEMINI_API_KEY")
+    disable_ai: bool = Field(default=False, env="DISABLE_AI")
     
     # Google Maps API Configuration
-    google_maps_api_key: str = Field(..., env="GOOGLE_MAPS_API_KEY")
+    google_maps_api_key: str = Field(default="", env="GOOGLE_MAPS_API_KEY")
 
     # CORS Configuration
     cors_origins: str = Field(
-        default="http://localhost:8080",
+        # Comma-separated list of allowed frontend origins.
+        # Include Vite defaults (5173/5174) for local dev.
+        default="http://localhost:5173,http://localhost:5174,http://localhost:8080,http://localhost:3000",
         env="CORS_ORIGINS"
     )
 
@@ -42,11 +47,11 @@ class Settings(BaseSettings):
     razorpay_app_version: str = Field(default="1.0.0", env="RAZORPAY_APP_VERSION")
 
     # Cloudflare R2 Configuration
-    r2_access_key_id: str = Field(..., env="R2_ACCESS_KEY_ID")
-    r2_secret_access_key: str = Field(..., env="R2_SECRET_ACCESS_KEY")
-    r2_account_id: str = Field(..., env="R2_ACCOUNT_ID")
-    r2_bucket: str = Field(..., env="R2_BUCKET")
-    r2_public_url: str = Field(..., env="R2_PUBLIC_URL")  # e.g., https://pub-xxxx.r2.dev
+    r2_access_key_id: str = Field(default="", env="R2_ACCESS_KEY_ID")
+    r2_secret_access_key: str = Field(default="", env="R2_SECRET_ACCESS_KEY")
+    r2_account_id: str = Field(default="", env="R2_ACCOUNT_ID")
+    r2_bucket: str = Field(default="", env="R2_BUCKET")
+    r2_public_url: str = Field(default="", env="R2_PUBLIC_URL")  # e.g., https://pub-xxxx.r2.dev
     
     # Upload Configuration
     max_upload_size_mb: int = Field(default=10, env="MAX_UPLOAD_SIZE_MB")  # Max file size in MB

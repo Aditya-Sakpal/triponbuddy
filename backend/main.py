@@ -29,18 +29,22 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting TripOnBuddy Backend...")
 
-    try:
-        await mongodb.connect()
-        logger.info("Database connected successfully")
-    except Exception as e:
-        logger.error(f"Failed to connect to database: {e}")
-        raise
+    if settings.disable_db or not settings.mongodb_url:
+        logger.warning("DB disabled (DISABLE_DB=true or MONGODB_URL empty). Starting without MongoDB.")
+    else:
+        try:
+            await mongodb.connect()
+            logger.info("Database connected successfully")
+        except Exception as e:
+            logger.error(f"Failed to connect to database: {e}")
+            raise
 
     yield
 
     # Shutdown
     logger.info("Shutting down TripOnBuddy Backend...")
-    await mongodb.disconnect()
+    if not (settings.disable_db or not settings.mongodb_url):
+        await mongodb.disconnect()
 
 
 # Create FastAPI application

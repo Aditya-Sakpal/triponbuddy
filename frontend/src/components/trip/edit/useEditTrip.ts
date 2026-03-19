@@ -27,6 +27,7 @@ export const useEditTrip = ({
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
+  const [isBudgetManuallySet, setIsBudgetManuallySet] = useState(false);
   const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
   const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
   const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
@@ -45,6 +46,11 @@ export const useEditTrip = ({
     { icon: Utensils, label: "Food" },
   ], []);
 
+  const normalizeTransportationMode = useCallback((mode?: string) => {
+    if (mode === 'road' || mode === 'train' || mode === 'flight' || mode === 'default') return mode;
+    return 'default';
+  }, []);
+
   // Initialize form with trip data when modal opens
   useEffect(() => {
     if (isOpen && trip) {
@@ -59,7 +65,8 @@ export const useEditTrip = ({
       setDurationDays(trip.duration_days || 3);
       setIsInternational(trip.is_international || false);
       setBudget(trip.budget);
-      setTransportationMode((trip.transportation_mode as 'default' | 'road' | 'train' | 'flight') || 'default');
+      setIsBudgetManuallySet(false);
+      setTransportationMode(normalizeTransportationMode(trip.transportation_mode));
       
       // Extract preferences from trip data
       const preferences: string[] = [];
@@ -83,7 +90,7 @@ export const useEditTrip = ({
       
       setSelectedPreferences(preferences);
     }
-  }, [isOpen, trip, initialDestination, preferenceOptions]);
+  }, [isOpen, trip, initialDestination, preferenceOptions, normalizeTransportationMode]);
 
   // Handle trip generation success
   useEffect(() => {
@@ -121,8 +128,8 @@ export const useEditTrip = ({
 
       if (response.success && response.minimum_budget) {
         setMinimumBudget(response.minimum_budget);
-        // Auto-populate budget if not set or if current budget is less than minimum
-        if (!budget || budget < response.minimum_budget) {
+        // Do not override a user-edited budget in edit mode
+        if (!isBudgetManuallySet && budget === undefined) {
           setBudget(response.minimum_budget);
         }
       }
@@ -131,7 +138,7 @@ export const useEditTrip = ({
     } finally {
       setIsEstimatingBudget(false);
     }
-  }, [destinations, startDate, durationDays, budget]);
+  }, [destinations, startDate, durationDays, budget, isBudgetManuallySet]);
 
   // Trigger budget estimation when relevant parameters change
   useEffect(() => {
@@ -236,7 +243,7 @@ export const useEditTrip = ({
       : (trip.destination ? [trip.destination] : []);
     const destinationsChanged = JSON.stringify(destinations.sort()) !== JSON.stringify(originalDestinations.sort());
 
-    const transportationModeChanged = transportationMode !== (trip.transportation_mode || 'default');
+    const transportationModeChanged = transportationMode !== normalizeTransportationMode(trip.transportation_mode);
 
     return (
       destinationsChanged ||
@@ -273,7 +280,10 @@ export const useEditTrip = ({
     setStartDate,
     setDurationDays,
     setIsInternational,
-    setBudget,
+    setBudget: (nextBudget: number | undefined) => {
+      setIsBudgetManuallySet(true);
+      setBudget(nextBudget);
+    },
     setTransportationMode,
 
     // Handlers

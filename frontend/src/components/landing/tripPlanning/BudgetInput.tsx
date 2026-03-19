@@ -51,7 +51,7 @@ export const BudgetInput = ({ budget, setBudget, minimumBudget, isEstimating }: 
         <Input
           id="budget"
           type="number"
-          min={minimumBudget || 0}
+          min={0}
           step="1000"
           value={budget || ''}
           onChange={(e) => handleBudgetChange(e.target.value)}
