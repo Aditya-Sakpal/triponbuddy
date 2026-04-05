@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Clock, IndianRupee, ArrowRight, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,19 +82,38 @@ export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesP
   const [images, setImages] = useState<{ [location: string]: string[] }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sortedPlaces = useMemo(() => {
+    const parseDistanceKm = (distance: string): number | null => {
+      const match = distance.match(/(\d+(?:\.\d+)?)\s*km/i);
+      if (!match) return null;
+      return Number.parseFloat(match[1]);
+    };
+
+    return [...places].sort((a, b) => {
+      const distanceA = parseDistanceKm(a.distance);
+      const distanceB = parseDistanceKm(b.distance);
+
+      if (distanceA !== null && distanceB !== null && distanceA !== distanceB) {
+        return distanceA - distanceB;
+      }
+      if (distanceA !== null && distanceB === null) return -1;
+      if (distanceA === null && distanceB !== null) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [places]);
 
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
       setError(null);
       try {
-        if (places.length === 0) return;
+        if (sortedPlaces.length === 0) return;
         
         const imageMap: { [key: string]: string[] } = {};
         
         // Fetch images for each place with rate limiting
-        for (let i = 0; i < places.length; i++) {
-          const place = places[i];
+        for (let i = 0; i < sortedPlaces.length; i++) {
+          const place = sortedPlaces[i];
           try {
             const photoUrl = await googlePlacesService.getActivityPhoto(place.name);
             imageMap[place.name] = photoUrl ? [photoUrl] : [];
@@ -104,7 +123,7 @@ export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesP
           }
           
           // Add delay between requests to avoid rate limiting
-          if (i < places.length - 1) {
+          if (i < sortedPlaces.length - 1) {
             await new Promise(resolve => setTimeout(resolve, 200));
           }
         }
@@ -117,9 +136,9 @@ export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesP
       }
     };
     fetchImages();
-  }, [places]);
+  }, [sortedPlaces]);
 
-  if (!places || places.length === 0) {
+  if (!sortedPlaces || sortedPlaces.length === 0) {
     return null;
   }
 
@@ -142,7 +161,7 @@ export const NeighboringPlaces = ({ places, onGenerateTrip }: NeighboringPlacesP
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {places.map((place, index) => {
+        {sortedPlaces.map((place, index) => {
           // Use first image for place name if available
           const imageUrl = images[place.name]?.[0];
           return (

@@ -432,6 +432,14 @@ class GoogleMapsService:
                                 # No more unique places available for this category.
                                 break
 
+                waypoints = await self._ensure_rest_food_shopping_ratio(
+                    waypoints=waypoints,
+                    sampled_points=sampled_points,
+                    path_points=path_points,
+                    is_short_route=is_short_route,
+                    target_max_spots=target_max_spots,
+                )
+
                 # Calculate distances between consecutive waypoints
                 if waypoints:
                     prev_coords = origin
@@ -441,7 +449,7 @@ class GoogleMapsService:
                         waypoint['distance_from_prev_km'] = round(dist_meters / 1000, 1) if dist_meters is not None else None
                         prev_coords = curr_coords
 
-                return waypoints[:10]
+                return waypoints[:target_max_spots]
             
             # Adaptive search for short routes:
             # start strict (closest to route) and relax in controlled steps until at least 5 are found.
@@ -649,6 +657,14 @@ class GoogleMapsService:
                     if len(waypoints) >= 5:
                         break
 
+            waypoints = await self._ensure_rest_food_shopping_ratio(
+                waypoints=waypoints,
+                sampled_points=sampled_points,
+                path_points=path_points,
+                is_short_route=is_short_route,
+                target_max_spots=target_max_spots,
+            )
+
             # Calculate distances between consecutive waypoints
             if waypoints:
                 prev_coords = origin
@@ -671,6 +687,136 @@ class GoogleMapsService:
         except Exception as e:
             logger.error(f"Error finding places along route: {str(e)}")
             return []
+
+    @staticmethod
+    def _place_identifier(place: Dict[str, Any]) -> str:
+        """Stable identifier for deduping places by name + coordinates."""
+        loc = place.get("location") or {}
+        return f"{place.get('name', 'Unknown')}_{loc.get('latitude')}_{loc.get('longitude')}"
+
+    @staticmethod
+    def _is_rest_food_shopping_category(category: str) -> bool:
+        """
+        Returns True if the category is one of the user-requested focus types:
+        rest, food, or shopping.
+        """
+        return category in {"hotel", "restaurant", "shopping"}
+
+    async def _ensure_rest_food_shopping_ratio(
+        self,
+        waypoints: List[Dict[str, Any]],
+        sampled_points: List[Tuple[float, float]],
+        path_points: List[Tuple[float, float]],
+        is_short_route: bool,
+        target_max_spots: int,
+    ) -> List[Dict[str, Any]]:
+        """
+        Ensure at least 70% of displayed waypoints are rest/food/shopping.
+        Keeps total waypoint count unchanged by replacing non-target items when needed.
+        """
+        if not waypoints:
+            return waypoints
+
+        capped_waypoints = waypoints[:target_max_spots]
+        total_spots = len(capped_waypoints)
+        if total_spots == 0:
+            return capped_waypoints
+
+        required_focus_spots = math.ceil(total_spots * 0.7)
+        focus_count = sum(
+            1
+            for wp in capped_waypoints
+            if self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+        )
+        needed = required_focus_spots - focus_count
+        if needed <= 0:
+            return capped_waypoints
+
+        seen_place_ids = {self._place_identifier(wp) for wp in capped_waypoints}
+        replacement_candidates: List[Dict[str, Any]] = []
+        focus_types = [
+            {"type": "restaurant", "category": "restaurant"},
+            {"type": "cafe", "category": "restaurant"},
+            {"type": "food court", "category": "restaurant"},
+            {"type": "lodging", "category": "hotel"},
+            {"type": "hotel", "category": "hotel"},
+            {"type": "shopping mall", "category": "shopping"},
+            {"type": "local market", "category": "shopping"},
+            {"type": "supermarket", "category": "shopping"},
+        ]
+        # Keep route proximity strict, but relax gradually if we need more focus-category places.
+        search_plan = (
+            [(900.0, 4500.0), (1400.0, 7000.0)]
+            if is_short_route
+            else [(1200.0, 8000.0), (2000.0, 12000.0)]
+        )
+
+        for corridor_m, radius_m in search_plan:
+            for idx, point in enumerate(sampled_points):
+                if len(replacement_candidates) >= needed:
+                    break
+
+                place_info = focus_types[idx % len(focus_types)]
+                places = await self._search_nearby_places(
+                    point[0],
+                    point[1],
+                    place_info["type"],
+                    place_info["category"],
+                    radius_m=radius_m,
+                )
+
+                for place in places:
+                    loc = place.get("location") or {}
+                    if "latitude" not in loc or "longitude" not in loc:
+                        continue
+
+                    dist_to_route_m = self._min_distance_to_path_meters(
+                        float(loc["latitude"]),
+                        float(loc["longitude"]),
+                        path_points,
+                    )
+                    if dist_to_route_m > corridor_m:
+                        continue
+
+                    if not self._is_rest_food_shopping_category(str(place.get("category", "")).lower()):
+                        continue
+
+                    place_id = self._place_identifier(place)
+                    if place_id in seen_place_ids:
+                        continue
+
+                    seen_place_ids.add(place_id)
+                    replacement_candidates.append(place)
+                    break
+
+            if len(replacement_candidates) >= needed:
+                break
+
+        if replacement_candidates:
+            replaceable_indices = [
+                i
+                for i, wp in enumerate(capped_waypoints)
+                if not self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+            ]
+            for replacement in replacement_candidates:
+                if not replaceable_indices:
+                    break
+                idx_to_replace = replaceable_indices.pop()
+                capped_waypoints[idx_to_replace] = replacement
+
+        final_focus_count = sum(
+            1
+            for wp in capped_waypoints
+            if self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+        )
+        if final_focus_count < required_focus_spots:
+            logger.warning(
+                "Could not fully satisfy 70%% rest/food/shopping mix (%s/%s).",
+                final_focus_count,
+                total_spots,
+            )
+
+        return capped_waypoints
     
     async def _search_nearby_places(
         self,

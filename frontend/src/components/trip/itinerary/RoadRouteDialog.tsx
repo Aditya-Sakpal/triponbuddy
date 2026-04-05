@@ -32,6 +32,17 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
   const mapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
+  const sortedWaypoints = routeData?.waypoints
+    ? [...routeData.waypoints].sort((a, b) => {
+        const distanceA = a.distance_from_prev_km;
+        const distanceB = b.distance_from_prev_km;
+
+        if (distanceA == null && distanceB == null) return 0;
+        if (distanceA == null) return 1;
+        if (distanceB == null) return -1;
+        return distanceA - distanceB;
+      })
+    : [];
 
   // Initialize Google Map when route data is available
   useEffect(() => {
@@ -321,13 +332,13 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
             </div>
 
             {/* Places Along Route */}
-            {routeData.waypoints && routeData.waypoints.length > 0 ? (
+            {sortedWaypoints.length > 0 ? (
               <div>
                 <h3 className="font-semibold text-lg mb-4">
-                  Places Along the Route ({routeData.waypoints.length})
+                  Places Along the Route ({sortedWaypoints.length})
                 </h3>
                 <div className="space-y-3">
-                  {routeData.waypoints.map((waypoint, index) => (
+                  {sortedWaypoints.map((waypoint, index) => (
                     <Card key={index} className="overflow-hidden hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-4">
@@ -350,7 +361,7 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
                             {waypoint.distance_from_prev_km !== undefined && (
                               <Badge variant="secondary" className="mb-2 text-xs font-normal">
                                 <Car className="w-3 h-3 mr-1" />
-                                {waypoint.distance_from_prev_km} km from {index === 0 ? 'start' : 'previous stop'}
+                                {waypoint.distance_from_prev_km} km segment distance
                               </Badge>
                             )}
                             <div className="flex items-start justify-between mb-1">

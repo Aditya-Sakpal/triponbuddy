@@ -269,9 +269,11 @@ export const TripItinerary = ({
 
           {/* trip overview section */}
 
-          <div className="flex justify-between items-start gap-8 ">
-            <div className="space-y-4 flex-1">
-              <h1 className="text-4xl font-bold">Your trip to {trip.destination}</h1>
+          <div className="space-y-4">
+            <div className="space-y-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+                Your trip to {trip.destination}
+              </h1>
               <div className="flex flex-wrap items-center gap-6 text-black/90">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
@@ -415,6 +417,7 @@ export const TripItinerary = ({
             <TravelTipsTab 
               tips={itinerary?.travel_tips || []} 
               bestTimeToVisit={itinerary?.best_time_to_visit}
+              tripStartDate={trip.start_date}
               tripId={trip.trip_id}
               customTips={customTips}
               onCustomTipsUpdate={handleCustomTipsUpdate}

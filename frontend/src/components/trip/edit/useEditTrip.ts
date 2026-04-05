@@ -55,9 +55,11 @@ export const useEditTrip = ({
   useEffect(() => {
     if (isOpen && trip) {
       // Initialize destinations array
-      const tripDestinations = trip.destinations && trip.destinations.length > 0 
-        ? trip.destinations 
-        : (initialDestination || trip.destination ? [initialDestination || trip.destination] : []);
+      const tripDestinations = initialDestination
+        ? [initialDestination]
+        : (trip.destinations && trip.destinations.length > 0
+          ? trip.destinations
+          : (trip.destination ? [trip.destination] : []));
       setDestinations(tripDestinations);
       
       setStartLocation(trip.start_location || "");
@@ -241,7 +243,10 @@ export const useEditTrip = ({
     const originalDestinations = trip.destinations && trip.destinations.length > 0 
       ? trip.destinations 
       : (trip.destination ? [trip.destination] : []);
-    const destinationsChanged = JSON.stringify(destinations.sort()) !== JSON.stringify(originalDestinations.sort());
+    const sortedCurrentDestinations = [...destinations].sort();
+    const sortedOriginalDestinations = [...originalDestinations].sort();
+    const destinationsChanged =
+      JSON.stringify(sortedCurrentDestinations) !== JSON.stringify(sortedOriginalDestinations);
 
     const transportationModeChanged = transportationMode !== normalizeTransportationMode(trip.transportation_mode);
 
@@ -253,7 +258,7 @@ export const useEditTrip = ({
       isInternational !== (trip.is_international || false) ||
       budgetChanged ||
       transportationModeChanged ||
-      JSON.stringify(selectedPreferences.sort()) !== JSON.stringify(originalPrefs.sort())
+      JSON.stringify([...selectedPreferences].sort()) !== JSON.stringify([...originalPrefs].sort())
     );
   };
 

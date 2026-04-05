@@ -9,6 +9,7 @@ import { TripDB } from "@/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell, Car, Train, Plane } from "lucide-react";
 import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
@@ -24,6 +25,7 @@ import {
   getAllTravelerDemographics,
   formatTripTitle,
 } from "@/utils/hostedTripUtils";
+import { useUserProfile } from "@/hooks/api-hooks";
 
 interface HostedTripCardProps {
   trip: TripDB;
@@ -36,6 +38,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const { user } = useUser();
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [showHostDetails, setShowHostDetails] = useState(false);
 
   // Custom hooks for data fetching
   const destinationImage = useDestinationImage(trip.destination);
@@ -46,6 +49,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
     trip.user_id,
     trip.trip_id
   );
+  const { data: hostProfileData, isLoading: hostProfileLoading } = useUserProfile(trip.user_id);
 
   // Derived data
   const tripData = fullTripData || trip;
@@ -170,6 +174,17 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           </div>
         )}
 
+        {/* Host Details Trigger */}
+        <div className="pt-2 border-t">
+          <button
+            type="button"
+            className="text-sm font-medium text-primary hover:underline"
+            onClick={() => setShowHostDetails(true)}
+          >
+            View host details
+          </button>
+        </div>
+
         {/* Traveler Demographics */}
         {demographics.length > 0 && (
           <div className="pt-2 border-t">
@@ -286,6 +301,51 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
           }}
         />
       )}
+
+      {/* Host Details Modal */}
+      <Dialog open={showHostDetails} onOpenChange={setShowHostDetails}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{username ? `${username}'s Profile` : "Host Profile"}</DialogTitle>
+            <DialogDescription>
+              Host information for this trip
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Age</p>
+                <p className="font-medium">
+                  {hostProfileLoading
+                    ? "Loading..."
+                    : hostProfileData?.profile?.age
+                      ? `${hostProfileData.profile.age} years`
+                      : "Not shared"}
+                </p>
+              </div>
+              <div className="rounded-md border p-3">
+                <p className="text-xs text-muted-foreground">Gender</p>
+                <p className="font-medium capitalize">
+                  {hostProfileLoading
+                    ? "Loading..."
+                    : hostProfileData?.profile?.gender || "Not shared"}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-md border p-3 space-y-1">
+              <p className="text-xs text-muted-foreground">Trip Preferences</p>
+              <p className="text-sm">
+                Preferred gender: {tripData.preferred_gender || "Any"}
+              </p>
+              <p className="text-sm">
+                Preferred age range: {tripData.age_range_min ?? "Any"} - {tripData.age_range_max ?? "Any"}
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

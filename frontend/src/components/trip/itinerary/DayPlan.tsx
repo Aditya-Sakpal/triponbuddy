@@ -32,7 +32,9 @@ export const DayPlan = ({
             activities={dayPlan.activities}
             activityImages={activityImages}
             isEditMode={isEditMode}
-            onModifyActivity={onModifyActivity}
+            onModifyActivity={(index, activity) =>
+              onModifyActivity?.(dayPlan.day, index, activity)
+            }
             switchingActivity={switchingActivity}
             alternativeImages={alternativeImages}
             onSelectAlternative={onSelectAlternative}
@@ -44,7 +46,9 @@ export const DayPlan = ({
             activities={dayPlan.activities}
             activityImages={activityImages}
             isEditMode={isEditMode}
-            onModifyActivity={onModifyActivity}
+            onModifyActivity={(index, activity) =>
+              onModifyActivity?.(dayPlan.day, index, activity)
+            }
             switchingActivity={switchingActivity}
             alternativeImages={alternativeImages}
             onSelectAlternative={onSelectAlternative}

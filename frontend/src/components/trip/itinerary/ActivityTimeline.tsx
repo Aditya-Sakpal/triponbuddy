@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { ActivityCard } from "@/components/trip";
 import { AlternativeSelector } from "./AlternativeSelector";
 import type { ActivityTimelineProps } from "./types";
+import { formatActivityTimeRange } from "./timeUtils";
 
 export const ActivityTimeline = ({
   activities,
@@ -22,9 +23,9 @@ export const ActivityTimeline = ({
         return (
           <div key={index} className="relative flex gap-6">
             {/* Timeline Badge and Connector */}
-            <div className="flex flex-col items-center flex-shrink-0" style={{ width: '140px' }}>
-              <Badge className="bg-bula hover:bg-blue-700 text-white px-3 py-2 text-sm font-medium whitespace-nowrap">
-                {activity.time}
+            <div className="flex flex-col items-center flex-shrink-0 w-[108px] lg:w-[148px]">
+              <Badge className="bg-bula hover:bg-blue-700 text-white px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-center whitespace-normal leading-tight">
+                {formatActivityTimeRange(activity.time, activity.duration)}
               </Badge>
               {!isLastActivity && !showingAlternatives && (
                 <div className="w-0.5 bg-gray-400 flex-grow mt-2" style={{ minHeight: '100px' }} />

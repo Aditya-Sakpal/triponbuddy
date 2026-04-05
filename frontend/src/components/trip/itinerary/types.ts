@@ -40,7 +40,7 @@ export interface DayPlanProps {
   onToggle: () => void;
   activityImages: { [query: string]: string | undefined };
   isEditMode?: boolean;
-  onModifyActivity?: (index: number, activity: Activity) => void;
+  onModifyActivity?: (day: number, index: number, activity: Activity) => void;
   switchingActivity?: SwitchingActivityState | null;
   alternativeImages?: { [query: string]: string | undefined };
   onSelectAlternative?: (newActivity: Activity | null) => void;

@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import { fetchActivityImages } from "@/components/trip/itinerary/helpers/imageHelpers";
 import { useAccommodationImages } from "@/hooks/useAccommodationLogic";
 import { API_BASE_URL } from "@/constants/api";
-import { formatTitleCase } from "@/utils/tripUtils";
+import { formatTitleCase, getBudgetDisplay } from "@/utils/tripUtils";
 
 const sanitizeDistance = (distance: string): string => {
   const match = distance.match(/(\d+(?:\.\d+)?)\s*km/i);
@@ -243,12 +243,12 @@ export const ItineraryModal = ({ trip, open, onClose }: ItineraryModalProps) => 
       checkPageBreak(40);
 
       // Trip Details Table
-      const budgetValue = typeof trip.budget === 'string' ? trip.budget : 'Moderate';
+      const budgetValue = getBudgetDisplay(trip);
       const tableData = [
         ['Dates', `${new Date(trip.start_date).toLocaleDateString()} - ${trip.end_date ? new Date(trip.end_date).toLocaleDateString() : 'N/A'}`],
         ['Duration', `${trip.duration_days} ${trip.duration_days === 1 ? 'day' : 'days'}`],
         ['Destinations', trip.destination],
-        ['Budget', budgetValue.charAt(0).toUpperCase() + budgetValue.slice(1)],
+        ['Budget', budgetValue],
         ['Pace', 'Moderate']
       ];
 

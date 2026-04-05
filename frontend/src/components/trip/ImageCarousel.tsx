@@ -13,7 +13,7 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-4xl mx-auto mt-6">
+      <div className="w-full mt-6">
         <div className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
       </div>
     );
@@ -24,7 +24,7 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-6 px-4">
+    <div className="w-full mt-6">
       <Carousel
         setApi={setApi}
         opts={{
@@ -38,29 +38,27 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
         ]}
         className="relative w-full"
       >
-        <CarouselContent>
+        <CarouselContent className="ml-0">
           {images.map((image, index) => (
-            <CarouselItem key={index}>
-              <div className="p-2">
-                <div className="relative overflow-hidden rounded-lg shadow-lg aspect-[16/8]">
-                  <img
-                    src={image.url}
-                    alt={image.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    loading="lazy"
-                    onError={(e) => {
-                      // Hide broken images
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
+            <CarouselItem key={index} className="pl-0">
+              <div className="relative overflow-hidden rounded-lg shadow-lg aspect-[16/9] sm:aspect-[16/8]">
+                <img
+                  src={image.url}
+                  alt={image.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                  onError={(e) => {
+                    // Hide broken images
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="border-none absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/30 text-black rounded-full p-2 hover:bg-white/70 transition-colors" />
-        <CarouselNext className="border-none absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/30 text-black rounded-full p-2 hover:bg-white/70 transition-colors" />
+        <CarouselPrevious className="border-none absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors" />
+        <CarouselNext className="border-none absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors" />
       </Carousel>
     </div>
   );
-};;
+};

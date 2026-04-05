@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 interface TravelTipsTabProps {
   tips: string[];
   bestTimeToVisit?: string;
+  tripStartDate?: string;
   tripId?: string;
   customTips?: string[];
   onCustomTipsUpdate?: (tips: string[]) => void;
@@ -18,6 +19,7 @@ interface TravelTipsTabProps {
 export const TravelTipsTab = ({ 
   tips, 
   bestTimeToVisit, 
+  tripStartDate,
   tripId,
   customTips: initialCustomTips = [],
   onCustomTipsUpdate,
@@ -30,6 +32,22 @@ export const TravelTipsTab = ({
   const { toast } = useToast();
 
   const allTips = [...tips, ...customTips];
+  const getSeasonFromDate = (dateString?: string): "summer" | "winter" | "monsoon" | "autumn" | null => {
+    if (!dateString) return null;
+    const month = new Date(dateString).getMonth() + 1; // 1-12
+    if (month >= 5 && month <= 6) return "summer";
+    if (month === 7 || month === 8) return "monsoon";
+    if (month === 9 || month === 10 || month === 11) return "autumn";
+    return "winter";
+  };
+  const seasonToMonths: Record<"summer" | "winter" | "monsoon" | "autumn", string> = {
+    summer: "May - June",
+    winter: "November - February",
+    monsoon: "July - September",
+    autumn: "September - November",
+  };
+  const season = getSeasonFromDate(tripStartDate);
+  const bestTimeDisplay = season ? seasonToMonths[season] : bestTimeToVisit;
 
   // Sync custom tips when they change from parent
   useEffect(() => {
@@ -101,7 +119,7 @@ export const TravelTipsTab = ({
         </CardHeader>
       </Card>
 
-      {bestTimeToVisit && (
+      {bestTimeDisplay && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -110,7 +128,7 @@ export const TravelTipsTab = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground leading-relaxed">{bestTimeToVisit}</p>
+            <p className="text-muted-foreground leading-relaxed">{bestTimeDisplay}</p>
           </CardContent>
         </Card>
       )}

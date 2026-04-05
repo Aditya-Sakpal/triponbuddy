@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "lucide-react";
 import { TripDB, Itinerary } from "@/constants";
 import { formatDate } from "../utils/formatters";
+import { getBudgetDisplay } from "@/utils/tripUtils";
 
 // Helper function to convert simple markdown to HTML
 const parseMarkdown = (text: string): string => {
@@ -22,6 +23,7 @@ interface TripOverviewCardProps {
 }
 
 export const TripOverviewCard = ({ trip, itinerary, summary = "", loading = false }: TripOverviewCardProps) => {
+  const budgetDisplay = getBudgetDisplay(trip);
 
   // Format dates for display
   const formatDateRange = () => {
@@ -72,7 +74,7 @@ export const TripOverviewCard = ({ trip, itinerary, summary = "", loading = fals
                 </tr>
                 <tr className="border-b">
                   <td className="px-4 py-3 font-medium bg-muted/50">Budget</td>
-                  <td className="px-4 py-3 capitalize">{trip.budget || 'Moderate'}</td>
+                  <td className="px-4 py-3">{budgetDisplay}</td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 font-medium bg-muted/50">Pace</td>

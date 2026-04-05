@@ -4,11 +4,11 @@ import type { SwitchingActivityState, ImageMap } from "../types";
 
 interface DayPlanListProps {
   dailyPlans: DailyPlan[];
-  expandedDay: number | null;
+  expandedDays: Set<number>;
   onToggleDay: (dayNumber: number) => void;
   activityImages: ImageMap;
   isEditMode: boolean;
-  onModifyActivity: (index: number, activity: Activity) => void;
+  onModifyActivity: (day: number, index: number, activity: Activity) => void;
   switchingActivity: SwitchingActivityState | null;
   alternativeImages: ImageMap;
   onSelectAlternative: (newActivity: Activity | null) => void;
@@ -17,7 +17,7 @@ interface DayPlanListProps {
 
 export const DayPlanList = ({
   dailyPlans,
-  expandedDay,
+  expandedDays,
   onToggleDay,
   activityImages,
   isEditMode,
@@ -33,7 +33,7 @@ export const DayPlanList = ({
         <DayPlan
           key={dayPlan.day}
           dayPlan={dayPlan}
-          isExpanded={expandedDay === dayPlan.day}
+          isExpanded={expandedDays.has(dayPlan.day)}
           onToggle={() => onToggleDay(dayPlan.day)}
           activityImages={activityImages}
           isEditMode={isEditMode}

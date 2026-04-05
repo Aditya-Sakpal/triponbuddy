@@ -22,6 +22,7 @@ interface EditTripModalProps {
 }
 
 export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDestination }: EditTripModalProps) => {
+  const showInternationalToggle = !!trip.is_international;
   const {
     // State
     selectedPreferences,
@@ -85,14 +86,16 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                     <Label htmlFor="edit-start-location" className="text-sm font-medium">
                       Start Location 
                     </Label>
-                    <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="edit-worldwide" 
-                        checked={isInternational}
-                        onCheckedChange={setIsInternational}
-                      />
-                      <Label htmlFor="edit-worldwide" className="text-sm text-muted-foreground">International</Label>
-                    </div>
+                    {showInternationalToggle && (
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="edit-worldwide"
+                          checked={isInternational}
+                          onCheckedChange={setIsInternational}
+                        />
+                        <Label htmlFor="edit-worldwide" className="text-sm text-muted-foreground">International</Label>
+                      </div>
+                    )}
                   </div>
                   <LocationAutocomplete
                     id="edit-start-location"

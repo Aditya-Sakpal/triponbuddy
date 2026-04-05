@@ -17,6 +17,14 @@ import {
   getDestinationPhotos,
 } from './places/photoHelper';
 
+export interface PlaceDetails {
+  name: string;
+  address: string;
+  rating?: number;
+  photoUrls: string[];
+  mapsUrl: string;
+}
+
 class GooglePlacesService {
   private initialized: boolean = false;
   
@@ -159,6 +167,38 @@ class GooglePlacesService {
   ): Promise<string[]> {
     await this.ensureInitialized();
     return getDestinationPhotos(destinations, maxPhotos);
+  }
+
+  /**
+   * Fetch rich place details (rating + photos) for itinerary place cards.
+   */
+  async getPlaceDetails(
+    query: string,
+    maxPhotos: number = 6
+  ): Promise<PlaceDetails | null> {
+    await this.ensureInitialized();
+
+    const { Place } = await google.maps.importLibrary("places") as google.maps.places.PlacesLibrary;
+    const response = await Place.searchByText({
+      textQuery: query,
+      fields: ["id", "displayName", "formattedAddress", "rating", "photos"],
+      maxResultCount: 1,
+    });
+
+    const place = response.places?.[0];
+    if (!place) return null;
+
+    const name = place.displayName || query;
+    const address = place.formattedAddress || "";
+    const rating = place.rating;
+    const photoUrls = (place.photos || [])
+      .slice(0, maxPhotos)
+      .map((photo) => photo.getURI({ maxWidth: 1200, maxHeight: 900 }));
+    const mapsUrl = place.id
+      ? `https://www.google.com/maps/place/?q=place_id:${place.id}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+    return { name, address, rating, photoUrls, mapsUrl };
   }
 }
 

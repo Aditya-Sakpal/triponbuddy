@@ -22,7 +22,9 @@ interface ItineraryTabProps {
 }
 
 export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode = 'default', onNavigateToTransportation, isOwner, isJoinee }: ItineraryTabProps) => {
-  const [expandedDay, setExpandedDay] = useState<number | null>(null);
+  const [expandedDays, setExpandedDays] = useState<Set<number>>(
+    () => new Set(itinerary.daily_plans?.length ? [itinerary.daily_plans[0].day] : [])
+  );
   const { user } = useUser();
   
   const isRoadMode = transportationMode === 'road';
@@ -71,7 +73,15 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
 
   // UI handlers
   const toggleDay = (dayNumber: number) => {
-    setExpandedDay((prev) => (prev === dayNumber ? null : dayNumber));
+    setExpandedDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(dayNumber)) {
+        next.delete(dayNumber);
+      } else {
+        next.add(dayNumber);
+      }
+      return next;
+    });
   };
 
   return (
@@ -114,12 +124,12 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
       {/* Day Plans */}
       <DayPlanList
         dailyPlans={itinerary.daily_plans || []}
-        expandedDay={expandedDay}
+        expandedDays={expandedDays}
         onToggleDay={toggleDay}
         activityImages={activityImages}
         isEditMode={editMode.isEditMode}
-        onModifyActivity={(index, activity) =>
-          activityModification.handleModifyActivity(expandedDay || 1, index, activity)
+        onModifyActivity={(day, index, activity) =>
+          activityModification.handleModifyActivity(day, index, activity)
         }
         switchingActivity={activityModification.switchingActivity}
         alternativeImages={activityModification.alternativeImages}

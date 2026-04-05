@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DestinationCard } from "@/components/shared/DestinationCard";
-import { destinationList, indianStates } from "@/content/destinationContent";
+import { destinationList } from "@/content/destinationContent";
 import { internationalDestinationList } from "@/content/internationalDestinations";
 
 interface DestListProps {
@@ -10,63 +10,71 @@ interface DestListProps {
   isWorldwide: boolean;
 }
 
-export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: DestListProps) => {
-    const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-    const [preloadingComplete, setPreloadingComplete] = useState(false);
+const SEASON_MONTHS: Record<string, string> = {
+  summer: "May - June",
+  winter: "November - February",
+  monsoon: "July - September",
+  autumn: "September - November",
+};
 
+export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: DestListProps) => {
   // Choose the correct destination list based on worldwide toggle
   const sourceList = isWorldwide ? internationalDestinationList : destinationList;
 
-  // Filter destinations based on location, season, and worldwide toggle
-  const filteredDestinations = sourceList.filter(stateData => {
-    // Filter by selected location
-    if (selectedLocation !== "all") {
-      const locationMatch = stateData.state.toLowerCase().replace(/\s+/g, '-') === selectedLocation;
-      if (!locationMatch) {
-        return false;
+  // Build filtered list immutably so season/location changes never mutate source data.
+  const filteredDestinations = useMemo(() => {
+    const isAllSeasons = selectedSeason === "all" || selectedSeason === "all-seasons";
+
+    const seasonMatches = (bestTimeToVisit?: string, season?: string): boolean => {
+      if (isAllSeasons) return true;
+      if (season && season.toLowerCase() === selectedSeason) return true;
+
+      const timeToVisit = bestTimeToVisit?.toLowerCase() || "";
+      switch (selectedSeason) {
+        case "summer":
+          return timeToVisit.includes("may") || timeToVisit.includes("jun");
+        case "winter":
+          return (
+            timeToVisit.includes("nov") ||
+            timeToVisit.includes("dec") ||
+            timeToVisit.includes("jan") ||
+            timeToVisit.includes("feb")
+          );
+        case "monsoon":
+          return (
+            timeToVisit.includes("jul") ||
+            timeToVisit.includes("aug") ||
+            timeToVisit.includes("sep")
+          );
+        case "autumn":
+          return (
+            timeToVisit.includes("sep") ||
+            timeToVisit.includes("oct") ||
+            timeToVisit.includes("nov")
+          );
+        default:
+          return true;
       }
-    }
+    };
 
-    // Filter by season - filter destinations within this state
-    if (selectedSeason !== "all" && selectedSeason !== "all-seasons") {
-      const seasonFilteredDestinations = stateData.destinations.filter(dest => {
-        // Match season in bestTimeToVisit field
-        const timeToVisit = dest.bestTimeToVisit?.toLowerCase() || "";
-        
-        switch(selectedSeason) {
-          case "summer":
-            return timeToVisit.includes("may") || timeToVisit.includes("jun");
-          case "winter":
-            return timeToVisit.includes("nov") || timeToVisit.includes("dec") || 
-                   timeToVisit.includes("jan") || timeToVisit.includes("feb");
-          case "monsoon":
-            return timeToVisit.includes("jul") || timeToVisit.includes("aug") || 
-                   timeToVisit.includes("sep");
-          case "autumn":
-            return timeToVisit.includes("sep") || timeToVisit.includes("oct") || 
-                   timeToVisit.includes("nov");
-          default:
-            return true;
-        }
-      });
-      
-      // If no destinations match the season filter, exclude this state
-      if (seasonFilteredDestinations.length === 0) {
-        return false;
-      }
-      
-      // Update stateData to only include filtered destinations
-      stateData.destinations = seasonFilteredDestinations;
-      stateData.count = seasonFilteredDestinations.length;
-    }
+    return sourceList
+      .filter((stateData) => {
+        if (selectedLocation === "all") return true;
+        return stateData.state.toLowerCase().replace(/\s+/g, "-") === selectedLocation;
+      })
+      .map((stateData) => {
+        const seasonFilteredDestinations = stateData.destinations.filter((dest) =>
+          seasonMatches(dest.bestTimeToVisit, dest.season)
+        );
 
-    return true;
-  });
-
-  // Mark preloading as complete immediately since we're using Google Places API for images
-  useEffect(() => {
-    setPreloadingComplete(true);
-  }, []);
+        return {
+          ...stateData,
+          destinations: seasonFilteredDestinations,
+          count: seasonFilteredDestinations.length,
+        };
+      })
+      .filter((stateData) => stateData.destinations.length > 0);
+  }, [sourceList, selectedLocation, selectedSeason]);
 
   // Handle individual image load (kept for compatibility, though not used with Places API)
   const handleImageLoad = useCallback(() => {
@@ -91,6 +99,11 @@ export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: Dest
                         
                         <div className="flex flex-row overflow-x-auto md:grid md:grid-cols-3 gap-6 horizontal-scroll">
                         {stateData.destinations.map((destination, index) => {
+                            const seasonBasedDisplayMonths =
+                              selectedSeason !== "all" && selectedSeason !== "all-seasons"
+                                ? (SEASON_MONTHS[selectedSeason] || destination.bestTimeToVisit)
+                                : destination.bestTimeToVisit;
+
                             // Create a compatible destination object for the unified card
                             const compatibleDestination = {
                                 id: destination.id || `${stateData.state}-${index}`,
@@ -98,7 +111,7 @@ export const DestList = ({ selectedLocation, selectedSeason, isWorldwide }: Dest
                                 state: stateData.state,
                                 description: destination.description,
                                 image: '', // Empty string as placeholder - will be fetched by Places API
-                                bestTimeToVisit: destination.bestTimeToVisit
+                                bestTimeToVisit: seasonBasedDisplayMonths
                             };
                             
                             return (
