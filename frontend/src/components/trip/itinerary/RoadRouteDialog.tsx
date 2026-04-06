@@ -387,7 +387,7 @@ export const RoadRouteDialog = ({ isOpen, onOpenChange, routeData, loading, erro
                           <Button variant="ghost" size="sm" asChild className="ml-2 self-start">
                             <a
                               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                waypoint.name
+                                `${waypoint.location.latitude},${waypoint.location.longitude}`
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"

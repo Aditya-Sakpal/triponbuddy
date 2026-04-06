@@ -22,6 +22,7 @@ class GoogleMapsService:
         self.routes_api_url = "https://routes.googleapis.com/directions/v2:computeRoutes"
         self.geocoding_api_url = "https://maps.googleapis.com/maps/api/geocode/json"
         self.places_api_url = "https://places.googleapis.com/v1/places:searchText"
+        self._supports_places_location_restriction: Optional[bool] = None
     
     async def calculate_distance(self, origin: str, destination: str) -> Optional[float]:
         """
@@ -269,6 +270,7 @@ class GoogleMapsService:
         try:
             # Decode polyline to get intermediate points
             path_points = decode_polyline(encoded_polyline)
+            route_bounds = self._compute_path_bounds(path_points)
 
             # Dynamic targets by route length.
             is_short_route = route_distance_meters is not None and route_distance_meters <= 150_000
@@ -348,15 +350,13 @@ class GoogleMapsService:
 
                         accepted_for_point = 0
                         for place in places:
-                            loc = place.get("location") or {}
-                            if "latitude" in loc and "longitude" in loc:
-                                dist_to_route_m = self._min_distance_to_path_meters(
-                                    float(loc["latitude"]),
-                                    float(loc["longitude"]),
-                                    path_points,
-                                )
-                                if dist_to_route_m > corridor_m:
-                                    continue
+                            if not self._is_place_within_route_corridor(
+                                place,
+                                path_points=path_points,
+                                corridor_m=corridor_m,
+                                route_bounds=route_bounds,
+                            ):
+                                continue
 
                             place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
                             if place_id in seen_place_ids:
@@ -409,15 +409,13 @@ class GoogleMapsService:
                                         radius_m=14000.0,
                                     )
                                     for place in places:
-                                        loc = place.get("location") or {}
-                                        if "latitude" in loc and "longitude" in loc:
-                                            dist_to_route_m = self._min_distance_to_path_meters(
-                                                float(loc["latitude"]),
-                                                float(loc["longitude"]),
-                                                path_points,
-                                            )
-                                            if dist_to_route_m > 2600.0:
-                                                continue
+                                        if not self._is_place_within_route_corridor(
+                                            place,
+                                            path_points=path_points,
+                                            corridor_m=2600.0,
+                                            route_bounds=route_bounds,
+                                        ):
+                                            continue
                                         place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
                                         if place_id in seen_place_ids:
                                             continue
@@ -479,15 +477,13 @@ class GoogleMapsService:
 
                     accepted_for_point = 0
                     for place in places:
-                        loc = place.get("location") or {}
-                        if "latitude" in loc and "longitude" in loc:
-                            dist_to_route_m = self._min_distance_to_path_meters(
-                                float(loc["latitude"]),
-                                float(loc["longitude"]),
-                                path_points,
-                            )
-                            if dist_to_route_m > corridor_m:
-                                continue
+                        if not self._is_place_within_route_corridor(
+                            place,
+                            path_points=path_points,
+                            corridor_m=corridor_m,
+                            route_bounds=route_bounds,
+                        ):
+                            continue
 
                         place_id = f"{place['name']}_{place['location']['latitude']}_{place['location']['longitude']}"
                         if place_id not in seen_place_ids:
@@ -564,17 +560,15 @@ class GoogleMapsService:
 
                         accepted_for_point = 0
                         for place in places:
-                            loc = place.get("location") or {}
-                            if "latitude" not in loc or "longitude" not in loc:
+                            if not self._is_place_within_route_corridor(
+                                place,
+                                path_points=path_points,
+                                corridor_m=corridor_m,
+                                route_bounds=route_bounds,
+                            ):
                                 continue
 
-                            dist_to_route_m = self._min_distance_to_path_meters(
-                                float(loc["latitude"]),
-                                float(loc["longitude"]),
-                                path_points,
-                            )
-                            if dist_to_route_m > corridor_m:
-                                continue
+                            loc = place["location"]
 
                             place_id = f"{place['name']}_{loc['latitude']}_{loc['longitude']}"
                             if place_id in seen_global:
@@ -634,17 +628,15 @@ class GoogleMapsService:
                         )
 
                         for place in places:
-                            loc = place.get("location") or {}
-                            if "latitude" not in loc or "longitude" not in loc:
+                            if not self._is_place_within_route_corridor(
+                                place,
+                                path_points=path_points,
+                                corridor_m=corridor_m,
+                                route_bounds=route_bounds,
+                            ):
                                 continue
 
-                            dist_to_route_m = self._min_distance_to_path_meters(
-                                float(loc["latitude"]),
-                                float(loc["longitude"]),
-                                path_points,
-                            )
-                            if dist_to_route_m > corridor_m:
-                                continue
+                            loc = place["location"]
 
                             place_id = f"{place['name']}_{loc['latitude']}_{loc['longitude']}"
                             if place_id in seen_global:
@@ -732,6 +724,7 @@ class GoogleMapsService:
         if needed <= 0:
             return capped_waypoints
 
+        route_bounds = self._compute_path_bounds(path_points)
         seen_place_ids = {self._place_identifier(wp) for wp in capped_waypoints}
         replacement_candidates: List[Dict[str, Any]] = []
         focus_types = [
@@ -766,16 +759,12 @@ class GoogleMapsService:
                 )
 
                 for place in places:
-                    loc = place.get("location") or {}
-                    if "latitude" not in loc or "longitude" not in loc:
-                        continue
-
-                    dist_to_route_m = self._min_distance_to_path_meters(
-                        float(loc["latitude"]),
-                        float(loc["longitude"]),
-                        path_points,
-                    )
-                    if dist_to_route_m > corridor_m:
+                    if not self._is_place_within_route_corridor(
+                        place,
+                        path_points=path_points,
+                        corridor_m=corridor_m,
+                        route_bounds=route_bounds,
+                    ):
                         continue
 
                     if not self._is_rest_food_shopping_category(str(place.get("category", "")).lower()):
@@ -817,6 +806,91 @@ class GoogleMapsService:
             )
 
         return capped_waypoints
+
+    @staticmethod
+    def _compute_path_bounds(path_points: List[Tuple[float, float]]) -> Optional[Tuple[float, float, float, float]]:
+        """Return (min_lat, max_lat, min_lon, max_lon) for the route path."""
+        if not path_points:
+            return None
+        lats = [lat for lat, _ in path_points]
+        lons = [lon for _, lon in path_points]
+        return (min(lats), max(lats), min(lons), max(lons))
+
+    @staticmethod
+    def _is_valid_coordinate(lat: float, lon: float) -> bool:
+        """Validate numeric latitude/longitude bounds."""
+        if not (math.isfinite(lat) and math.isfinite(lon)):
+            return False
+        return -90.0 <= lat <= 90.0 and -180.0 <= lon <= 180.0
+
+    @classmethod
+    def _is_within_path_bounds(
+        cls,
+        lat: float,
+        lon: float,
+        path_bounds: Optional[Tuple[float, float, float, float]],
+        corridor_m: float,
+    ) -> bool:
+        """
+        Quick pre-check using a buffered route bounding box.
+        Prevents distant/off-state places from passing through before expensive corridor checks.
+        """
+        if not path_bounds:
+            return True
+
+        min_lat, max_lat, min_lon, max_lon = path_bounds
+        lat_buffer = corridor_m / 111_320.0
+        mid_lat = max(-89.0, min(89.0, (min_lat + max_lat) / 2.0))
+        lon_buffer = corridor_m / (111_320.0 * max(0.01, abs(math.cos(math.radians(mid_lat)))))
+
+        return (
+            min_lat - lat_buffer <= lat <= max_lat + lat_buffer
+            and min_lon - lon_buffer <= lon <= max_lon + lon_buffer
+        )
+
+    @classmethod
+    def _is_place_within_route_corridor(
+        cls,
+        place: Dict[str, Any],
+        path_points: List[Tuple[float, float]],
+        corridor_m: float,
+        route_bounds: Optional[Tuple[float, float, float, float]] = None,
+    ) -> bool:
+        """
+        Strict route gate:
+        1) valid coordinates
+        2) inside buffered route bbox
+        3) within corridor distance from decoded route polyline
+        """
+        loc = place.get("location") or {}
+        lat_raw = loc.get("latitude")
+        lon_raw = loc.get("longitude")
+        if lat_raw is None or lon_raw is None:
+            return False
+
+        try:
+            lat = float(lat_raw)
+            lon = float(lon_raw)
+        except (TypeError, ValueError):
+            return False
+
+        if not cls._is_valid_coordinate(lat, lon):
+            return False
+
+        if not cls._is_within_path_bounds(
+            lat=lat,
+            lon=lon,
+            path_bounds=route_bounds or cls._compute_path_bounds(path_points),
+            corridor_m=corridor_m,
+        ):
+            return False
+
+        # Normalize parsed coordinates so downstream code can safely use numeric values.
+        loc["latitude"] = lat
+        loc["longitude"] = lon
+
+        dist_to_route_m = cls._min_distance_to_path_meters(lat, lon, path_points)
+        return dist_to_route_m <= corridor_m
     
     async def _search_nearby_places(
         self,
@@ -839,19 +913,23 @@ class GoogleMapsService:
             List of places
         """
         try:
-            request_body = {
+            strict_request_body = {
                 "textQuery": f"{place_type}",
-                # Use locationBias for compatibility with current API key/project.
-                # We enforce strict on-route filtering in backend via polyline distance checks.
-                "locationBias": {
+                # Prefer strict region restriction so results stay around the sampled route point.
+                "locationRestriction": {
                     "circle": {
                         "center": {
                             "latitude": latitude,
-                            "longitude": longitude
+                            "longitude": longitude,
                         },
-                        "radius": radius_m
-                    }
-                }
+                        "radius": radius_m,
+                    },
+                },
+            }
+            fallback_request_body = {
+                "textQuery": f"{place_type}",
+                # Fallback for projects where locationRestriction is not enabled.
+                "locationBias": strict_request_body["locationRestriction"],
             }
             
             headers = {
@@ -861,16 +939,34 @@ class GoogleMapsService:
             }
             
             async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(
-                    self.places_api_url,
-                    json=request_body,
-                    headers=headers
-                )
+                response = None
+                used_strict_request = False
+
+                if self._supports_places_location_restriction is not False:
+                    used_strict_request = True
+                    response = await client.post(
+                        self.places_api_url,
+                        json=strict_request_body,
+                        headers=headers
+                    )
+                    if response.status_code == 200:
+                        self._supports_places_location_restriction = True
+                    elif response.status_code == 400:
+                        # Persist fallback when strict restriction is rejected by the API project.
+                        self._supports_places_location_restriction = False
+
+                if response is None or response.status_code != 200:
+                    response = await client.post(
+                        self.places_api_url,
+                        json=fallback_request_body,
+                        headers=headers
+                    )
 
                 if response.status_code != 200:
                     logger.warning(
-                        "Places searchText failed (%s): %s",
+                        "Places searchText failed (%s, strict=%s): %s",
                         response.status_code,
+                        used_strict_request,
                         response.text[:300],
                     )
                     return []
@@ -885,21 +981,37 @@ class GoogleMapsService:
                         photo_ref = place["photos"][0].get("name")
 
                     loc = place.get("location", {}) or {}
-                    # Extra safety: filter anything outside radius.
-                    if "latitude" in loc and "longitude" in loc:
-                        dist_m = self._haversine_meters(
-                            latitude,
-                            longitude,
-                            float(loc["latitude"]),
-                            float(loc["longitude"]),
-                        )
-                        if dist_m > radius_m:
-                            continue
+                    if "latitude" not in loc or "longitude" not in loc:
+                        continue
+
+                    try:
+                        place_lat = float(loc["latitude"])
+                        place_lon = float(loc["longitude"])
+                    except (TypeError, ValueError):
+                        continue
+
+                    if not self._is_valid_coordinate(place_lat, place_lon):
+                        continue
+
+                    # Extra safety: filter anything outside radius even when API ranking drifts.
+                    dist_m = self._haversine_meters(
+                        latitude,
+                        longitude,
+                        place_lat,
+                        place_lon,
+                    )
+                    if dist_m > radius_m:
+                        continue
+
+                    normalized_loc = {
+                        "latitude": place_lat,
+                        "longitude": place_lon,
+                    }
 
                     places.append({
                         "name": place.get("displayName", {}).get("text", "Unknown"),
                         "address": place.get("formattedAddress", ""),
-                        "location": loc,
+                        "location": normalized_loc,
                         "rating": place.get("rating"),
                         "category": category,
                         "photo_ref": photo_ref
