@@ -5,7 +5,7 @@ Google Maps API service for route calculation and distance estimation
 
 import logging
 import httpx
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Callable
 import math
 from config import settings
 
@@ -430,7 +430,7 @@ class GoogleMapsService:
                                 # No more unique places available for this category.
                                 break
 
-                waypoints = await self._ensure_rest_food_shopping_ratio(
+                waypoints = await self._ensure_attraction_priority_mix(
                     waypoints=waypoints,
                     sampled_points=sampled_points,
                     path_points=path_points,
@@ -649,7 +649,7 @@ class GoogleMapsService:
                     if len(waypoints) >= 5:
                         break
 
-            waypoints = await self._ensure_rest_food_shopping_ratio(
+            waypoints = await self._ensure_attraction_priority_mix(
                 waypoints=waypoints,
                 sampled_points=sampled_points,
                 path_points=path_points,
@@ -687,14 +687,16 @@ class GoogleMapsService:
         return f"{place.get('name', 'Unknown')}_{loc.get('latitude')}_{loc.get('longitude')}"
 
     @staticmethod
-    def _is_rest_food_shopping_category(category: str) -> bool:
-        """
-        Returns True if the category is one of the user-requested focus types:
-        rest, food, or shopping.
-        """
+    def _is_attraction_category(category: str) -> bool:
+        """Returns True when category is attraction-like."""
+        return category in {"attraction", "viewpoint"}
+
+    @staticmethod
+    def _is_support_category(category: str) -> bool:
+        """Returns True for non-attraction support categories."""
         return category in {"hotel", "restaurant", "shopping"}
 
-    async def _ensure_rest_food_shopping_ratio(
+    async def _ensure_attraction_priority_mix(
         self,
         waypoints: List[Dict[str, Any]],
         sampled_points: List[Tuple[float, float]],
@@ -703,8 +705,9 @@ class GoogleMapsService:
         target_max_spots: int,
     ) -> List[Dict[str, Any]]:
         """
-        Ensure at least 70% of displayed waypoints are rest/food/shopping.
-        Keeps total waypoint count unchanged by replacing non-target items when needed.
+        Ensure at least 70% of displayed waypoints are attractions/viewpoints.
+        Keep the remaining spots within support categories (hotel/restaurant/shopping).
+        Keeps total waypoint count unchanged by replacing off-mix items when needed.
         """
         if not waypoints:
             return waypoints
@@ -714,20 +717,25 @@ class GoogleMapsService:
         if total_spots == 0:
             return capped_waypoints
 
-        required_focus_spots = math.ceil(total_spots * 0.7)
-        focus_count = sum(
+        required_attraction_spots = math.ceil(total_spots * 0.7)
+        attraction_count = sum(
             1
             for wp in capped_waypoints
-            if self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+            if self._is_attraction_category(str(wp.get("category", "")).lower())
         )
-        needed = required_focus_spots - focus_count
-        if needed <= 0:
-            return capped_waypoints
+        needed_attraction = required_attraction_spots - attraction_count
 
         route_bounds = self._compute_path_bounds(path_points)
         seen_place_ids = {self._place_identifier(wp) for wp in capped_waypoints}
-        replacement_candidates: List[Dict[str, Any]] = []
-        focus_types = [
+        attraction_types = [
+            {"type": "tourist_attraction", "category": "attraction"},
+            {"type": "viewpoint scenic point", "category": "viewpoint"},
+            {"type": "historical landmark monument", "category": "attraction"},
+            {"type": "museum cultural site", "category": "attraction"},
+            {"type": "natural park garden", "category": "attraction"},
+            {"type": "temple shrine religious site", "category": "attraction"},
+        ]
+        support_types = [
             {"type": "restaurant", "category": "restaurant"},
             {"type": "cafe", "category": "restaurant"},
             {"type": "food court", "category": "restaurant"},
@@ -737,72 +745,134 @@ class GoogleMapsService:
             {"type": "local market", "category": "shopping"},
             {"type": "supermarket", "category": "shopping"},
         ]
-        # Keep route proximity strict, but relax gradually if we need more focus-category places.
+
         search_plan = (
             [(900.0, 4500.0), (1400.0, 7000.0)]
             if is_short_route
             else [(1200.0, 8000.0), (2000.0, 12000.0)]
         )
 
-        for corridor_m, radius_m in search_plan:
-            for idx, point in enumerate(sampled_points):
-                if len(replacement_candidates) >= needed:
+        async def _collect_candidates(
+            place_types: List[Dict[str, str]],
+            needed: int,
+            category_validator: Callable[[str], bool],
+        ) -> List[Dict[str, Any]]:
+            candidates: List[Dict[str, Any]] = []
+            if needed <= 0:
+                return candidates
+
+            for corridor_m, radius_m in search_plan:
+                for idx, point in enumerate(sampled_points):
+                    if len(candidates) >= needed:
+                        break
+
+                    place_info = place_types[idx % len(place_types)]
+                    places = await self._search_nearby_places(
+                        point[0],
+                        point[1],
+                        place_info["type"],
+                        place_info["category"],
+                        radius_m=radius_m,
+                    )
+
+                    for place in places:
+                        if not self._is_place_within_route_corridor(
+                            place,
+                            path_points=path_points,
+                            corridor_m=corridor_m,
+                            route_bounds=route_bounds,
+                        ):
+                            continue
+
+                        category = str(place.get("category", "")).lower()
+                        if not category_validator(category):
+                            continue
+
+                        place_id = self._place_identifier(place)
+                        if place_id in seen_place_ids:
+                            continue
+
+                        seen_place_ids.add(place_id)
+                        candidates.append(place)
+                        break
+
+                if len(candidates) >= needed:
                     break
 
-                place_info = focus_types[idx % len(focus_types)]
-                places = await self._search_nearby_places(
-                    point[0],
-                    point[1],
-                    place_info["type"],
-                    place_info["category"],
-                    radius_m=radius_m,
-                )
+            return candidates
 
-                for place in places:
-                    if not self._is_place_within_route_corridor(
-                        place,
-                        path_points=path_points,
-                        corridor_m=corridor_m,
-                        route_bounds=route_bounds,
-                    ):
-                        continue
-
-                    if not self._is_rest_food_shopping_category(str(place.get("category", "")).lower()):
-                        continue
-
-                    place_id = self._place_identifier(place)
-                    if place_id in seen_place_ids:
-                        continue
-
-                    seen_place_ids.add(place_id)
-                    replacement_candidates.append(place)
-                    break
-
-            if len(replacement_candidates) >= needed:
-                break
-
-        if replacement_candidates:
-            replaceable_indices = [
-                i
-                for i, wp in enumerate(capped_waypoints)
-                if not self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+        if needed_attraction > 0:
+            attraction_replacements = await _collect_candidates(
+                place_types=attraction_types,
+                needed=needed_attraction,
+                category_validator=self._is_attraction_category,
+            )
+            replaceable_for_attraction = [
+                idx
+                for idx, wp in enumerate(capped_waypoints)
+                if not self._is_attraction_category(str(wp.get("category", "")).lower())
             ]
-            for replacement in replacement_candidates:
-                if not replaceable_indices:
-                    break
-                idx_to_replace = replaceable_indices.pop()
+            # Replace off-mix categories first; then support categories if still needed.
+            replaceable_for_attraction.sort(
+                key=lambda idx: 0
+                if not self._is_support_category(str(capped_waypoints[idx].get("category", "")).lower())
+                else 1
+            )
+            for idx_to_replace, replacement in zip(replaceable_for_attraction, attraction_replacements):
                 capped_waypoints[idx_to_replace] = replacement
 
-        final_focus_count = sum(
+        invalid_non_attraction_indices = [
+            idx
+            for idx, wp in enumerate(capped_waypoints)
+            if not self._is_attraction_category(str(wp.get("category", "")).lower())
+            and not self._is_support_category(str(wp.get("category", "")).lower())
+        ]
+        if invalid_non_attraction_indices:
+            support_replacements = await _collect_candidates(
+                place_types=support_types,
+                needed=len(invalid_non_attraction_indices),
+                category_validator=self._is_support_category,
+            )
+
+            replace_cursor = 0
+            for replacement in support_replacements:
+                if replace_cursor >= len(invalid_non_attraction_indices):
+                    break
+                capped_waypoints[invalid_non_attraction_indices[replace_cursor]] = replacement
+                replace_cursor += 1
+
+            remaining_invalid = invalid_non_attraction_indices[replace_cursor:]
+            if remaining_invalid:
+                attraction_fallback = await _collect_candidates(
+                    place_types=attraction_types,
+                    needed=len(remaining_invalid),
+                    category_validator=self._is_attraction_category,
+                )
+                for idx_to_replace, replacement in zip(remaining_invalid, attraction_fallback):
+                    capped_waypoints[idx_to_replace] = replacement
+
+        final_attraction_count = sum(
             1
             for wp in capped_waypoints
-            if self._is_rest_food_shopping_category(str(wp.get("category", "")).lower())
+            if self._is_attraction_category(str(wp.get("category", "")).lower())
         )
-        if final_focus_count < required_focus_spots:
+        if final_attraction_count < required_attraction_spots:
             logger.warning(
-                "Could not fully satisfy 70%% rest/food/shopping mix (%s/%s).",
-                final_focus_count,
+                "Could not fully satisfy 70%% attraction mix (%s/%s).",
+                final_attraction_count,
                 total_spots,
+            )
+
+        still_invalid = [
+            wp
+            for wp in capped_waypoints
+            if not self._is_attraction_category(str(wp.get("category", "")).lower())
+            and not self._is_support_category(str(wp.get("category", "")).lower())
+        ]
+        if still_invalid:
+            logger.warning(
+                "Could not fully constrain all non-attraction stops to support categories (%s invalid).",
+                len(still_invalid),
             )
 
         return capped_waypoints

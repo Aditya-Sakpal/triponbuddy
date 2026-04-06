@@ -262,7 +262,7 @@ export const TripItinerary = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-200/80">
+    <div className="min-h-screen bg-gray-200/80 overflow-x-hidden">
       {/* Header */}
       <div className=" text-black pt-12">
         <div className="max-w-6xl mx-auto px-4 py-8">
@@ -271,7 +271,7 @@ export const TripItinerary = ({
 
           <div className="space-y-4">
             <div className="space-y-4">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold max-w-full truncate">
                 Your trip to {trip.destination}
               </h1>
               <div className="flex flex-wrap items-center gap-6 text-black/90">
