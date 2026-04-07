@@ -74,13 +74,11 @@ export const ItineraryTab = ({ itinerary, tripId, onRefresh, transportationMode 
   // UI handlers
   const toggleDay = (dayNumber: number) => {
     setExpandedDays((prev) => {
-      const next = new Set(prev);
-      if (next.has(dayNumber)) {
-        next.delete(dayNumber);
-      } else {
-        next.add(dayNumber);
+      if (prev.has(dayNumber)) {
+        return new Set<number>();
       }
-      return next;
+
+      return new Set<number>([dayNumber]);
     });
   };
 

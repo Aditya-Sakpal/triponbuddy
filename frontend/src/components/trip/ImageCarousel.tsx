@@ -36,7 +36,7 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
   if (isLoading) {
     return (
       <div className="w-full mt-6">
-        <div className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
+        <div className="h-[220px] sm:h-[360px] lg:h-[420px] rounded-3xl bg-gray-200 animate-pulse" />
       </div>
     );
   }
@@ -46,7 +46,7 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
   }
 
   return (
-    <div className="w-full mt-6 min-w-0">
+    <div className="w-full mt-6 min-w-0 max-w-full">
       <Carousel
         setApi={setApi}
         opts={{
@@ -55,19 +55,19 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
         }}
         plugins={[
           Autoplay({
-            delay: 2400,
+            delay: 3200,
           }),
         ]}
-        className="relative w-full overflow-hidden"
+        className="relative w-full max-w-full overflow-hidden rounded-3xl shadow-xl"
       >
-        <CarouselContent className="ml-0 w-full">
+        <CarouselContent className="ml-0">
           {images.map((image, index) => (
-            <CarouselItem key={index} className="pl-0 basis-full min-w-full">
-              <div className="relative overflow-hidden rounded-lg shadow-lg aspect-[16/9] sm:aspect-[16/8]">
+            <CarouselItem key={index} className="pl-0 basis-full">
+              <div className="relative w-full h-[220px] sm:h-[360px] lg:h-[420px] overflow-hidden rounded-3xl">
                 <img
                   src={image.url}
                   alt={image.title}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="block w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                   loading="lazy"
                   onLoad={() => {
                     setLoadedCount((count) => count + 1);
@@ -82,8 +82,8 @@ export const ImageCarousel = ({ images, isLoading }: ImageCarouselProps) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="border-none absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors" />
-        <CarouselNext className="border-none absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-black/30 text-white rounded-full p-2 hover:bg-black/50 transition-colors" />
+        <CarouselPrevious className="!left-3 sm:!left-5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-11 sm:w-11 border-none bg-white/35 text-black/65 backdrop-blur-sm hover:bg-white/55 transition-colors" />
+        <CarouselNext className="!right-3 sm:!right-5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-11 sm:w-11 border-none bg-white/35 text-black/65 backdrop-blur-sm hover:bg-white/55 transition-colors" />
       </Carousel>
     </div>
   );

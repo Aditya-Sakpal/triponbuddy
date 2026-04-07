@@ -142,13 +142,13 @@ export const ActivityCard = ({
             <button
               type="button"
               onClick={handleOpenPlaceDialog}
-              className="w-full text-left"
+              className="w-full text-left rounded-xl overflow-hidden"
             >
-              <div className="aspect-[16/10] md:aspect-[16/8] bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg overflow-hidden">
+              <div className="w-full h-[200px] sm:h-[250px] md:h-[320px] lg:h-[340px] bg-gray-100 rounded-xl overflow-hidden">
                 <img
                   src={imageUrl || `https://placehold.co/300x200?text=${encodeURIComponent(activity.image_search_query)}`}
                   alt={activity.activity}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  className="block w-full h-full object-cover object-center transition-transform duration-300 hover:scale-[1.02]"
                   loading="lazy"
                 />
               </div>
