@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IndianRupee, Info, Loader2, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { IndianRupee, Info, Loader2 } from "lucide-react";
 
 interface BudgetInputProps {
   budget: number | undefined;
@@ -22,8 +21,6 @@ export const BudgetInput = ({ budget, setBudget, minimumBudget, isEstimating }: 
       }
     }
   };
-
-  const isBelowMinimum = budget !== undefined && minimumBudget !== undefined && budget < minimumBudget;
 
   return (
     <div className="space-y-2 my-4">
@@ -53,25 +50,16 @@ export const BudgetInput = ({ budget, setBudget, minimumBudget, isEstimating }: 
           type="number"
           min={0}
           step="1000"
-          value={budget || ''}
+          value={budget ?? ''}
           onChange={(e) => handleBudgetChange(e.target.value)}
           placeholder={minimumBudget ? `Minimum: ₹${minimumBudget.toLocaleString('en-IN')}` : "Enter your budget in INR"}
-          className={`pl-8 h-12 ${isBelowMinimum ? 'border-destructive' : ''}`}
+          className="pl-8 h-12"
         />
       </div>
       
-      {isBelowMinimum && (
-        <Alert variant="destructive" className="py-3">
-          <AlertCircle className="h-4 w-4 !top-3" />
-          <AlertDescription className="text-sm [&_p]:leading-normal">
-            Budget should be at least ₹{minimumBudget?.toLocaleString('en-IN')} for this trip
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {minimumBudget && !isBelowMinimum && budget !== undefined && (
+      {minimumBudget && budget !== undefined && (
         <p className="text-xs text-muted-foreground">
-          Minimum recommended: ₹{minimumBudget.toLocaleString('en-IN')}
+          Auto-updated recommended budget: ₹{minimumBudget.toLocaleString('en-IN')}
         </p>
       )}
     </div>

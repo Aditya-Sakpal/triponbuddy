@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { useGenerateTrip } from "@/hooks/api-hooks";
@@ -11,6 +11,44 @@ import {
 } from "./tripPlanningHelpers";
 import { googlePlacesService } from "@/services/googlePlacesService";
 import { geminiService } from "@/services/geminiService";
+import { googleMapsLoader } from "@/lib/google-maps-loader";
+
+interface DistanceMatrixElement {
+  status: string;
+  distance?: {
+    value: number;
+  };
+}
+
+interface DistanceMatrixRow {
+  elements: DistanceMatrixElement[];
+}
+
+interface DistanceMatrixResponse {
+  rows: DistanceMatrixRow[];
+}
+
+interface GoogleMapsDistanceAPI {
+  maps: {
+    DistanceMatrixService: new () => {
+      getDistanceMatrix: (
+        request: {
+          origins: string[];
+          destinations: string[];
+          travelMode: string;
+          unitSystem: string;
+        },
+        callback: (response: DistanceMatrixResponse, status: string) => void
+      ) => void;
+    };
+    TravelMode: {
+      DRIVING: string;
+    };
+    UnitSystem: {
+      METRIC: string;
+    };
+  };
+}
 
 export const useTripPlanning = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['Relaxation']);
@@ -21,13 +59,13 @@ export const useTripPlanning = () => {
   const [durationDays, setDurationDays] = useState<number>(3);
   const [isInternational, setIsInternational] = useState(false);
   const [budget, setBudget] = useState<number | undefined>(undefined);
-  const [isBudgetManuallySet, setIsBudgetManuallySet] = useState(false);
   const [minimumBudget, setMinimumBudget] = useState<number | undefined>(undefined);
   const [isEstimatingBudget, setIsEstimatingBudget] = useState(false);
   const [transportationMode, setTransportationMode] = useState<'default' | 'road' | 'train' | 'flight'>('default');
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [modalImages, setModalImages] = useState<ImageData[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const estimateRequestIdRef = useRef(0);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -98,36 +136,110 @@ export const useTripPlanning = () => {
   }, []); // Only run on mount
 
   // Estimate minimum budget when trip parameters change
+  const getApproxRouteDistanceKm = useCallback(async (
+    origin: string,
+    tripDestinations: string[]
+  ): Promise<number | undefined> => {
+    if (!origin || tripDestinations.length === 0) {
+      return undefined;
+    }
+
+    try {
+      await googleMapsLoader.load({
+        apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        libraries: ["places"],
+      });
+
+      const google = (window as unknown as { google?: GoogleMapsDistanceAPI }).google;
+      if (!google?.maps?.DistanceMatrixService) {
+        return undefined;
+      }
+
+      const stops = [origin, ...tripDestinations];
+      const service = new google.maps.DistanceMatrixService();
+      let totalMeters = 0;
+
+      for (let i = 0; i < stops.length - 1; i++) {
+        const legDistance = await new Promise<number>((resolve, reject) => {
+          service.getDistanceMatrix(
+            {
+              origins: [stops[i]],
+              destinations: [stops[i + 1]],
+              travelMode: google.maps.TravelMode.DRIVING,
+              unitSystem: google.maps.UnitSystem.METRIC,
+            },
+            (response: DistanceMatrixResponse, status: string) => {
+              if (status !== "OK" || !response?.rows?.[0]?.elements?.[0]) {
+                reject(new Error(`Distance matrix failed: ${status}`));
+                return;
+              }
+
+              const element = response.rows[0].elements[0];
+              if (element.status !== "OK" || !element.distance?.value) {
+                resolve(0);
+                return;
+              }
+              resolve(element.distance.value);
+            }
+          );
+        });
+
+        totalMeters += legDistance;
+      }
+
+      if (totalMeters <= 0) {
+        return undefined;
+      }
+
+      return Math.round(totalMeters / 1000);
+    } catch (error) {
+      console.warn("Distance calculation unavailable for budget estimate:", error);
+      return undefined;
+    }
+  }, []);
+
   const estimateBudget = useCallback(async () => {
     const effectiveDestinations = destinations.length > 0 
       ? destinations 
       : (pendingDestination.trim() ? [pendingDestination.trim()] : []);
 
     if (effectiveDestinations.length === 0 || !startDate || !durationDays || durationDays < 1) {
+      setMinimumBudget(undefined);
       return;
     }
 
+    const currentRequestId = ++estimateRequestIdRef.current;
     setIsEstimatingBudget(true);
     try {
+      const routeDistanceKm = await getApproxRouteDistanceKm(startLocation, effectiveDestinations);
       const response = await geminiService.estimateBudget({
         destinations: effectiveDestinations,
         duration_days: durationDays,
         start_date: startDate,
+        start_location: startLocation || undefined,
+        route_distance_km: routeDistanceKm,
       });
 
-      if (response.success && response.minimum_budget) {
+      if (currentRequestId !== estimateRequestIdRef.current) {
+        return;
+      }
+
+      if (response.success && response.minimum_budget !== undefined) {
         setMinimumBudget(response.minimum_budget);
-        // Auto-populate budget only if the user hasn't manually edited it yet
-        if (!isBudgetManuallySet && budget === undefined) {
-          setBudget(response.minimum_budget);
-        }
+        // Keep the budget input synced with latest trip details (destination/days/date).
+        setBudget(response.minimum_budget);
       }
     } catch (error) {
+      if (currentRequestId !== estimateRequestIdRef.current) {
+        return;
+      }
       console.error("Failed to estimate budget:", error);
     } finally {
-      setIsEstimatingBudget(false);
+      if (currentRequestId === estimateRequestIdRef.current) {
+        setIsEstimatingBudget(false);
+      }
     }
-  }, [destinations, pendingDestination, startDate, durationDays, budget, isBudgetManuallySet]);
+  }, [destinations, pendingDestination, startDate, durationDays, startLocation, getApproxRouteDistanceKm]);
 
   // Trigger budget estimation when relevant parameters change
   useEffect(() => {
@@ -218,8 +330,6 @@ export const useTripPlanning = () => {
       return;
     }
 
-    // Budget is a recommendation; allow user overrides (we'll still show a warning in the UI)
-
     // Check if any destination is outside India when worldwide toggle is off
     if (!isInternational) {
       try {
@@ -297,10 +407,7 @@ export const useTripPlanning = () => {
     setStartDate,
     setDurationDays,
     setIsInternational,
-    setBudget: (nextBudget: number | undefined) => {
-      setIsBudgetManuallySet(true);
-      setBudget(nextBudget);
-    },
+    setBudget,
     setTransportationMode,
     
     // Actions
