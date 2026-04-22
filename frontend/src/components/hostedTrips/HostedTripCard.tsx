@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell, Car, Train, Plane } from "lucide-react";
+import { CalendarDays, MapPin, Wallet, UserPlus, Users, User, Bell, Car, Train, Plane, UserCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { JoinTripDialog } from "@/components/shared/JoinTripDialog";
 import { JoinRequestsModal } from "./JoinRequestsModal";
@@ -57,7 +57,8 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const formattedEndDate = trip.end_date 
     ? format(new Date(trip.end_date), "MMM dd, yyyy")
     : formattedStartDate;
-  const tripTitle = formatTripTitle(trip.destination, username);
+  const hostDisplayName = trip.host_name || tripData.host_name || username;
+  const tripTitle = formatTripTitle(trip.destination, hostDisplayName);
   const demographics = getAllTravelerDemographics(tripData);
   const availableSlots = getAvailableSlots(tripData);
   const userOnTrip = isUserOnTrip(tripData, user?.id);
@@ -131,6 +132,15 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
 
         {/* Trip Details */}
         <div className="grid gap-2">
+          {hostDisplayName && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <UserCircle2 className="h-4 w-4" />
+              <span>
+                Hosted by <span className="font-semibold text-foreground">{hostDisplayName}</span>
+              </span>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span className="font-medium">{trip.destination}</span>
@@ -306,7 +316,7 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
       <Dialog open={showHostDetails} onOpenChange={setShowHostDetails}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{username ? `${username}'s Profile` : "Host Profile"}</DialogTitle>
+            <DialogTitle>{hostDisplayName ? `${hostDisplayName}'s Profile` : "Host Profile"}</DialogTitle>
             <DialogDescription>
               Host information for this trip
             </DialogDescription>

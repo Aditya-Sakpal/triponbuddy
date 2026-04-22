@@ -11,6 +11,7 @@ export interface HostTripParams {
   ageRangeMin: number | null;
   ageRangeMax: number | null;
   customBudget: number;
+  hostName?: string;
 }
 
 export interface CreateForumPostParams {
@@ -40,6 +41,7 @@ export const updateTripForHosting = async (
         age_range_min: params.ageRangeMin,
         age_range_max: params.ageRangeMax,
         custom_budget: params.customBudget,
+        host_name: params.hostName,
       }),
     }
   );
@@ -103,7 +105,7 @@ export const hostTrip = async (
   username: string
 ): Promise<void> => {
   // Update trip settings
-  await updateTripForHosting(hostParams);
+  await updateTripForHosting({ ...hostParams, hostName: hostParams.hostName ?? username });
 
   // Prepare and create forum post
   const sharedTripData = prepareSharedTripData(trip, hostParams.customBudget);

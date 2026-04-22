@@ -156,6 +156,7 @@ export interface TripDB {
   id?: string;
   trip_id: string;
   user_id: string;
+  host_name?: string;
   title: string;
   destinations: string[];
   destination: string;
@@ -204,6 +205,7 @@ export interface TripUpdateRequest {
   age_range_max?: number;
   custom_budget?: number;
   host_comments?: string;
+  host_name?: string;
   emergency_contact_number?: string;
   itinerary_data?: Record<string, unknown>;
 }

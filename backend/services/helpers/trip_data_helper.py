@@ -121,6 +121,8 @@ class TripDataBuilder:
             update_doc["custom_budget"] = updates.custom_budget
         if hasattr(updates, 'host_comments'):
             update_doc["host_comments"] = updates.host_comments
+        if hasattr(updates, 'host_name') and updates.host_name is not None:
+            update_doc["host_name"] = updates.host_name
         
         # Handle itinerary data updates (e.g., custom tips)
         if hasattr(updates, 'itinerary_data') and updates.itinerary_data is not None:

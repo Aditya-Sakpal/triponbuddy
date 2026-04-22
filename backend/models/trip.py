@@ -193,6 +193,7 @@ class TripDB(BaseModel):
     id: Optional[str] = Field(default=None, description="MongoDB ObjectId")
     trip_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique trip ID")
     user_id: str = Field(description="User ID from Clerk")
+    host_name: Optional[str] = Field(default=None, description="Display name of the trip host")
     title: str = Field(description="Trip title")
     destinations: List[str] = Field(default_factory=list, description="Ordered list of destinations")
     destination: str = Field(description="Final destination (last item in destinations array)")
@@ -233,6 +234,7 @@ class TripUpdateRequest(BaseModel):
     tags: Optional[List[str]] = None
     max_passengers: Optional[int] = Field(default=None, ge=1, description="Maximum number of passengers for trip sharing")
     travelers: Optional[List[Traveler]] = None
+    host_name: Optional[str] = Field(default=None, description="Display name of the trip host")
     preferred_gender: Optional[str] = Field(default=None, description="Preferred gender for joining users: male, female, other, or None for no preference")
     age_range_min: Optional[int] = Field(default=None, ge=18, description="Minimum age for joining users (must be 18+)")
     age_range_max: Optional[int] = Field(default=None, le=120, description="Maximum age for joining users")

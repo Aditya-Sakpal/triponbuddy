@@ -151,6 +151,7 @@ export const HostTripModal = ({
       }
 
       // Update the trip to set hosting parameters and make it public
+      const hostDisplayName = user.username || user.firstName || user.fullName || "Anonymous";
       const updatePayload = {
         is_public: true,
         max_passengers: passengers,
@@ -159,6 +160,7 @@ export const HostTripModal = ({
         age_range_max: ageRangeMax,
         custom_budget: budgetValue,
         host_comments: comments || null,
+        host_name: hostDisplayName,
       };
       
       
