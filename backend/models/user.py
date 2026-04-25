@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 class User(BaseModel):
     """User model"""
     user_id: str = Field(..., description="User ID from Clerk")
+    name: Optional[str] = Field(None, description="User display name")
     age: Optional[int] = Field(None, ge=18, le=120, description="User age (must be 18+)")
     gender: Optional[str] = Field(None, description="User gender: male, female, other")
 
@@ -15,6 +16,7 @@ class User(BaseModel):
         json_schema_extra = {
             "example": {
                 "user_id": "user_123",
+                "name": "Aditya",
                 "age": 25,
                 "gender": "male"
             }
@@ -25,9 +27,14 @@ class UserProfileUpdate(BaseModel):
     age: int = Field(..., ge=18, le=120, description="User age (must be 18+)")
     gender: str = Field(..., description="User gender: male, female, other")
 
+class UserNameSync(BaseModel):
+    """Lightweight payload for syncing the user's display name"""
+    name: str = Field(..., min_length=1, max_length=120, description="User display name")
+
 class UserProfile(BaseModel):
     """User profile response model"""
     user_id: str = Field(..., description="User ID")
+    name: Optional[str] = Field(None, description="User display name")
     age: Optional[int] = Field(None, description="User age")
     gender: Optional[str] = Field(None, description="User gender")
 

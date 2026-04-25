@@ -57,7 +57,11 @@ const HostedTripCard = ({ trip, username, onTripUpdated, showPendingRequests = f
   const formattedEndDate = trip.end_date 
     ? format(new Date(trip.end_date), "MMM dd, yyyy")
     : formattedStartDate;
-  const hostDisplayName = trip.host_name || tripData.host_name || username;
+  const hostDisplayName =
+    trip.host_name ||
+    tripData.host_name ||
+    hostProfileData?.profile?.name ||
+    username;
   const tripTitle = formatTripTitle(trip.destination, hostDisplayName);
   const demographics = getAllTravelerDemographics(tripData);
   const availableSlots = getAvailableSlots(tripData);

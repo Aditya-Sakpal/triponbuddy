@@ -142,6 +142,10 @@ export class UsersApiService {
   ): Promise<UserProfileResponse> {
     return apiClient.put<UserProfileResponse>('/api/users/profile', profileData, { user_id: userId });
   }
+
+  static async syncUserName(userId: string, name: string): Promise<UserProfileResponse> {
+    return apiClient.put<UserProfileResponse>('/api/users/profile/name', { name }, { user_id: userId });
+  }
 }
 
 // Feedback API Service

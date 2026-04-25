@@ -234,6 +234,7 @@ export interface User {
 
 export interface UserProfile {
   user_id: string;
+  name?: string;
   age?: number;
   gender?: string;
 }

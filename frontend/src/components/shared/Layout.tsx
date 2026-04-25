@@ -1,6 +1,7 @@
 import { Navigation, Footer } from "@/components/shared";
 import { useState, useEffect } from 'react';
 import { ChevronUp } from 'lucide-react';
+import { useUserNameSync } from '@/hooks/useUserNameSync';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,6 +9,7 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  useUserNameSync();
 
   useEffect(() => {
     const toggleVisibility = () => {

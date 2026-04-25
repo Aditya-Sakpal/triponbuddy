@@ -167,7 +167,15 @@ class TripService:
                 try:
                     # Convert to TripDB instance using utility function
                     trip = convert_mongo_doc_to_trip(trip_doc)
-                    
+
+                    # Backfill missing host_name from the users collection
+                    if not getattr(trip, "host_name", None) and trip.user_id:
+                        host_doc = await mongodb.find_one(
+                            "users", {"user_id": trip.user_id}
+                        )
+                        if host_doc and host_doc.get("name"):
+                            trip.host_name = host_doc["name"]
+
                     # Check for join request status if user is not owner and not joined
                     if trip.user_id != user_id and not trip.is_joined:
                         # Check if user is in joined_users list
@@ -599,12 +607,36 @@ class TripService:
 
             # Convert to TripDB instances
             trips = convert_mongo_docs_to_trips(trip_docs)
-            
+
             logger.info(f"Converted to {len(trips)} TripDB instances")
+
+            # Backfill missing host_name from the users collection so older
+            # hosted trips (created before host_name was persisted on the trip)
+            # still show a host name on the public listing.
+            host_ids_missing_name = list({
+                trip.user_id for trip in trips
+                if not getattr(trip, "host_name", None) and trip.user_id
+            })
+            if host_ids_missing_name:
+                user_docs = await mongodb.find_many(
+                    "users",
+                    {"user_id": {"$in": host_ids_missing_name}}
+                )
+                name_by_user_id = {
+                    doc["user_id"]: doc.get("name")
+                    for doc in user_docs
+                    if doc.get("name")
+                }
+                if name_by_user_id:
+                    for trip in trips:
+                        if not getattr(trip, "host_name", None):
+                            looked_up = name_by_user_id.get(trip.user_id)
+                            if looked_up:
+                                trip.host_name = looked_up
 
             # Get total count
             total = await mongodb.count_documents("trips", filter_query)
-            
+
             # Build response
             result = self.response_builder.build_trips_response(trips, total, page, limit)
             

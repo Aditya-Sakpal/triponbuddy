@@ -9,8 +9,10 @@ from models.user import (
     UserStatsResponse,
     UserProfileUpdate,
     UserProfileResponse,
-    UserProfile
+    UserProfile,
+    UserNameSync,
 )
+from datetime import datetime, timezone
 from database import mongodb
 
 logger = logging.getLogger(__name__)
@@ -66,6 +68,7 @@ async def get_user_profile(
         if user_doc:
             profile = UserProfile(
                 user_id=user_doc["user_id"],
+                name=user_doc.get("name"),
                 age=user_doc.get("age"),
                 gender=user_doc.get("gender")
             )
@@ -73,6 +76,7 @@ async def get_user_profile(
             # Return empty profile if user doesn't exist yet
             profile = UserProfile(
                 user_id=user_id,
+                name=None,
                 age=None,
                 gender=None
             )
@@ -133,16 +137,17 @@ async def update_user_profile(
         
         profile = UserProfile(
             user_id=user_id,
+            name=existing_user.get("name") if existing_user else None,
             age=profile_data.age,
             gender=profile_data.gender
         )
-        
+
         return UserProfileResponse(
             success=True,
             message="Profile updated successfully",
             profile=profile
         )
-    
+
     except HTTPException:
         raise
     except Exception as e:
@@ -151,3 +156,50 @@ async def update_user_profile(
             status_code=500,
             detail="Failed to update user profile"
         )
+
+
+@router.put("/profile/name", response_model=UserProfileResponse)
+async def sync_user_name(
+    request: Request,
+    user_id: str = Query(..., description="User ID from Clerk"),
+    payload: UserNameSync = Body(...)
+):
+    """Upsert the user's display name (called on sign-in to sync Clerk name)"""
+    try:
+        name = payload.name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Name cannot be empty")
+
+        existing_user = await mongodb.find_one("users", {"user_id": user_id})
+
+        if existing_user:
+            await mongodb.update_one(
+                "users",
+                {"user_id": user_id},
+                {"$set": {"name": name, "updated_at": datetime.now(timezone.utc)}}
+            )
+        else:
+            await mongodb.insert_one(
+                "users",
+                {
+                    "user_id": user_id,
+                    "name": name,
+                    "created_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            )
+
+        profile = UserProfile(
+            user_id=user_id,
+            name=name,
+            age=existing_user.get("age") if existing_user else None,
+            gender=existing_user.get("gender") if existing_user else None,
+        )
+
+        return UserProfileResponse(success=True, profile=profile)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error syncing user name: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to sync user name")
