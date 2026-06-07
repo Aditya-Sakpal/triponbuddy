@@ -234,6 +234,262 @@ class AIPromptBuilder:
         return prompt
 
     @staticmethod
+    def build_itinerary_plans_prompt(request: TripGenerationRequest) -> str:
+        """Build prompt for daily plans only (parallel split - part 1)"""
+        preferences_text = AIPromptBuilder._build_preferences_text(request.preferences)
+        budget_text = f" with budget around ₹{request.budget:,.0f}" if request.budget else ""
+
+        travelers_text = ""
+        if request.travelers and len(request.travelers) > 0:
+            travelers_count = len(request.travelers)
+            travelers_details = [f"{t.age}-year-old {t.gender}" for t in request.travelers]
+            travelers_text = f"\n        - Number of Travelers: {travelers_count} ({', '.join(travelers_details)})"
+
+        transportation_instructions = AIPromptBuilder._build_transportation_mode_instructions(request.transportation_mode)
+        destinations_text = " -> ".join(request.destinations)
+        final_destination = request.destinations[-1]
+
+        multi_dest_instructions = ""
+        if len(request.destinations) > 1:
+            multi_dest_instructions = f"""
+
+        IMPORTANT MULTI-DESTINATION TRIP:
+        This is a multi-destination trip visiting {len(request.destinations)} locations in order: {destinations_text}
+        - Plan the itinerary to cover all destinations in the specified order
+        - Allocate appropriate time at each destination based on the total {request.duration_days} days
+        - Include transportation between destinations in the daily plans
+        - The final destination is {final_destination}
+        - Ensure smooth transitions between destinations with realistic travel times
+        - Include activities relevant to each destination along the route"""
+
+        prompt = f"""
+        Generate the day-by-day itinerary for a {request.duration_days}-day trip to {destinations_text} starting from {request.start_date}.
+
+        Trip Details:
+        - Destinations (in order): {destinations_text}
+        - Final Destination: {final_destination}
+        - Duration: {request.duration_days} days
+        - Start Date: {request.start_date}
+        - Starting Location: {request.start_location or 'Not specified'}
+        - International Trip: {request.is_international}
+        - Preferences: {preferences_text}
+        - Budget: {budget_text}{travelers_text}{multi_dest_instructions}
+
+        {transportation_instructions}
+
+        Please provide a JSON response with ONLY the following structure:
+        {{
+            "title": "Trip to {destinations_text}",
+            "destinations": {request.destinations},
+            "destination": "{final_destination}",
+            "duration_days": {request.duration_days},
+            "start_date": "{request.start_date}",
+            "estimated_total_cost": "₹XXXXX",
+            "best_time_to_visit": "[Best time]",
+            "travel_tips": ["Tip 1", "Tip 2", "Tip 3"],
+            "daily_plans": [
+                {{
+                    "day": 1,
+                    "date": "[Date]",
+                    "theme": "[Theme]",
+                    "activities": [
+                        {{
+                            "time": "10:00 AM",
+                            "activity": "[Activity Name]",
+                            "location": "[Location]",
+                            "description": "[Brief description in 1-2 sentences]",
+                            "detailed_description": "• [Key highlight or interesting fact]\n• [Visitor tip or practical info]\n• [What makes it special or must-know detail]",
+                            "estimated_cost": "₹XXX",
+                            "duration": "X hours",
+                            "image_search_query": "[Short query]",
+                            "booking_info": {{
+                                "required": true,
+                                "url": "[URL]",
+                                "price_range": "₹XXX-XXX"
+                            }},
+                            "tag": "[arrival_departure/dining/sightseeing/shopping/entertainment/relaxation/adventure/cultural]"
+                        }}
+                    ]
+                }}
+            ]
+        }}
+
+        Requirements:
+        1. All costs must be in Indian Rupees (₹)
+        2. Include realistic time slots with no overlapping activities
+        3. Provide booking URLs for major attractions
+        4. Generate short, specific image search queries (1-2 words)
+        5. Ensure activities align with user preferences{budget_text}
+        6. Consider the number and demographics of travelers when suggesting activities
+        7. If budget is specified, ensure all recommendations fit within the budget constraints
+        8. For each activity, provide both a brief description (1-2 sentences) and a detailed_description as 3-4 bullet points (using • prefix) covering key highlights, interesting facts, visitor tips, and must-know details — keep each bullet punchy and engaging
+        9. For each activity, assign an appropriate tag based on the activity type:
+            - "arrival_departure" for airports, railway stations, check-in/check-out activities
+            - "dining" for restaurants, cafes, food courts, breakfast/lunch/dinner activities
+            - "sightseeing" for tourist attractions, monuments, viewpoints, landmarks
+            - "shopping" for markets, malls, shopping districts, souvenir shops
+            - "entertainment" for shows, performances, cinemas, nightlife
+            - "relaxation" for spas, beaches, parks, leisure activities
+            - "adventure" for trekking, water sports, adventure activities
+            - "cultural" for museums, galleries, cultural centers, heritage sites
+        """
+
+        return prompt
+
+    @staticmethod
+    def build_itinerary_logistics_prompt(request: TripGenerationRequest) -> str:
+        """Build prompt for accommodation, transport, and nearby places (parallel split - part 2)"""
+        preferences_text = AIPromptBuilder._build_preferences_text(request.preferences)
+        budget_text = f" with budget around ₹{request.budget:,.0f}" if request.budget else ""
+
+        travelers_text = ""
+        if request.travelers and len(request.travelers) > 0:
+            travelers_count = len(request.travelers)
+            travelers_details = [f"{t.age}-year-old {t.gender}" for t in request.travelers]
+            travelers_text = f"\n        - Number of Travelers: {travelers_count} ({', '.join(travelers_details)})"
+
+        transportation_instructions = AIPromptBuilder._build_transportation_mode_instructions(request.transportation_mode)
+        destinations_text = " -> ".join(request.destinations)
+        final_destination = request.destinations[-1]
+
+        prompt = f"""
+        Generate accommodation, transportation options, and nearby places for a {request.duration_days}-day trip to {destinations_text}.
+
+        Trip Details:
+        - Destinations (in order): {destinations_text}
+        - Final Destination: {final_destination}
+        - Duration: {request.duration_days} days
+        - Start Date: {request.start_date}
+        - Starting Location: {request.start_location or 'Not specified'}
+        - International Trip: {request.is_international}
+        - Preferences: {preferences_text}
+        - Budget: {budget_text}{travelers_text}
+
+        {transportation_instructions}
+
+        Please provide a JSON response with ONLY the following structure:
+        {{
+            "accommodation": [
+                {{
+                    "name": "[Hotel Name]",
+                    "type": "Budget",
+                    "price_range": "₹500-1500/night",
+                    "rating": "3.0-3.5/5",
+                    "location": "[Location]",
+                    "booking_url": "[URL]",
+                    "amenities": ["Amenity 1", "Amenity 2"]
+                }}
+            ],
+            "transportation": {{
+                "routes": [
+                    {{
+                        "type": "flight",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Flight booking URL]",
+                        "details": "[Flight details, airlines, etc.]"
+                    }},
+                    {{
+                        "type": "train",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Train booking URL]",
+                        "details": "[Train details, routes, etc.]"
+                    }},
+                    {{
+                        "type": "local",
+                        "from": "[Starting Location]",
+                        "to": "[Destination]",
+                        "estimated_cost": "₹XXXXX",
+                        "duration": "X hours",
+                        "booking_url": "[Local transport booking URL]",
+                        "details": "[Bus/car details, routes, etc.]"
+                    }}
+                ]
+            }},
+            "transportation_hubs_start": [
+                {{
+                    "name": "[Hub Name]",
+                    "type": "airport",
+                    "location": "[Location]",
+                    "distance_from_city": "[Distance]",
+                    "estimated_cost_to_reach": "₹XXX",
+                    "transportation_options": ["Taxi", "Metro", "Bus"]
+                }}
+            ],
+            "transportation_hubs_destination": [
+                {{
+                    "name": "[Hub Name]",
+                    "type": "airport",
+                    "location": "[Location]",
+                    "distance_from_city": "[Distance]",
+                    "estimated_cost_to_reach": "₹XXX",
+                    "transportation_options": ["Taxi", "Metro", "Bus"]
+                }}
+            ],
+            "local_transportation": [
+                {{
+                    "type": "taxi",
+                    "description": "[Description]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "24/7",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book]"
+                }},
+                {{
+                    "type": "rickshaw",
+                    "description": "[Description]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "[Availability hours]",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book]"
+                }},
+                {{
+                    "type": "metro",
+                    "description": "[Description]",
+                    "estimated_cost": "₹XXX",
+                    "availability": "[Operating hours]",
+                    "coverage_area": "[Areas covered]",
+                    "booking_info": "[How to book tickets]"
+                }}
+            ],
+            "neighboring_places": [
+                {{
+                    "name": "[Place Name]",
+                    "distance": "[Distance]",
+                    "description": "[Description]",
+                    "time_to_reach": "[Time]",
+                    "best_known_for": "[Known for]",
+                    "estimated_cost": "₹XXX",
+                    "image_search_query": "[Query]"
+                }}
+            ]
+        }}
+
+        Requirements:
+        1. All costs must be in Indian Rupees (₹)
+        2. IMPORTANT: Suggest AT LEAST 5 neighboring places within 50-150km from the destination
+        3. Consider the number and demographics of travelers when suggesting accommodation
+        4. If budget is specified, ensure all recommendations fit within the budget constraints
+        5. Provide exactly 3 transportation routes: one flight, one train, and one local transport option
+        6. Include transportation hubs for both starting location and destination
+        7. Provide comprehensive local transportation options for the destination
+        8. Include realistic costs and practical details for all transportation options
+        9. IMPORTANT: Provide AT LEAST 10-15 accommodation options across different price ranges:
+            - Budget (₹500-1500/night): 3-4 options
+            - Mid-Range (₹1500-3500/night): 3-4 options
+            - Premium (₹3500-7000/night): 2-3 options
+            - Luxury (₹7000+/night): 2-3 options
+            Include a variety of hotels, hostels, guesthouses, resorts, and homestays.
+        """
+
+        return prompt
+
+    @staticmethod
     def build_single_activity_prompt(
         destination: str,
         activity_name: str,

@@ -1,4 +1,6 @@
+import asyncio
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Any
 from config import settings
 from models.trip import TripGenerationRequest
@@ -39,19 +41,43 @@ class AIService:
     @cache_result(ttl=3600)  # Cache for 1 hour
     async def generate_itinerary(self, request: TripGenerationRequest) -> Dict[str, Any]:
 
-        prompt = self.prompt_builder.build_itinerary_prompt(request)
+        plans_prompt = self.prompt_builder.build_itinerary_plans_prompt(request)
+        logistics_prompt = self.prompt_builder.build_itinerary_logistics_prompt(request)
 
         try:
-            response = self.client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=prompt
-            )
-            itinerary_data = self.response_parser.parse_json_response(response.text)
+            loop = asyncio.get_running_loop()
 
-            # Validate and structure the response
+            def call_plans():
+                return self.client.models.generate_content(
+                    model='gemini-flash-latest',
+                    contents=plans_prompt
+                )
+
+            def call_logistics():
+                return self.client.models.generate_content(
+                    model='gemini-flash-latest',
+                    contents=logistics_prompt
+                )
+
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                plans_response, logistics_response = await asyncio.gather(
+                    loop.run_in_executor(executor, call_plans),
+                    loop.run_in_executor(executor, call_logistics)
+                )
+
+            plans_data = self.response_parser.parse_json_response(plans_response.text)
+            logistics_data = self.response_parser.parse_json_response(logistics_response.text)
+
+            # Merge: plans_data has the core trip structure, logistics_data has the rest
+            itinerary_data = {**plans_data}
+            itinerary_data['accommodation'] = logistics_data.get('accommodation', [])
+            itinerary_data['transportation'] = logistics_data.get('transportation', {'routes': []})
+            itinerary_data['transportation_hubs_start'] = logistics_data.get('transportation_hubs_start', [])
+            itinerary_data['transportation_hubs_destination'] = logistics_data.get('transportation_hubs_destination', [])
+            itinerary_data['local_transportation'] = logistics_data.get('local_transportation', [])
+            itinerary_data['neighboring_places'] = logistics_data.get('neighboring_places', [])
+
             validated_itinerary = self.itinerary_validator.validate_itinerary(itinerary_data)
-
-            # Set generic themes for daily plans
             self.itinerary_processor.set_generic_themes(validated_itinerary)
 
             return {
