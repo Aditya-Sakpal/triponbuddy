@@ -17,18 +17,17 @@ export const formatActivityTimeRange = (time: string, duration?: string): string
 
   if (duration) {
     const durationMatch = duration.match(
-      /(\d+)\s*h(?:ours?)?(?:\s*(\d+)\s*m(?:in(?:utes?)?)?)?|(\d+)\s*m(?:in(?:utes?)?)?/i
+      /(\d+(?:\.\d+)?)\s*h(?:ours?)?(?:\s*(\d+)\s*m(?:in(?:utes?)?)?)?|(\d+)\s*m(?:in(?:utes?)?)?/i
     );
     if (durationMatch) {
-      let addHours = 0;
-      let addMinutes = 0;
+      let totalMinutes = 0;
       if (durationMatch[1]) {
-        addHours = Number.parseInt(durationMatch[1], 10);
-        if (durationMatch[2]) addMinutes = Number.parseInt(durationMatch[2], 10);
+        totalMinutes = Math.round(Number.parseFloat(durationMatch[1]) * 60);
+        if (durationMatch[2]) totalMinutes += Number.parseInt(durationMatch[2], 10);
       } else if (durationMatch[3]) {
-        addMinutes = Number.parseInt(durationMatch[3], 10);
+        totalMinutes = Number.parseInt(durationMatch[3], 10);
       }
-      endDate = new Date(startDate.getTime() + (addHours * 60 + addMinutes) * 60 * 1000);
+      endDate = new Date(startDate.getTime() + totalMinutes * 60 * 1000);
     }
   }
 
