@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Clock, Info } from "lucide-react";
+import { getTodayIST } from "@/utils/tripUtils";
 
 interface DateDurationInputsProps {
   startDate: string;
@@ -46,7 +47,7 @@ export const DateDurationInputs = ({
             onChange={(e) => setStartDate(e.target.value)}
             className={`pl-10 w-full appearance-none ${!startDate ? '[&::-webkit-datetime-edit-fields-wrapper]:opacity-0' : ''} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:opacity-0`}
             required
-            min={new Date().toISOString().split('T')[0]}
+            min={getTodayIST()}
             onFocus={(e) => {
               // Show the calendar picker on focus
               e.target.showPicker?.();

@@ -8,6 +8,12 @@ export const formatDate = (dateString: string) => {
   });
 };
 
+// Returns today's date in YYYY-MM-DD format using IST (UTC+5:30).
+// Using UTC (new Date().toISOString()) shows the previous day before 05:30 IST.
+export const getTodayIST = (): string => {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+};
+
 export const formatTitleCase = (text: string): string => {
   if (!text) return '';
 

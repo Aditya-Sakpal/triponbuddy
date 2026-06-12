@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { LocationAutocomplete } from "@/components/shared/location-autocomplete";
 import { MapPin, Calendar, Clock } from "lucide-react";
+import { getTodayIST } from "@/utils/tripUtils";
 import { TripGenerationModal } from "./TripGenerationModal";
 import { BudgetInput } from "@/components/landing/tripPlanning/BudgetInput";
 import { DestinationList } from "@/components/landing/tripPlanning/DestinationList";
@@ -123,13 +124,14 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                   </Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input 
+                    <Input
                       id="edit-start-date"
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       className="pl-10"
                       required
+                      min={getTodayIST()}
                     />
                   </div>
                 </div>
