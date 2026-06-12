@@ -4,8 +4,10 @@ Handles image uploads to Cloudflare R2 using S3-compatible API
 """
 
 import logging
+import os
 from uuid import uuid4
 import boto3
+import botocore.session
 from botocore.exceptions import ClientError, BotoCoreError
 
 from config import settings
@@ -21,16 +23,24 @@ class R2UploadHelper:
         self.endpoint_url = f"https://{settings.r2_account_id}.r2.cloudflarestorage.com"
         self.bucket_name = settings.r2_bucket
         self.public_url = settings.r2_public_url
-        
-        # Initialize boto3 S3 client with R2 credentials
-        self.s3_client = boto3.client(
+
+        # R2 uses explicit credentials, not an AWS profile. A stray AWS_PROFILE
+        # env var on the host would otherwise make boto3 raise ProfileNotFound
+        # while resolving config, so clear it before constructing the session.
+        for var in ('AWS_PROFILE', 'AWS_DEFAULT_PROFILE'):
+            os.environ.pop(var, None)
+        botocore_session = botocore.session.Session()
+        botocore_session.set_config_variable('profile', None)
+
+        session = boto3.session.Session(botocore_session=botocore_session)
+        self.s3_client = session.client(
             's3',
             endpoint_url=self.endpoint_url,
             aws_access_key_id=settings.r2_access_key_id,
             aws_secret_access_key=settings.r2_secret_access_key,
             region_name='auto'  # R2 uses 'auto' for region
         )
-        
+
         logger.info(f"R2 client initialized for bucket: {self.bucket_name}")
 
     def generate_unique_filename(self, original_filename: str) -> str:

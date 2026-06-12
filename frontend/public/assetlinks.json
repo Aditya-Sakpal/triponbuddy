@@ -1,0 +1,25 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.trip.onbuddy",
+    "sha256_cert_fingerprints":
+    ["11:61:12:A2:2E:06:3C:2B:2D:2A:6D:9C:95:79:95:72:D0:26:D2:1E:99:6C:D4:8A:88:E9:16:2F:3B:CD:BC:CA"]
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "https://endless-vistas-prateek-three.vercel.app"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.trip.onbuddy",
+    "sha256_cert_fingerprints":
+    ["11:61:12:A2:2E:06:3C:2B:2D:2A:6D:9C:95:79:95:72:D0:26:D2:1E:99:6C:D4:8A:88:E9:16:2F:3B:CD:BC:CA"]
+  }
+}]
