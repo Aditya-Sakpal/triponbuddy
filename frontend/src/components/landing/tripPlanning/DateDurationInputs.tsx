@@ -44,12 +44,14 @@ export const DateDurationInputs = ({
             id="start-date"
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => {
+              const picked = e.target.value;
+              if (picked >= getTodayIST()) setStartDate(picked);
+            }}
             className={`pl-10 w-full appearance-none ${!startDate ? '[&::-webkit-datetime-edit-fields-wrapper]:opacity-0' : ''} [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:opacity-0`}
             required
             min={getTodayIST()}
             onFocus={(e) => {
-              // Show the calendar picker on focus
               e.target.showPicker?.();
             }}
           />

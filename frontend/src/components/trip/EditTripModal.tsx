@@ -128,7 +128,10 @@ export const EditTripModal = ({ isOpen, onClose, trip, onTripUpdated, initialDes
                       id="edit-start-date"
                       type="date"
                       value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      onChange={(e) => {
+                        const picked = e.target.value;
+                        if (picked >= getTodayIST()) setStartDate(picked);
+                      }}
                       className="pl-10"
                       required
                       min={getTodayIST()}

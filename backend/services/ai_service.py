@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, Any
 from config import settings
@@ -38,6 +39,31 @@ class AIService:
         self.itinerary_validator = AIItineraryValidator()
         self.itinerary_processor = AIItineraryProcessor()
 
+    def _call_with_retry(self, contents: str, max_retries: int = 3):
+        """Call Gemini with exponential backoff on 503 / UNAVAILABLE errors."""
+        delay = 3
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                return self.client.models.generate_content(
+                    model='gemini-flash-latest',
+                    contents=contents
+                )
+            except Exception as e:
+                error_str = str(e)
+                if '503' in error_str or 'UNAVAILABLE' in error_str:
+                    last_error = e
+                    if attempt < max_retries - 1:
+                        logger.warning(
+                            f"Gemini 503 on attempt {attempt + 1}/{max_retries}, "
+                            f"retrying in {delay}s..."
+                        )
+                        time.sleep(delay)
+                        delay *= 2
+                else:
+                    raise
+        raise last_error
+
     @cache_result(ttl=3600)  # Cache for 1 hour
     async def generate_itinerary(self, request: TripGenerationRequest) -> Dict[str, Any]:
 
@@ -48,16 +74,10 @@ class AIService:
             loop = asyncio.get_running_loop()
 
             def call_plans():
-                return self.client.models.generate_content(
-                    model='gemini-flash-latest',
-                    contents=plans_prompt
-                )
+                return self._call_with_retry(plans_prompt)
 
             def call_logistics():
-                return self.client.models.generate_content(
-                    model='gemini-flash-latest',
-                    contents=logistics_prompt
-                )
+                return self._call_with_retry(logistics_prompt)
 
             with ThreadPoolExecutor(max_workers=2) as executor:
                 plans_response, logistics_response = await asyncio.gather(
@@ -103,10 +123,7 @@ class AIService:
         )
 
         try:
-            response = self.client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=prompt
-            )
+            response = self._call_with_retry(prompt)
             activity_data = self.response_parser.parse_json_response(response.text)
 
             return {
@@ -133,10 +150,7 @@ class AIService:
         )
 
         try:
-            response = self.client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=prompt
-            )
+            response = self._call_with_retry(prompt)
             response_data = self.response_parser.parse_json_response(response.text)
 
             # Extract alternatives array from response
@@ -168,16 +182,12 @@ class AIService:
         prompt = self.prompt_builder.build_accommodation_details_prompt(location, destination)
 
         try:
-            response = self.client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=prompt
-            )
-            
-            # Check if response has text
+            response = self._call_with_retry(prompt)
+
             if not response or not response.text:
                 logger.error("AI response is empty or has no text")
                 raise Exception("AI response is empty")
-            
+
             accommodation_data = self.response_parser.parse_json_response(response.text)
 
             return {
@@ -219,11 +229,8 @@ Daily Plans Summary:
         prompt += "\n\nWrite an engaging summary that would excite travelers about this trip. Focus on the experiences, culture, and highlights."
 
         try:
-            response = self.client.models.generate_content(
-                model='gemini-flash-latest',
-                contents=prompt
-            )
-            
+            response = self._call_with_retry(prompt)
+
             if not response or not response.text:
                 logger.error("AI response is empty or has no text")
                 return "Experience an unforgettable journey filled with adventure, culture, and memorable moments."
