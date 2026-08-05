@@ -199,6 +199,45 @@ class AIService:
             logger.error(f"Error generating accommodation details: {str(e)}")
             raise Exception(f"Failed to generate accommodation details: {str(e)}")
 
+    async def estimate_budget(
+        self,
+        destinations: list,
+        duration_days: int,
+        start_date: str,
+        start_location: str = None,
+        route_distance_km: float = None,
+    ) -> Dict[str, Any]:
+        """Estimate minimum budget per person in INR. Keep Gemini key server-side only."""
+        destinations_text = " -> ".join(destinations)
+        prompt = f"""Estimate a realistic budget per person in INR for this trip:
+- Destinations: {destinations_text}
+- Duration: {duration_days} days
+- Start Date: {start_date}
+{f"- Start Location: {start_location}" if start_location else ""}
+{f"- Approx travel distance: {route_distance_km} km" if route_distance_km is not None else ""}
+
+Consider: accommodation (budget hotels), transport (distance-sensitive), meals (budget-friendly), entry fees.
+Return ONLY valid JSON with this exact shape: {{"minimum_budget": <number>}}."""
+
+        def _fallback() -> int:
+            daily = 2200
+            distance = route_distance_km if route_distance_km and route_distance_km > 0 else 120
+            multi_stop = max(0, (len(destinations) - 1) * 300)
+            return max(500, round((duration_days * daily + max(400, distance * 3.5) + multi_stop) / 100) * 100)
+
+        try:
+            response = self._call_with_retry(prompt)
+            data = self.response_parser.parse_json_response(response.text if response else "")
+            value = data.get("minimum_budget")
+            if isinstance(value, str):
+                value = float("".join(ch for ch in value if ch.isdigit() or ch == "."))
+            if isinstance(value, (int, float)) and value > 0:
+                return {"success": True, "minimum_budget": int(round(value))}
+            return {"success": True, "minimum_budget": _fallback()}
+        except Exception as e:
+            logger.warning(f"Budget estimate via Gemini failed, using fallback: {e}")
+            return {"success": True, "minimum_budget": _fallback()}
+
     async def generate_trip_summary(
         self,
         trip_title: str,

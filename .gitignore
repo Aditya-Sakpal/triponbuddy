@@ -34,6 +34,16 @@ wheels/
 .venv
 
 .env
+.env.*
+!.env.example
+!**/.env.example
+env
+**/env
+*.pem
+*.p12
+credentials.json
+service-account*.json
+**/secrets/**
 
 /localDocs
 

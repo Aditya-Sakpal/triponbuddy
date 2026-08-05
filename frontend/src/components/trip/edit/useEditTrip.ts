@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Mountain, Building, Umbrella, Music, ShoppingBag, Utensils } from "lucide-react";
 import { useGenerateTrip } from "@/hooks/api-hooks";
-import { geminiService } from "@/services/geminiService";
+import { budgetService } from "@/services/budgetService";
 import { fetchModalImages } from "@/components/landing/tripPlanning/tripPlanningHelpers";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 import type { TripDB, TripPreferences, Itinerary, ImageData } from "@/constants";
@@ -205,7 +205,7 @@ export const useEditTrip = ({
 
       if (currentRequestId !== estimateRequestIdRef.current) return;
 
-      const response = await geminiService.estimateBudget({
+      const response = await budgetService.estimateBudget({
         destinations,
         duration_days: durationDays,
         start_date: startDate,

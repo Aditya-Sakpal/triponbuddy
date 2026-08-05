@@ -10,7 +10,7 @@ import {
   fetchModalImages 
 } from "./tripPlanningHelpers";
 import { googlePlacesService } from "@/services/googlePlacesService";
-import { geminiService } from "@/services/geminiService";
+import { budgetService } from "@/services/budgetService";
 import { googleMapsLoader } from "@/lib/google-maps-loader";
 
 interface DistanceMatrixElement {
@@ -212,7 +212,7 @@ export const useTripPlanning = () => {
     setIsEstimatingBudget(true);
     try {
       const routeDistanceKm = await getApproxRouteDistanceKm(startLocation, effectiveDestinations);
-      const response = await geminiService.estimateBudget({
+      const response = await budgetService.estimateBudget({
         destinations: effectiveDestinations,
         duration_days: durationDays,
         start_date: startDate,
